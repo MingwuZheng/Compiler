@@ -200,7 +200,8 @@ READ:
 		break;
 	}
 	default:
-		error(UNDEFINED_CH_ERROR);
+		if (ch != -1)
+			error(UNDEFINED_CH_ERROR);
 		nextch();
 	ERROR:
 		goto READ;
@@ -293,6 +294,11 @@ int lexical_main() {
 		{cout << left << setw(10) << "MAIN " << "main" << endl; break; }
 		case RETURN:
 		{cout << left << setw(10) << "RETURN " << "return" << endl; break; }
+		case SCANSY:
+		{cout << left << setw(10) << "SCANSY " << "scanf" << endl; break; }
+		case PRINTSY:
+		{cout << left << setw(10) << "PRINTSY " << "printf" << endl; break; }
+
 		default: {cout << "Something bad happened." << endl; break; }
 		}
 	}

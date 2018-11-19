@@ -298,5 +298,39 @@ void compoundstatement() {
 		vardec();
 	if (sy == RBR)
 		return;
+	while (sy != RBR) {
+		statement();
+	}
+}
+
+void statement() {
+	switch (sy)
+	{
+	
+	case IDENT://赋值语句、函数调用语句、
+		break;
+	
+	case LBR:
+		break;
+
+
+	case SEMICOLON:
+		break;
+	case IFSY:
+		break;
+
+	case FORSY:
+		break;
+	case DOSY:
+		break;
+
+	case RETURN:
+		break;
+
+
+
+	default:
+		break;
+	}
 
 }

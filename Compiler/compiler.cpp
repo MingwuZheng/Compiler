@@ -54,6 +54,6 @@ symTab symtabs[TAB_MAX];
 
 
 int main() {
-	;
+	lexical_main();
 	return 0;
 }

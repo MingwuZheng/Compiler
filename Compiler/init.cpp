@@ -24,6 +24,8 @@ void init() {
 	string intsy = "int";
 	string charsy = "char";
 	string voidsy = "void";
+	string printsy = "printf";
+	string scansy = "scanf";
 
 	key.insert(mainsy);
 	key.insert(ifsy);
@@ -36,6 +38,9 @@ void init() {
 	key.insert(intsy);
 	key.insert(charsy);
 	key.insert(voidsy);
+	key.insert(printsy);
+	key.insert(scansy);
+
 
 	ksy[mainsy] = MAIN;
 	ksy[ifsy] = IFSY;
@@ -48,4 +53,6 @@ void init() {
 	ksy[intsy] = INTSY;
 	ksy[charsy] = CHARSY;
 	ksy[voidsy] = VOIDSY;
+	ksy[printsy] = PRINTSY;
+	ksy[scansy] = SCANSY;
 }

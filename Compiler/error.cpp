@@ -40,7 +40,7 @@ void error(int errorcode) {
 		
 		errorTab[33] = "EXPECT_ID_ERROR";
 	}
-	cout << errorTab[errorcode] << "in line " << lc << ",column " << cc << endl;
+	cout << errorTab[errorcode] << " in line " << lc << ",column " << cc << endl;
 	if (FATAL)
 		exit(0);
 }
