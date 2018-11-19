@@ -7,9 +7,9 @@ fstream f;
 int lc = 1;
 int cc = 1;
 char ch;
-long int num;
+long int num;//字面整型常量
 int lp;
-char chr;
+char chr;//字面字符常量
 int tabptr = 1;
 string id;
 string str;
@@ -32,9 +32,11 @@ void symTab::insert(string name, idType idtype, symType symtype, int var, int si
 	symbols[ptr].addr = addr;
 	if (ptr == TAB_MAX - 1)
 		error(SYMTAB_OVERFLOW_ERROR);
-	if (idtype == FUNCTION)
+	if (idtype == FUNCTION) {
 		tabptr++;
-	ptr++;
+		ptr += 1 + var;
+	}
+	else ptr++;
 	filledsize += size;
 }
 symbolEle * symTab::ele(int x) {

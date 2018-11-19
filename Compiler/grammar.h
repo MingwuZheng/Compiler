@@ -2,7 +2,6 @@
 void program();
 void constdec();
 void vardec();
-void functiondec();
 void statement();
 void ifstatement();
 void whilestatement();

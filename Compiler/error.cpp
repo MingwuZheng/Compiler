@@ -13,7 +13,7 @@ void error(int errorcode) {
 		errorTab[6] = "ILLEGAL_FACTOR_ERROR";
 		errorTab[7] = "ILLEGAL_FORLOOP_ERROR";
 		errorTab[8] = "ILLEGAL_PARALIST_ERROR";
-		errorTab[9] = "ILLEGAL_VARDEF_ERRPR";
+		errorTab[9] = "ILLEGAL_VARDEF_ERROR";
 		errorTab[10] = "EXPECT_SINQUO_ERROR";
 		errorTab[11] = "EXPECT_DOUQUO_ERROR";
 		errorTab[12] = "EXPECT_LPT_ERROR";

@@ -5,14 +5,18 @@
 
 #define ISVALTYPE(x) (x == INTSY || x == CHARSY)
 #define ISFUNCTYPE(x) (x == INTSY || x == CHARSY || x == VOIDSY)
-#define TP(x) (x == INTSY) ? INT : ((x == VOIDSY) ? VOID : CHAR)
+#define TP(x) ((x == INTSY) ? INT : ((x == VOIDSY) ? VOID : CHAR))
+#define UNMATCH(x,y) ((x == INTSY && y == CHARCON)||(x == CHARSY && y == INTCON))
 
 void program() {
 	bool func = false, hasmain = false;
 	symbol tp;
 	string temp;
-	if (sy == CONSTSY)
+	if (sy == CONSTSY) {
+		tabptr = 0;//保持代码一致性，暂令tabptr=0
 		constdec();
+		tabptr = 1;
+	}
 	while (ISVALTYPE(sy)) {//在同一类型中
 		tp = sy;
 		insymbol();
@@ -27,7 +31,7 @@ void program() {
 			if (sy == LBK) {//数组声明
 				insymbol();
 				if (sy == INTCON && num > 0) {
-					GTAB.insert(id, ARRAY, TP(tp), 0, num * 4, GTAB.filledsize);
+					GTAB.insert(id, ARRAY, TP(tp), num, num * 4, GTAB.filledsize);
 				}
 				else error(ILLEGAL_ARRLEN_ERROR);
 				insymbol();
@@ -45,7 +49,7 @@ void program() {
 					if (sy == LBK) {//数组声明
 						insymbol();
 						if (sy == INTCON && num > 0) {
-							GTAB.insert(id, ARRAY, TP(tp), 0, num * 4, GTAB.filledsize);
+							GTAB.insert(id, ARRAY, TP(tp), num, num * 4, GTAB.filledsize);
 						}
 						else error(ILLEGAL_ARRLEN_ERROR);
 						insymbol();
@@ -106,7 +110,6 @@ void program() {
 					else {
 						////////////////////////////
 						error(EXPECT_LBR_ERROR);
-						///////////////////////////
 					}
 				}
 				else error(EXPECT_RPT_ERROR);
@@ -149,5 +152,151 @@ void program() {
 	}
 }
 
+void constdec() {
+	symbol tp;
+	while (sy == CONSTSY) {
+		insymbol();
+		if (ISVALTYPE(sy)) {
+			tp = sy;
+			insymbol();
+			if (sy == IDENT) {//read first const
+				insymbol();
+				if (sy == BECOME) {
+					insymbol();
+					if (UNMATCH(tp, sy))
+						error(TYPE_CONFLICT_ERROR);
+					CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);
+					insymbol();
+				}
+				else error(ILLEGAL_VARDEF_ERROR);
+			}
+			else error(EXPECT_ID_ERROR);
+			while (sy == COMMA) {//raapidly read same-type const
+				insymbol();
+				if (sy == IDENT) {//read first const
+					insymbol();
+					if (sy == BECOME) {
+						insymbol();
+						if (UNMATCH(tp, sy))
+							error(TYPE_CONFLICT_ERROR);
+						CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);
+						insymbol();
+					}
+					else error(ILLEGAL_VARDEF_ERROR);
+				}
+				else error(EXPECT_ID_ERROR);
+			}
+			if (sy != SEMICOLON)
+				error(EXPECT_SEMI_ERROR);
+			else insymbol();//normal exit
+		}
+		else error(EXPECT_TYPE_ERROR);
+	}
+}
 
+void vardec() {
+	symbol tp;
+	while (ISVALTYPE(sy)) {//在同一类型中
+		tp = sy;
+		insymbol();
+		if (sy == IDENT) {
+			insymbol();
+			if (sy == LBK) {//数组声明
+				insymbol();
+				if (sy == INTCON && num > 0) {
+					CTAB.insert(id, ARRAY, TP(tp), num, num * 4, CTAB.filledsize);
+				}
+				else error(ILLEGAL_ARRLEN_ERROR);
+				insymbol();
+				if (sy == RBK) {
+					insymbol();
+				}
+				else error(EXPECT_RBK_ERROR);
+			}//单个数组声明结束
+			else {//单个标识符
+				CTAB.insert(id, VAR, TP(tp), 0, 4, CTAB.filledsize);
+			}
+			while (sy == COMMA) {
+				insymbol();
+				if (sy = IDENT) {
+					if (sy == LBK) {//数组声明
+						insymbol();
+						if (sy == INTCON && num > 0) {
+							CTAB.insert(id, ARRAY, TP(tp), num, num * 4, CTAB.filledsize);
+						}
+						else error(ILLEGAL_ARRLEN_ERROR);
+						insymbol();
+						if (sy == RBK) {
+							insymbol();
+						}
+						else error(EXPECT_RBK_ERROR);
+					}//单个数组声明结束
+					else {//单个标识符
+						CTAB.insert(id, VAR, TP(tp), 0, 4, CTAB.filledsize);
+					}
+				}
+				else error(EXPECT_ID_ERROR);
+			}
+			if (sy == SEMICOLON) {
+				insymbol();//normal exit
+				continue;
+			}
+			else error(EXPECT_SEMI_ERROR);
+		}//if(sy == IDENT)
+		else error(EXPECT_ID_ERROR);
+	}
+}
 
+int paralist() {
+	#define paraEle GTAB.symbols[GTAB.ptr+pnum]
+	int pnum = 0;
+	symbol tp;
+	if (sy == RPT)
+		return 0;
+	if (ISVALTYPE(sy)) {
+		tp = sy;
+		insymbol();
+		if (sy == IDENT) {
+			pnum++;
+			paraEle.addr = 4 * (pnum - 1);
+			paraEle.idtype = PARA;
+			paraEle.name = id;
+			paraEle.size = 4;
+			paraEle.symtype = TP(tp);
+			paraEle.var = 0;
+			insymbol();
+		}
+		else error(ILLEGAL_PARALIST_ERROR);
+	}
+	else error(ILLEGAL_PARALIST_ERROR);
+	while (sy == COMMA) {
+		insymbol();
+		if (ISVALTYPE(sy)) {
+			tp = sy;
+			insymbol();
+			if (sy == IDENT) {
+				pnum++;
+				paraEle.addr = 4 * (pnum - 1);
+				paraEle.idtype = PARA;
+				paraEle.name = id;
+				paraEle.size = 4;
+				paraEle.symtype = TP(tp);
+				paraEle.var = 0;
+				insymbol();
+			}
+			else error(ILLEGAL_PARALIST_ERROR);
+		}
+		else error(ILLEGAL_PARALIST_ERROR);
+	}
+	return pnum;
+}
+
+void compoundstatement() {
+	if (sy == CONSTSY)
+		constdec();
+	if (ISVALTYPE(sy))
+		vardec();
+	if (sy == RBR)
+		return;
+
+}
