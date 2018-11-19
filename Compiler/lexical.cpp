@@ -16,8 +16,8 @@
 #define UNDEFSY 10
 
 void nextch() {
-	if (!f.eof()) {
-		ch = f.get();
+	if (!input_f.eof()) {
+		ch = input_f.get();
 		cc++;
 		if (ch == '\n') {
 			lc++;
@@ -25,7 +25,7 @@ void nextch() {
 		}
 	}
 	else {
-		f.close();
+		input_f.close();
 		exit(0);
 	}
 }
@@ -213,8 +213,8 @@ int lexical_main() {
 	int count = 1;
 	char f_name[100] = { 0 };
 	cin >> f_name;
-	f.open(f_name, ios::in);
-	if (f.is_open() == false) {
+	input_f.open(f_name, ios::in);
+	if (input_f.is_open() == false) {
 		cout << "Not a valid filename!" << endl;
 		return 0;
 	}

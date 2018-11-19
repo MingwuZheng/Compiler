@@ -308,8 +308,11 @@ void statement() {
 	switch (sy){
 		case IDENT: {//赋值语句、函数调用语句、
 			if (GTAB.ele(id) != NULL && GTAB.ele(id)->idtype == FUNCTION)
-				call(GTAB.ele(id)->addr);
+				call(GTAB.index(id));
 			else assignment();
+			if (sy != SEMICOLON)
+				error(EXPECT_SEMI_ERROR);
+			else insymbol();
 			break;
 		}
 		case LBR: {//语句列
@@ -336,10 +339,60 @@ void statement() {
 			break;
 		}
 		case RETURN: {
-			
+			///////////四元式////////////
+
+
+
+			if (sy != SEMICOLON)
+				error(EXPECT_SEMI_ERROR);
+			else insymbol();
+			break;
+		}
+		case PRINTSY: {
+			printstatement();
+			if (sy != SEMICOLON)
+				error(EXPECT_SEMI_ERROR);
+			else insymbol();
+			break;
+		}
+		case SCANSY: {
+			scanstatement();
+			if (sy != SEMICOLON)
+				error(EXPECT_SEMI_ERROR);
+			else insymbol();
 			break;
 		}
 		default: {error(ILLEGAL_STATE_ERROR); break; }
 	}
+}
 
+string call(int pos) {//优化时注意，有返回值函数调用单列一句话可能会多出无意义中间返回值变量
+	string name = id;
+	string returnvar;
+	int paranum = 0;
+	insymbol();
+	if (sy == LPT) {
+		insymbol();
+		if (sy == RPT) {
+			if (GTAB.ele(name)->var != 0)
+				error(ILLEGAL_PARALIST_ERROR);
+			insymbol();
+		}
+		else {
+			emit(PUSH, expression(), "", "", nullptr);
+			paranum++;
+			while (sy == COMMA) {
+				emit(PUSH, expression(), "", "", nullptr);
+				paranum++;
+			}
+			if (paranum != GTAB.ele(name)->var)
+				error(ILLEGAL_PARALIST_ERROR);
+			if (sy != RPT)
+				error(EXPECT_RPT_ERROR);
+			else insymbol();
+		}
+		emit(CALL, name, "", "", &returnvar);
+		return returnvar;
+	}
+	else error(EXPECT_LPT_ERROR);
 }

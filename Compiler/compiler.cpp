@@ -3,7 +3,7 @@
 #include "lexical.h"
 #include "error.h"
 
-fstream f;
+fstream input_f;
 int lc = 1;
 int cc = 1;
 char ch;
@@ -17,6 +17,7 @@ symbol sy;
 map<char, symbol> sps;//µ¥×Ö
 map<string, symbol> ksy;//¹Ø¼ü×Ö·ûºÅÓ³Éä
 set<string> key;//¹Ø¼ü×Ö
+set<string> const_strings;//³£Á¿×Ö·û´®
 
 void symTab::insert(string name, idType idtype, symType symtype, int var, int size, int addr) {
 	for (int i = 0; i < ptr;i++) {
@@ -49,7 +50,13 @@ symbolEle * symTab::ele(string x) {
 	}
 	return NULL;
 }
-
+int symTab::index(string x) {
+	for (int i = 0; i < ptr; i++) {
+		if (symbols[i].name == x)
+			return i;
+	}
+	return -1;
+}
 symTab symtabs[TAB_MAX];
 
 

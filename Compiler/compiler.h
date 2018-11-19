@@ -17,6 +17,7 @@
 
 #define INT_MAX 4294967295
 #define TAB_MAX 100
+#define QTNRY_MAX 1000
 
 #define GTAB symtabs[0]
 #define CTAB symtabs[tabptr]
@@ -35,6 +36,12 @@ enum symType {
 };
 enum idType {
 	CONST, VAR, ARRAY, FUNCTION, PARA
+};
+enum qtnry_operator {
+	RET, PUSH, CALL,
+	SET, GOTO, BNZ, BZ,
+	ADD, SUB, MUL, DIV, EQL, GRT, LES, BECOME,
+	PRINT, SCAN
 };
 typedef struct symbolEle {
 	string name;
@@ -55,11 +62,12 @@ public:
 	void insert(string name, idType idtype, symType symtype, int var, int size, int addr);
 	symbolEle *ele(int);
 	symbolEle *ele(string);
+	int index(string x);
 	//void change(int, int);
 };
 
 // 全局变量
-extern fstream f;
+extern fstream input_f;
 extern int lc;
 extern int cc;
 extern char ch;
@@ -74,3 +82,4 @@ extern map<char, symbol> sps;//单字
 extern map<string, symbol> ksy;//关键字符号映射
 extern set<string> key;//关键字
 extern symTab symtabs[TAB_MAX];
+extern set<string> const_strings;
