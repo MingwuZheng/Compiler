@@ -139,25 +139,25 @@ READ:
 	case LESCHR: {
 		nextch();
 		if (ch == '=') {
-			sy = LEQ;
+			sy = LEQSY;
 			nextch();
 		}
-		else sy = LSS;
+		else sy = LESSY;
 		break;
 	}
 	case GRTCHR: {
 		nextch();
 		if (ch == '=') {
-			sy = GEQ;
+			sy = GEQSY;
 			nextch();
 		}
-		else sy = GTR;
+		else sy = GTRSY;
 		break;
 	}
 	case SLHCHR: {
 		nextch();
 		if (ch != '*' && ch != '/')
-			sy = DIV;
+			sy = DIVSY;
 		else if (ch == '*') {
 			nextch();
 			do {
@@ -180,16 +180,16 @@ READ:
 	case EQLCHR: {
 		nextch();
 		if (ch == '=') {
-			sy = EQL;
+			sy = EQLSY;
 			nextch();
 		}
-		else sy = BECOME;
+		else sy = BECOMESY;
 		break;
 	}
 	case EXCCHR: {
 		nextch();
 		if (ch == '=')
-			sy = NEQ;
+			sy = NEQSY;
 		else goto ERROR;
 		nextch();
 		break;
@@ -240,22 +240,22 @@ int lexical_main() {
 		{cout << left << setw(10) << "PLUS " << '+' << endl; break; }
 		case MINUS:
 		{cout << left << setw(10) << "MINUS " << '-' << endl; break; }
-		case MUL:
-		{cout << left << setw(10) << "MUL " << '*' << endl; break; }
-		case DIV:
-		{cout << left << setw(10) << "DIV " << '/' << endl; break; }
-		case EQL:
-		{cout << left << setw(10) << "EQL " << "==" << endl; break; }
-		case NEQ:
-		{cout << left << setw(10) << "NEQ " << "!=" << endl; break; }
-		case GTR:
-		{cout << left << setw(10) << "GTR " << ">" << endl; break; }
-		case GEQ:
+		case MULSY:
+		{cout << left << setw(10) << "MULSY " << '*' << endl; break; }
+		case DIVSY:
+		{cout << left << setw(10) << "DIVSY " << '/' << endl; break; }
+		case EQLSY:
+		{cout << left << setw(10) << "EQLSY " << "==" << endl; break; }
+		case NEQSY:
+		{cout << left << setw(10) << "NEQSY " << "!=" << endl; break; }
+		case GTRSY:
+		{cout << left << setw(10) << "GTRSY " << ">" << endl; break; }
+		case GEQSY:
 		{cout << left << setw(10) << "GRQ " << ">=" << endl; break; }
-		case LSS:
-		{cout << left << setw(10) << "LSS " << "<" << endl; break; }
-		case LEQ:
-		{cout << left << setw(10) << "LEQ " << "<=" << endl; break; }
+		case LESSY:
+		{cout << left << setw(10) << "LESSY " << "<" << endl; break; }
+		case LEQSY:
+		{cout << left << setw(10) << "LEQSY " << "<=" << endl; break; }
 		case LPT:
 		{cout << left << setw(10) << "LPT " << '(' << endl; break; }
 		case RPT:
@@ -272,8 +272,8 @@ int lexical_main() {
 		{cout << left << setw(10) << "COMMA " << ',' << endl; break; }
 		case SEMICOLON:
 		{cout << left << setw(10) << "SEMICOLON " << ';' << endl; break; }
-		case BECOME:
-		{cout << left << setw(10) << "BECOME " << '=' << endl; break; }
+		case BECOMESY:
+		{cout << left << setw(10) << "BECOMESY " << '=' << endl; break; }
 		case IFSY:
 		{cout << left << setw(10) << "IFSY " << "if" << endl; break; }
 		case WHILESY:

@@ -26,12 +26,11 @@ string gentempvar() {
 	return "t" + to_string(tempnum++);
 }
 
-void init_midcode() {
-	emit(GOTO, "main", "", "", NULL);
-}
+
 
 bool needtemp(qtnry_operator op) {
-	if (op == ADD || op == SUB || op == MUL || op == DIV || op == EQL || op == GRT || op == LES || op == CALL)
+	if (op == ADD || op == SUB || op == MUL || op == DIV || \
+		op == EQL || op == GRT || op == LES || op == CALL || op == ARYL)
 		return true;
 	return false;
 }
@@ -50,4 +49,8 @@ void print_midcode(fstream &midcode_file) {
 		midcodes[i].print(midcode_file);
 	}
 
+}
+
+void init_midcode() {
+	emit(GOTO, "main", "", "", NULL);
 }

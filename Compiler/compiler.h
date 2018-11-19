@@ -26,8 +26,8 @@ using namespace std;
 //全局常量
 enum symbol {
 	INTCON, CHARCON, STRINGCON, CONSTSY, IDENT,
-	PLUS, MINUS, MUL, DIV, EQL, NEQ, GTR, GEQ, LSS, LEQ,
-	LPT, RPT, LBK, RBK, LBR, RBR, COMMA, SEMICOLON, BECOME,
+	PLUS, MINUS, MULSY, DIVSY, EQLSY, NEQSY, GTRSY, GEQSY, LESSY, LEQSY,
+	LPT, RPT, LBK, RBK, LBR, RBR, COMMA, SEMICOLON, BECOMESY,
 	IFSY, WHILESY, FORSY, DOSY, ELSESY, MAIN, RETURN, INTSY, CHARSY, VOIDSY,
 	PRINTSY, SCANSY
 };
@@ -41,7 +41,8 @@ enum qtnry_operator {
 	RET, PUSH, CALL,
 	SET, GOTO, BNZ, BZ,
 	ADD, SUB, MUL, DIV, EQL, GRT, LES, BECOME,
-	PRINT, SCAN
+	PRINT, SCAN,
+	ARYL, ARYS
 };
 typedef struct symbolEle {
 	string name;
@@ -55,10 +56,11 @@ typedef struct symbolEle {
 //声明
 class symTab {
 public:
+	int glbpos;
 	int ptr;
 	int filledsize;
 	symbolEle symbols[TAB_MAX];
-	symTab() { ptr = 0; filledsize = 0; memset(symbols, 0, sizeof(symbolEle)); }
+	symTab() { glbpos = -1; ptr = 0; filledsize = 0; memset(symbols, 0, sizeof(symbolEle)); }
 	void insert(string name, idType idtype, symType symtype, int var, int size, int addr);
 	symbolEle *ele(int);
 	symbolEle *ele(string);

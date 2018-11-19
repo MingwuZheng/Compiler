@@ -75,11 +75,13 @@ void program() {
 	}
 	if (func) {
 		int paranum;
+
 		paranum = paralist();
 		if (sy == RPT) {
 			insymbol();
 			if (sy != LBR)
 				error(EXPECT_LBR_ERROR);
+			else insymbol();
 			compoundstatement();
 			if (sy != RBR)
 				error(EXPECT_RBR_ERROR);
@@ -162,7 +164,7 @@ void constdec() {
 			insymbol();
 			if (sy == IDENT) {//read first const
 				insymbol();
-				if (sy == BECOME) {
+				if (sy == BECOMESY) {
 					insymbol();
 					if (UNMATCH(tp, sy))
 						error(TYPE_CONFLICT_ERROR);
@@ -176,7 +178,7 @@ void constdec() {
 				insymbol();
 				if (sy == IDENT) {//read first const
 					insymbol();
-					if (sy == BECOME) {
+					if (sy == BECOMESY) {
 						insymbol();
 						if (UNMATCH(tp, sy))
 							error(TYPE_CONFLICT_ERROR);
@@ -374,7 +376,7 @@ string call(int pos) {//优化时注意，有返回值函数调用单列一句话可能会多出无意义中
 	if (sy == LPT) {
 		insymbol();
 		if (sy == RPT) {
-			if (GTAB.ele(name)->var != 0)
+			if (GTAB.ele(pos)->var != 0)
 				error(ILLEGAL_PARALIST_ERROR);
 			insymbol();
 		}
@@ -385,7 +387,7 @@ string call(int pos) {//优化时注意，有返回值函数调用单列一句话可能会多出无意义中
 				emit(PUSH, expression(), "", "", nullptr);
 				paranum++;
 			}
-			if (paranum != GTAB.ele(name)->var)
+			if (paranum != GTAB.ele(pos)->var)
 				error(ILLEGAL_PARALIST_ERROR);
 			if (sy != RPT)
 				error(EXPECT_RPT_ERROR);
@@ -396,3 +398,93 @@ string call(int pos) {//优化时注意，有返回值函数调用单列一句话可能会多出无意义中
 	}
 	else error(EXPECT_LPT_ERROR);
 }
+
+
+
+void ifstatement() {
+
+}
+void whilestatement() {
+
+}
+void forstatement() {
+
+}
+void scanstatement() {
+
+}
+void printstatement() {
+
+}
+void assignment() {
+
+}
+
+
+
+string factor() {
+	switch (sy) {
+		case INTCON: {
+			int n = num;
+			insymbol();
+			return to_string(n);
+			break;
+		}
+		case CHARCON: {
+			int n = chr;
+			insymbol;
+			return to_string(n);
+			break;
+		}
+		case IDENT: {
+			if (GTAB.ele(id)->idtype == FUNCTION) {
+				if (GTAB.ele(id)->symtype == VOID) {
+					error(TYPE_CONFLICT_ERROR);
+				}
+				return call(GTAB.index(id));
+			}
+			else {
+				if (CTAB.ele(id) == NULL) {
+					if (GTAB.ele(id) == NULL)
+						error(UNDEFINED_ID_ERROR);
+					else {//变量在全局符号表里
+						int index = GTAB.index(id);
+						if (GTAB.ele(index)->idtype == ARRAY) {
+
+						}
+						else if(GTAB.ele(index)->idtype == PARA && )
+					}
+				}
+				else {//变量在局部符号表里
+
+				}
+
+			}
+			break;
+		}
+		case PLUS: {//整数标记
+			break;
+		}
+		case MINUS: {//整数标记
+			break;
+		}
+		case LPT: {//表达式
+			break;
+		}
+	}
+}
+string term() {
+	return "";
+}
+string expression() {
+	return "";
+}
+string condition() {
+	return "";
+}
+
+
+
+
+
+

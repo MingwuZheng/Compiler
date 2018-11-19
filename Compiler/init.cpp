@@ -3,7 +3,7 @@
 void init() {
 	sps['+'] = PLUS;
 	sps['-'] = MINUS;
-	sps['*'] = MUL;
+	sps['*'] = MULSY;
 	sps['('] = LPT;
 	sps[')'] = RPT;
 	sps['['] = LBK;
