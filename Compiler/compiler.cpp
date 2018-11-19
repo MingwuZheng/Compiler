@@ -1,0 +1,57 @@
+#include "compiler.h"
+#include "init.h"
+#include "lexical.h"
+#include "error.h"
+
+fstream f;
+int lc = 1;
+int cc = 1;
+char ch;
+long int num;
+int lp;
+char chr;
+int tabptr = 1;
+string id;
+string str;
+symbol sy;
+map<char, symbol> sps;//µ¥×Ö
+map<string, symbol> ksy;//¹Ø¼ü×Ö·ûºÅÓ³Éä
+set<string> key;//¹Ø¼ü×Ö
+
+void symTab::insert(string name, idType idtype, symType symtype, int var, int size, int addr) {
+	for (int i = 0; i < ptr;i++) {
+		if (symbols[i].name == name) {
+			error(REDEFINED_VAR_ERROR);
+			return;
+		}
+	}
+	symbols[ptr].name = name;
+	symbols[ptr].idtype = idtype;
+	symbols[ptr].symtype = symtype;
+	symbols[ptr].var = var;
+	symbols[ptr].addr = addr;
+	if (ptr == TAB_MAX - 1)
+		error(SYMTAB_OVERFLOW_ERROR);
+	if (idtype == FUNCTION)
+		tabptr++;
+	ptr++;
+	filledsize += size;
+}
+symbolEle * symTab::ele(int x) {
+	return &symbols[x];
+}
+symbolEle * symTab::ele(string x) {
+	for (int i = 0; i < ptr; i++) {
+		if (symbols[i].name == x)
+			return &symbols[i];
+	}
+	return NULL;
+}
+
+symTab symtabs[TAB_MAX];
+
+
+int main() {
+	;
+	return 0;
+}
