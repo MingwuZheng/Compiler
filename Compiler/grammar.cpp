@@ -2,6 +2,7 @@
 #include "error.h"
 #include "lexical.h"
 #include "grammar.h"
+#include "midcode.h"
 
 #define ISVALTYPE(x) (x == INTSY || x == CHARSY)
 #define ISFUNCTYPE(x) (x == INTSY || x == CHARSY || x == VOIDSY)
@@ -304,33 +305,41 @@ void compoundstatement() {
 }
 
 void statement() {
-	switch (sy)
-	{
-	
-	case IDENT://∏≥÷µ”Ôæ‰°¢∫Ø ˝µ˜”√”Ôæ‰°¢
-		break;
-	
-	case LBR:
-		break;
-
-
-	case SEMICOLON:
-		break;
-	case IFSY:
-		break;
-
-	case FORSY:
-		break;
-	case DOSY:
-		break;
-
-	case RETURN:
-		break;
-
-
-
-	default:
-		break;
+	switch (sy){
+		case IDENT: {//∏≥÷µ”Ôæ‰°¢∫Ø ˝µ˜”√”Ôæ‰°¢
+			if (GTAB.ele(id) != NULL && GTAB.ele(id)->idtype == FUNCTION)
+				call(GTAB.ele(id)->addr);
+			else assignment();
+			break;
+		}
+		case LBR: {//”Ôæ‰¡–
+			insymbol();
+			while (sy != RBR)
+				statement();
+			insymbol();
+			break;
+		}
+		case SEMICOLON: {//ø’”Ôæ‰
+			insymbol();
+			break;
+		}
+		case IFSY: {
+			ifstatement();
+			break;
+		}
+		case FORSY: {
+			forstatement();
+			break;
+		}
+		case DOSY: {
+			whilestatement();
+			break;
+		}
+		case RETURN: {
+			
+			break;
+		}
+		default: {error(ILLEGAL_STATE_ERROR); break; }
 	}
 
 }
