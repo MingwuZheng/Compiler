@@ -33,4 +33,5 @@
 #define DIV_ZERO_ERROR			32
 
 #define EXPECT_ID_ERROR			33
+#define EXPECT_LBK_ERROR		34
 void error(int errorcode);

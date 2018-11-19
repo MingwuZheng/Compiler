@@ -74,46 +74,56 @@ void program() {
 		else error(EXPECT_ID_ERROR);
 	}
 	if (func) {
-		int paranum;
-
-		paranum = paralist();
+		//注册函数
+		CTAB.glbpos = GTAB.ptr;
+		GTAB.insert(temp, FUNCTION, TP(tp), paralist(), 0, tabptr);//函数的size填0，因为局部符号表有记录
 		if (sy == RPT) {
 			insymbol();
 			if (sy != LBR)
 				error(EXPECT_LBR_ERROR);
 			else insymbol();
+			emit(SET, temp, "", "", NULL);
+			emit(ENTER, "", "", "", NULL);
 			compoundstatement();
+			emit(EXIT, "", "", "", NULL);
 			if (sy != RBR)
 				error(EXPECT_RBR_ERROR);
+			else { 
+				tabptr++;//进入下一个函数前为其分配空间
+				insymbol(); 
+			}
 		}
 		else error(EXPECT_RPT_ERROR);
-		GTAB.insert(temp, FUNCTION, TP(tp), paranum, symtabs[tabptr].filledsize + paranum * 4, tabptr);
-		insymbol();
+
+		//GTAB.insert(temp, FUNCTION, TP(tp), paranum, symtabs[tabptr].filledsize + paranum * 4, tabptr);
+		
 	}
 	while (ISFUNCTYPE(sy)) {
 		tp = sy;
 		insymbol();
 		if (sy == IDENT) {
+			temp = id;
 			insymbol();
 			if (sy == LPT) {
 				insymbol();
-				int paranum = paralist();
+				CTAB.glbpos = GTAB.ptr;
+				GTAB.insert(temp, FUNCTION, TP(tp), paralist(), 0, tabptr);
 				if (sy == RPT) {
 					insymbol();
 					//////////////////////////////////test-skip
 					if (sy == LBR) {
 						insymbol();
+						emit(SET, temp, "", "", NULL);
+						emit(ENTER, "", "", "", NULL);
 						compoundstatement();
+						emit(EXIT, "", "", "", NULL);
 						if (sy == RBR) {
-							GTAB.insert(id, FUNCTION, TP(tp), paranum, symtabs[tabptr].filledsize + paranum * 4, tabptr);
+							tabptr++;
 							insymbol();
 						}
 						else error(EXPECT_RBR_ERROR);
 					}
-					else {
-						////////////////////////////
-						error(EXPECT_LBR_ERROR);
-					}
+					else error(EXPECT_LBR_ERROR);
 				}
 				else error(EXPECT_RPT_ERROR);
 			}
@@ -126,23 +136,23 @@ void program() {
 					insymbol();
 					if (sy == LPT) {
 						insymbol();
+						GTAB.insert("main", FUNCTION, VOID, 0, 0, tabptr);
 						if (sy == RPT) {
 							insymbol();
 							//////////////////////////////////test-skip
 							if (sy == LBR) {
 								insymbol();
+								emit(SET, "main", "", "", NULL);
+								emit(ENTER, "", "", "", NULL);
 								compoundstatement();
+								emit(EXIT, "", "", "", NULL);
 								if (sy == RBR) {
-									GTAB.insert("main", FUNCTION, VOID, 0, symtabs[tabptr].filledsize, tabptr);
+									tabptr++;//应当最后一增，无实际意义
 									return;
 								}
 								else error(EXPECT_RBR_ERROR);
 							}
-							else {
-								////////////////////////////
-								error(EXPECT_LBR_ERROR);
-								///////////////////////////
-							}
+							else error(EXPECT_LBR_ERROR);
 						}
 						else error(EXPECT_RPT_ERROR);
 					}
@@ -168,13 +178,13 @@ void constdec() {
 					insymbol();
 					if (UNMATCH(tp, sy))
 						error(TYPE_CONFLICT_ERROR);
-					CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);
+					CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);//如果在函数内常量定义，偏移要减去参数空间
 					insymbol();
 				}
 				else error(ILLEGAL_VARDEF_ERROR);
 			}
 			else error(EXPECT_ID_ERROR);
-			while (sy == COMMA) {//raapidly read same-type const
+			while (sy == COMMA) {//rapidly read same-type const
 				insymbol();
 				if (sy == IDENT) {//read first const
 					insymbol();
@@ -251,7 +261,6 @@ void vardec() {
 }
 
 int paralist() {
-	#define paraEle GTAB.symbols[GTAB.ptr+pnum]
 	int pnum = 0;
 	symbol tp;
 	if (sy == RPT)
@@ -261,12 +270,8 @@ int paralist() {
 		insymbol();
 		if (sy == IDENT) {
 			pnum++;
-			paraEle.addr = 4 * (pnum - 1);
-			paraEle.idtype = PARA;
-			paraEle.name = id;
-			paraEle.size = 4;
-			paraEle.symtype = TP(tp);
-			paraEle.var = 0;
+			//先不在全部符号表里插参数了/////
+			CTAB.insert(id, PARA, TP(tp), 0, 4, CTAB.filledsize);
 			insymbol();
 		}
 		else error(ILLEGAL_PARALIST_ERROR);
@@ -279,12 +284,7 @@ int paralist() {
 			insymbol();
 			if (sy == IDENT) {
 				pnum++;
-				paraEle.addr = 4 * (pnum - 1);
-				paraEle.idtype = PARA;
-				paraEle.name = id;
-				paraEle.size = 4;
-				paraEle.symtype = TP(tp);
-				paraEle.var = 0;
+				CTAB.insert(id, PARA, TP(tp), 0, 4, CTAB.filledsize);
 				insymbol();
 			}
 			else error(ILLEGAL_PARALIST_ERROR);
@@ -341,10 +341,15 @@ void statement() {
 			break;
 		}
 		case RETURN: {
-			///////////四元式////////////
-
-
-
+			if (sy == LPT) {
+				if (GTAB.ele(CTAB.glbpos)->symtype == VOID)
+					error(TYPE_CONFLICT_ERROR);
+				insymbol();
+				emit(RET, expression(), "", "", NULL);
+				if (sy == RPT)
+					insymbol();
+				else error(EXPECT_RPT_ERROR);
+			}
 			if (sy != SEMICOLON)
 				error(EXPECT_SEMI_ERROR);
 			else insymbol();
@@ -422,7 +427,8 @@ void assignment() {
 
 
 
-string factor() {
+string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|＜字符＞｜＜有返回值函数调用语句＞ | '('＜表达式＞')'
+	string result;
 	switch (sy) {
 		case INTCON: {
 			int n = num;
@@ -447,40 +453,161 @@ string factor() {
 				if (CTAB.ele(id) == NULL) {
 					if (GTAB.ele(id) == NULL)
 						error(UNDEFINED_ID_ERROR);
-					else {//变量在全局符号表里
+					else {//标识符在全局符号表里
 						int index = GTAB.index(id);
-						if (GTAB.ele(index)->idtype == ARRAY) {
-
+						if (GTAB.ele(index)->idtype == ARRAY) {//全局数组
+							insymbol();
+							if (sy == LBK) {
+								insymbol();
+								emit(ARYL, id, expression(), "", &result);
+								if (sy = RBK)
+									insymbol();
+								else error(EXPECT_RBK_ERROR);
+								return result;
+							}
+							else error(EXPECT_LBK_ERROR);
 						}
-						else if(GTAB.ele(index)->idtype == PARA && )
+						else {//全局的变量、常量
+							if (GTAB.ele(index)->idtype == CONST) {//全局常量
+								insymbol();
+								return to_string(GTAB.ele(index)->var);//常量替换
+							}
+							else {//全局变量
+								insymbol();
+								return id;
+							}
+						}
 					}
 				}
-				else {//变量在局部符号表里
-
+				else {//标识符在局部符号表里
+					int index = CTAB.index(id);
+					if (CTAB.ele(index)->idtype == ARRAY) {//局部数组
+						insymbol();
+						if (sy == LBK) {
+							insymbol();
+							emit(ARYL, id, expression(), "", &result);
+							if (sy = RBK)
+								insymbol();
+							else error(EXPECT_RBK_ERROR);
+							return result;
+						}
+						else error(EXPECT_LBK_ERROR);
+					}
+					else {//局部的变量、常量
+						if (CTAB.ele(index)->idtype == CONST) {//局部常量
+							insymbol();
+							return to_string(CTAB.ele(index)->var);//常量替换
+						}
+						else {//局部变量、参数
+							insymbol();
+							return id;
+						}
+					}
 				}
 
 			}
 			break;
 		}
 		case PLUS: {//整数标记
+			insymbol();
+			if (sy == INTCON) {
+				insymbol();
+				return to_string(num);
+			}
+			else error(EXPECT_INT_RROR);
 			break;
 		}
 		case MINUS: {//整数标记
+			insymbol();
+			if (sy == INTCON) {
+				insymbol();
+				return to_string(-num);
+			}
+			else error(EXPECT_INT_RROR);
 			break;
 		}
 		case LPT: {//表达式
+			insymbol();
+			result = expression();
+			if (sy == RPT)
+				insymbol();
+			else error(EXPECT_RPT_ERROR);
+			return result;
 			break;
 		}
 	}
 }
-string term() {
-	return "";
+string term() {//＜项＞::= ＜因子＞{＜乘法运算符＞＜因子＞}
+	string mid;
+	mid = factor();
+	while (sy == MULSY || sy == DIVSY) {
+		insymbol();
+		string tmp = factor();
+		emit((sy == MULSY) ? MUL : DIV, mid, tmp, "", &mid);
+	}
+	return mid;
 }
-string expression() {
-	return "";
+string expression() {//＜表达式＞::= ［＋｜－］＜项＞{＜加法运算符＞＜项＞}   //[+|-]只作用于第一个<项>
+	int neg = 1;
+	if (sy == PLUS)
+		insymbol();
+	else if (sy == MINUS) {
+		insymbol();
+		neg = -1;
+	}
+	string mid;
+	mid = term();
+	if (neg == -1)
+		emit(NEG, mid, "", "", &mid);
+	while (sy == PLUS || sy == MINUS) {
+		insymbol();
+		string tmp = term();
+		emit((sy == PLUS) ? ADD : SUB, mid, tmp, "", &mid);
+	}
+	return mid;
 }
 string condition() {
-	return "";
+	string o1, o2, result;
+	o1 = expression();
+	insymbol();
+	switch (sy){
+		case EQLSY: {
+			o2 = expression();
+			emit(EQL, o1, o2, "", &result);
+			break;
+		}
+		case NEQSY: {
+			o2 = expression();
+			emit(NEQ, o1, o2, "", &result);
+			break;
+		}
+		case GTRSY: {
+			o2 = expression();
+			emit(GTR, o1, o2, "", &result);
+			break;
+		}
+		case GEQSY: {
+			o2 = expression();
+			emit(GEQ, o1, o2, "", &result);
+			break;
+		}
+		case LESSY: {
+			o2 = expression();
+			emit(LES, o1, o2, "", &result);
+			break;
+		}
+		case LEQSY: {
+			o2 = expression();
+			emit(LEQ, o1, o2, "", &result);
+			break;
+		}
+		default:{
+			return o1;
+			break;
+		}
+	}
+	insymbol();
+	return result;
 }
 
 

@@ -29,15 +29,16 @@ string gentempvar() {
 
 
 bool needtemp(qtnry_operator op) {
-	if (op == ADD || op == SUB || op == MUL || op == DIV || \
-		op == EQL || op == GRT || op == LES || op == CALL || op == ARYL)
+	if (op == ADD || op == SUB || op == MUL || op == DIV || op == NEG || \
+		op == EQL || op == GTR || op == LES || op == CALL || op == ARYL || op == NEQ || op == GEQ || op == LEQ)
 		return true;
 	return false;
 }
 
 void emit(qtnry_operator op, string op1, string op2, string result, string* temp) {
 	if (needtemp(op) && result == "") {
-		*temp = gentempvar();
+		if (temp)
+			*temp = gentempvar();
 		midcodes[qtnry_ptr].set(op, op1, op2, *temp);
 	}
 	else midcodes[qtnry_ptr].set(op, op1, op2, result);

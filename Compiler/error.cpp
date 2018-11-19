@@ -39,6 +39,7 @@ void error(int errorcode) {
 		errorTab[32] = "DIV_ZERO_ERROR";
 		
 		errorTab[33] = "EXPECT_ID_ERROR";
+		errorTab[34] = "EXPECT_LBK_ERROR";
 	}
 	cout << errorTab[errorcode] << " in line " << lc << ",column " << cc << endl;
 	if (FATAL)

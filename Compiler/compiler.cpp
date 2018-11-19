@@ -33,11 +33,7 @@ void symTab::insert(string name, idType idtype, symType symtype, int var, int si
 	symbols[ptr].addr = addr;
 	if (ptr == TAB_MAX - 1)
 		error(SYMTAB_OVERFLOW_ERROR);
-	if (idtype == FUNCTION) {
-		tabptr++;
-		ptr += 1 + var;
-	}
-	else ptr++;
+	ptr++;
 	filledsize += size;
 }
 symbolEle * symTab::ele(int x) {
@@ -61,6 +57,6 @@ symTab symtabs[TAB_MAX];
 
 
 int main() {
-	lexical_main();
+	
 	return 0;
 }
