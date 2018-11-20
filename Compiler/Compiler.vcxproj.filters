@@ -33,6 +33,9 @@
     <ClCompile Include="midcode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="analyse.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lexical.h">
@@ -51,6 +54,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="midcode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="analyse.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

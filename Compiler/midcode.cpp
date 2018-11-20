@@ -2,7 +2,6 @@
 
 map<qtnry_operator, string> op_print;
 
-
 void quaternary::print(fstream &midcode_file) {
 	midcode_file << op_print[this->op] << " " << this->op1 << " " << this->op2 << " " << this->result << endl;
 }
@@ -10,14 +9,12 @@ int qtnry_ptr = 0;
 int tempnum = 1;
 int labelnum = 1;
 quaternary midcodes[QTNRY_MAX];
-
 string gentempvar() {
 	return "#t" + to_string(tempnum++);
 }
 string genlabel() {
 	return "@LABEL" + to_string(labelnum++);
 }
-
 
 bool needtemp(qtnry_operator op) {
 	if (op == ADD || op == SUB || op == MUL || op == DIV || op == NEG || \
@@ -44,7 +41,6 @@ void emit(qtnry_operator op, string op1, string op2, string result, string* temp
 	else midcodes[qtnry_ptr].set(op, op1, op2, result);
 	qtnry_ptr++;
 }
-
 void print_midcode() {
 	fstream midcode_file("midcode.txt");
 	for (int i = 0; i < qtnry_ptr; i++) {
@@ -81,3 +77,4 @@ void init_midcode() {
 	op_print[ARYS] = "ARYS";
 	emit(GOTO, "main", "", "", NULL);
 }
+
