@@ -23,7 +23,7 @@ void error(int errorcode) {
 		errorTab[16] = "EXPECT_RBR_ERROR";
 		errorTab[17] = "EXPECT_SEMI_ERROR";
 		errorTab[18] = "EXPECT_TYPE_ERROR";
-		errorTab[19] = "EXPECT_INT_RROR";
+		errorTab[19] = "EXPECT_INT_ERROR";
 		errorTab[20] = "EXPECT_CHAR_ERROR";
 		errorTab[21] = "EXPECT_CONDITION_ERROR";
 		errorTab[22] = "EXPECT_WHILE_ERROR";
@@ -40,6 +40,7 @@ void error(int errorcode) {
 		
 		errorTab[33] = "EXPECT_ID_ERROR";
 		errorTab[34] = "EXPECT_LBK_ERROR";
+		errorTab[35] = "EXPECT_BECOME_ERROR";
 	}
 	cout << errorTab[errorcode] << " in line " << lc << ",column " << cc << endl;
 	if (FATAL)

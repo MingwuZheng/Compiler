@@ -7,6 +7,7 @@
 #include<set>
 #include<map>
 #include<iomanip>
+#include<vector>
 
 #define ISNUM(x)		((x >= '0') && (x <= '9'))
 #define ISLETTER(x)		(((x >= 'a') && (x <= 'z')) || ((x >= 'A') && (x <= 'Z')) || (x == '_'))
@@ -42,7 +43,7 @@ enum qtnry_operator {
 	SET, GOTO, BNZ, BZ,
 	ADD, SUB, MUL, DIV, NEG,
 	EQL, NEQ, GTR, LES, GEQ, LEQ, BECOME,
-	PRINT, SCAN,
+	PRINT, SCAN, PRINTS,
 	ARYL, ARYS
 };
 typedef struct symbolEle {
@@ -85,4 +86,4 @@ extern map<char, symbol> sps;//µ¥×Ö
 extern map<string, symbol> ksy;//¹Ø¼ü×Ö·ûºÅÓ³Éä
 extern set<string> key;//¹Ø¼ü×Ö
 extern symTab symtabs[TAB_MAX];
-extern set<string> const_strings;
+extern vector<string> const_strings;

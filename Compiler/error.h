@@ -17,7 +17,7 @@
 #define	EXPECT_RBR_ERROR		16
 #define	EXPECT_SEMI_ERROR		17
 #define	EXPECT_TYPE_ERROR		18
-#define	EXPECT_INT_RROR			19
+#define	EXPECT_INT_ERROR		19
 #define	EXPECT_CHAR_ERROR		20
 #define	EXPECT_CONDITION_ERROR	21
 #define	EXPECT_WHILE_ERROR		22
@@ -34,4 +34,5 @@
 
 #define EXPECT_ID_ERROR			33
 #define EXPECT_LBK_ERROR		34
+#define EXPECT_BECOME_ERROR		35
 void error(int errorcode);

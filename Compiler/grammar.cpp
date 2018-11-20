@@ -9,6 +9,13 @@
 #define TP(x) ((x == INTSY) ? INT : ((x == VOIDSY) ? VOID : CHAR))
 #define UNMATCH(x,y) ((x == INTSY && y == CHARCON)||(x == CHARSY && y == INTCON))
 
+
+void readsym(symbol expect, int errormsg) {
+	if (sy != expect)
+		error(errormsg);
+	else insymbol();
+}
+
 void program() {
 	bool func = false, hasmain = false;
 	symbol tp;
@@ -21,14 +28,28 @@ void program() {
 	while (ISVALTYPE(sy)) {//在同一类型中
 		tp = sy;
 		insymbol();
-		if (sy == IDENT) {
-			temp = id;
+		readsym(IDENT, EXPECT_ID_ERROR);
+		temp = id;
+		if (sy == LPT) {
 			insymbol();
-			if (sy == LPT) {
-				insymbol();
-				func = true;
-				break;
+			func = true;
+			break;
+		}
+		if (sy == LBK) {//数组声明
+			insymbol();
+			if (sy == INTCON && num > 0) {
+				GTAB.insert(id, ARRAY, TP(tp), num, num * 4, GTAB.filledsize);
 			}
+			else error(ILLEGAL_ARRLEN_ERROR);
+			insymbol();
+			readsym(RBK, EXPECT_RBK_ERROR);
+		}//单个数组声明结束
+		else {//单个标识符
+			GTAB.insert(id, VAR, TP(tp), 0, 4, GTAB.filledsize);
+		}
+		while (sy == COMMA) {
+			insymbol();
+			readsym(IDENT, EXPECT_ID_ERROR);
 			if (sy == LBK) {//数组声明
 				insymbol();
 				if (sy == INTCON && num > 0) {
@@ -36,67 +57,28 @@ void program() {
 				}
 				else error(ILLEGAL_ARRLEN_ERROR);
 				insymbol();
-				if (sy == RBK) {
-					insymbol();
-				}
-				else error(EXPECT_RBK_ERROR);
+				readsym(RBK, EXPECT_RBK_ERROR);
 			}//单个数组声明结束
 			else {//单个标识符
 				GTAB.insert(id, VAR, TP(tp), 0, 4, GTAB.filledsize);
 			}
-			while (sy == COMMA) {
-				insymbol();
-				if (sy = IDENT) {
-					if (sy == LBK) {//数组声明
-						insymbol();
-						if (sy == INTCON && num > 0) {
-							GTAB.insert(id, ARRAY, TP(tp), num, num * 4, GTAB.filledsize);
-						}
-						else error(ILLEGAL_ARRLEN_ERROR);
-						insymbol();
-						if (sy == RBK) {
-							insymbol();
-						}
-						else error(EXPECT_RBK_ERROR);
-					}//单个数组声明结束
-					else {//单个标识符
-						GTAB.insert(id, VAR, TP(tp), 0, 4, GTAB.filledsize);
-					}
-				}
-				else error(EXPECT_ID_ERROR);
-			}
-			if (sy == SEMICOLON) {
-				insymbol();
-				continue;
-			}
-			else error(EXPECT_SEMI_ERROR);
-		}//if(sy == IDENT)
-		else error(EXPECT_ID_ERROR);
+		}
+		readsym(SEMICOLON, EXPECT_SEMI_ERROR);
 	}
 	if (func) {
 		//注册函数
 		CTAB.glbpos = GTAB.ptr;
 		GTAB.insert(temp, FUNCTION, TP(tp), paralist(), 0, tabptr);//函数的size填0，因为局部符号表有记录
-		if (sy == RPT) {
-			insymbol();
-			if (sy != LBR)
-				error(EXPECT_LBR_ERROR);
-			else insymbol();
-			emit(SET, temp, "", "", NULL);
-			emit(ENTER, "", "", "", NULL);
-			compoundstatement();
-			emit(EXIT, "", "", "", NULL);
-			if (sy != RBR)
-				error(EXPECT_RBR_ERROR);
-			else { 
-				tabptr++;//进入下一个函数前为其分配空间
-				insymbol(); 
-			}
-		}
-		else error(EXPECT_RPT_ERROR);
-
+		readsym(RPT, EXPECT_RPT_ERROR);
+		readsym(LBR, EXPECT_LBR_ERROR);
+		emit(SET, temp, "", "", NULL);
+		emit(ENTER, "", "", "", NULL);
+		compoundstatement();
+		emit(EXIT, "", "", "", NULL);
+		readsym(RBR, EXPECT_RBR_ERROR);
+		tabptr++;//进入下一个函数前为其分配空间
 		//GTAB.insert(temp, FUNCTION, TP(tp), paranum, symtabs[tabptr].filledsize + paranum * 4, tabptr);
-		
+
 	}
 	while (ISFUNCTYPE(sy)) {
 		tp = sy;
@@ -104,59 +86,36 @@ void program() {
 		if (sy == IDENT) {
 			temp = id;
 			insymbol();
-			if (sy == LPT) {
-				insymbol();
-				CTAB.glbpos = GTAB.ptr;
-				GTAB.insert(temp, FUNCTION, TP(tp), paralist(), 0, tabptr);
-				if (sy == RPT) {
-					insymbol();
-					//////////////////////////////////test-skip
-					if (sy == LBR) {
-						insymbol();
-						emit(SET, temp, "", "", NULL);
-						emit(ENTER, "", "", "", NULL);
-						compoundstatement();
-						emit(EXIT, "", "", "", NULL);
-						if (sy == RBR) {
-							tabptr++;
-							insymbol();
-						}
-						else error(EXPECT_RBR_ERROR);
-					}
-					else error(EXPECT_LBR_ERROR);
-				}
-				else error(EXPECT_RPT_ERROR);
-			}
-			else error(EXPECT_LPT_ERROR);
+			readsym(LPT, EXPECT_LPT_ERROR);
+			CTAB.glbpos = GTAB.ptr;
+			GTAB.insert(temp, FUNCTION, TP(tp), paralist(), 0, tabptr);
+			readsym(RPT, EXPECT_RPT_ERROR);
+			//test-skip
+			readsym(LBR, EXPECT_LBR_ERROR);
+			emit(SET, temp, "", "", NULL);
+			emit(ENTER, "", "", "", NULL);
+			compoundstatement();
+			emit(EXIT, "", "", "", NULL);
+			readsym(RBR, EXPECT_RBR_ERROR);
+			tabptr++;
 		}
 		else {
 			if (sy == MAIN) {
 				if (TP(tp) == VOID) {
 					hasmain = true;
 					insymbol();
-					if (sy == LPT) {
-						insymbol();
-						GTAB.insert("main", FUNCTION, VOID, 0, 0, tabptr);
-						if (sy == RPT) {
-							insymbol();
-							//////////////////////////////////test-skip
-							if (sy == LBR) {
-								insymbol();
-								emit(SET, "main", "", "", NULL);
-								emit(ENTER, "", "", "", NULL);
-								compoundstatement();
-								emit(EXIT, "", "", "", NULL);
-								if (sy == RBR) {
-									tabptr++;//应当最后一增，无实际意义
-									return;
-								}
-								else error(EXPECT_RBR_ERROR);
-							}
-							else error(EXPECT_LBR_ERROR);
-						}
-						else error(EXPECT_RPT_ERROR);
-					}
-					else error(EXPECT_LPT_ERROR);
+					readsym(LPT, EXPECT_LPT_ERROR);
+					GTAB.insert("main", FUNCTION, VOID, 0, 0, tabptr);
+					readsym(RPT, EXPECT_RPT_ERROR);
+					//test-skip
+					readsym(LBR, EXPECT_LBR_ERROR);
+					emit(SET, "main", "", "", NULL);
+					emit(ENTER, "", "", "", NULL);
+					compoundstatement();
+					emit(EXIT, "", "", "", NULL);
+					readsym(RBR, EXPECT_RBR_ERROR);
+					tabptr++;//应当最后一增，无实际意义
+					return;
 				}
 				else error(REDEFINED_VAR_ERROR);
 			}
@@ -172,36 +131,22 @@ void constdec() {
 		if (ISVALTYPE(sy)) {
 			tp = sy;
 			insymbol();
-			if (sy == IDENT) {//read first const
-				insymbol();
-				if (sy == BECOMESY) {
-					insymbol();
-					if (UNMATCH(tp, sy))
-						error(TYPE_CONFLICT_ERROR);
-					CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);//如果在函数内常量定义，偏移要减去参数空间
-					insymbol();
-				}
-				else error(ILLEGAL_VARDEF_ERROR);
-			}
-			else error(EXPECT_ID_ERROR);
+			readsym(IDENT, EXPECT_ID_ERROR);
+			readsym(BECOMESY, ILLEGAL_VARDEF_ERROR);
+			if (UNMATCH(tp, sy))
+				error(TYPE_CONFLICT_ERROR);
+			CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);//如果在函数内常量定义，偏移要减去参数空间
+			insymbol();
 			while (sy == COMMA) {//rapidly read same-type const
 				insymbol();
-				if (sy == IDENT) {//read first const
-					insymbol();
-					if (sy == BECOMESY) {
-						insymbol();
-						if (UNMATCH(tp, sy))
-							error(TYPE_CONFLICT_ERROR);
-						CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);
-						insymbol();
-					}
-					else error(ILLEGAL_VARDEF_ERROR);
-				}
-				else error(EXPECT_ID_ERROR);
+				readsym(IDENT, EXPECT_ID_ERROR);
+				readsym(BECOMESY, ILLEGAL_VARDEF_ERROR);
+				if (UNMATCH(tp, sy))
+					error(TYPE_CONFLICT_ERROR);
+				CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);
+				insymbol();
 			}
-			if (sy != SEMICOLON)
-				error(EXPECT_SEMI_ERROR);
-			else insymbol();//normal exit
+			readsym(SEMICOLON, EXPECT_SEMI_ERROR);//normal exit
 		}
 		else error(EXPECT_TYPE_ERROR);
 	}
@@ -212,8 +157,22 @@ void vardec() {
 	while (ISVALTYPE(sy)) {//在同一类型中
 		tp = sy;
 		insymbol();
-		if (sy == IDENT) {
+		readsym(IDENT, EXPECT_ID_ERROR);
+		if (sy == LBK) {//数组声明
 			insymbol();
+			if (sy == INTCON && num > 0) {
+				CTAB.insert(id, ARRAY, TP(tp), num, num * 4, CTAB.filledsize);
+			}
+			else error(ILLEGAL_ARRLEN_ERROR);
+			insymbol();
+			readsym(RBK, EXPECT_RBK_ERROR);
+		}//单个数组声明结束
+		else {//单个标识符
+			CTAB.insert(id, VAR, TP(tp), 0, 4, CTAB.filledsize);
+		}
+		while (sy == COMMA) {
+			insymbol();
+			readsym(IDENT, EXPECT_ID_ERROR);
 			if (sy == LBK) {//数组声明
 				insymbol();
 				if (sy == INTCON && num > 0) {
@@ -221,42 +180,13 @@ void vardec() {
 				}
 				else error(ILLEGAL_ARRLEN_ERROR);
 				insymbol();
-				if (sy == RBK) {
-					insymbol();
-				}
-				else error(EXPECT_RBK_ERROR);
+				readsym(RBK, EXPECT_RBK_ERROR);
 			}//单个数组声明结束
 			else {//单个标识符
 				CTAB.insert(id, VAR, TP(tp), 0, 4, CTAB.filledsize);
 			}
-			while (sy == COMMA) {
-				insymbol();
-				if (sy = IDENT) {
-					if (sy == LBK) {//数组声明
-						insymbol();
-						if (sy == INTCON && num > 0) {
-							CTAB.insert(id, ARRAY, TP(tp), num, num * 4, CTAB.filledsize);
-						}
-						else error(ILLEGAL_ARRLEN_ERROR);
-						insymbol();
-						if (sy == RBK) {
-							insymbol();
-						}
-						else error(EXPECT_RBK_ERROR);
-					}//单个数组声明结束
-					else {//单个标识符
-						CTAB.insert(id, VAR, TP(tp), 0, 4, CTAB.filledsize);
-					}
-				}
-				else error(EXPECT_ID_ERROR);
-			}
-			if (sy == SEMICOLON) {
-				insymbol();//normal exit
-				continue;
-			}
-			else error(EXPECT_SEMI_ERROR);
-		}//if(sy == IDENT)
-		else error(EXPECT_ID_ERROR);
+		}
+		readsym(SEMICOLON, EXPECT_SEMI_ERROR);
 	}
 }
 
@@ -268,13 +198,10 @@ int paralist() {
 	if (ISVALTYPE(sy)) {
 		tp = sy;
 		insymbol();
-		if (sy == IDENT) {
-			pnum++;
-			//先不在全部符号表里插参数了/////
-			CTAB.insert(id, PARA, TP(tp), 0, 4, CTAB.filledsize);
-			insymbol();
-		}
-		else error(ILLEGAL_PARALIST_ERROR);
+		readsym(IDENT, EXPECT_ID_ERROR);
+		pnum++;
+		//先不在全部符号表里插参数了/////
+		CTAB.insert(id, PARA, TP(tp), 0, 4, CTAB.filledsize);
 	}
 	else error(ILLEGAL_PARALIST_ERROR);
 	while (sy == COMMA) {
@@ -282,12 +209,9 @@ int paralist() {
 		if (ISVALTYPE(sy)) {
 			tp = sy;
 			insymbol();
-			if (sy == IDENT) {
-				pnum++;
-				CTAB.insert(id, PARA, TP(tp), 0, 4, CTAB.filledsize);
-				insymbol();
-			}
-			else error(ILLEGAL_PARALIST_ERROR);
+			readsym(IDENT, EXPECT_ID_ERROR);
+			pnum++;
+			CTAB.insert(id, PARA, TP(tp), 0, 4, CTAB.filledsize);
 		}
 		else error(ILLEGAL_PARALIST_ERROR);
 	}
@@ -312,9 +236,7 @@ void statement() {
 			if (GTAB.ele(id) != NULL && GTAB.ele(id)->idtype == FUNCTION)
 				call(GTAB.index(id));
 			else assignment();
-			if (sy != SEMICOLON)
-				error(EXPECT_SEMI_ERROR);
-			else insymbol();
+			readsym(SEMICOLON, EXPECT_SEMI_ERROR);
 			break;
 		}
 		case LBR: {//语句列
@@ -346,27 +268,19 @@ void statement() {
 					error(TYPE_CONFLICT_ERROR);
 				insymbol();
 				emit(RET, expression(), "", "", NULL);
-				if (sy == RPT)
-					insymbol();
-				else error(EXPECT_RPT_ERROR);
+				readsym(RPT, EXPECT_RPT_ERROR);
 			}
-			if (sy != SEMICOLON)
-				error(EXPECT_SEMI_ERROR);
-			else insymbol();
+			readsym(SEMICOLON, EXPECT_SEMI_ERROR);
 			break;
 		}
 		case PRINTSY: {
 			printstatement();
-			if (sy != SEMICOLON)
-				error(EXPECT_SEMI_ERROR);
-			else insymbol();
+			readsym(SEMICOLON, EXPECT_SEMI_ERROR);
 			break;
 		}
 		case SCANSY: {
 			scanstatement();
-			if (sy != SEMICOLON)
-				error(EXPECT_SEMI_ERROR);
-			else insymbol();
+			readsym(SEMICOLON, EXPECT_SEMI_ERROR);
 			break;
 		}
 		default: {error(ILLEGAL_STATE_ERROR); break; }
@@ -378,54 +292,188 @@ string call(int pos) {//优化时注意，有返回值函数调用单列一句话可能会多出无意义中
 	string returnvar;
 	int paranum = 0;
 	insymbol();
-	if (sy == LPT) {
+	readsym(LPT, EXPECT_LPT_ERROR);
+	if (sy == RPT) {
+		if (GTAB.ele(pos)->var != 0)
+			error(ILLEGAL_PARALIST_ERROR);
 		insymbol();
-		if (sy == RPT) {
-			if (GTAB.ele(pos)->var != 0)
-				error(ILLEGAL_PARALIST_ERROR);
-			insymbol();
-		}
-		else {
+	}
+	else {
+		emit(PUSH, expression(), "", "", nullptr);
+		paranum++;
+		while (sy == COMMA) {
 			emit(PUSH, expression(), "", "", nullptr);
 			paranum++;
-			while (sy == COMMA) {
-				emit(PUSH, expression(), "", "", nullptr);
-				paranum++;
-			}
-			if (paranum != GTAB.ele(pos)->var)
-				error(ILLEGAL_PARALIST_ERROR);
-			if (sy != RPT)
-				error(EXPECT_RPT_ERROR);
-			else insymbol();
 		}
-		emit(CALL, name, "", "", &returnvar);
-		return returnvar;
+		if (paranum != GTAB.ele(pos)->var)
+			error(ILLEGAL_PARALIST_ERROR);
+		readsym(RPT, EXPECT_RPT_ERROR);
 	}
-	else error(EXPECT_LPT_ERROR);
+	emit(CALL, name, "", "", &returnvar);
+	return returnvar;
 }
 
 
 
 void ifstatement() {
-
+	string ifbranch;
+	string elselabel;
+	string endlabel;
+	insymbol();
+	readsym(LPT, EXPECT_LPT_ERROR);
+	ifbranch = condition();
+	readsym(RPT, EXPECT_RPT_ERROR);
+	emit(BZ, "", ifbranch, "", &elselabel);
+	statement();
+	emit(GOTO, "", "", "", &endlabel);
+	emit(SET, elselabel, "", "", NULL);
+	if (sy == ELSESY) {
+		insymbol();
+		statement();
+	}
+	emit(SET, endlabel, "", "", NULL);
 }
+
 void whilestatement() {
-
+	string loopcondition;
+	string dobegin;
+	insymbol();
+	emit(SET, "", "", "", &dobegin);
+	statement();
+	readsym(WHILESY, EXPECT_WHILE_ERROR);
+	readsym(LPT, EXPECT_LPT_ERROR);
+	loopcondition = condition();
+	emit(BNZ, dobegin, loopcondition, "", NULL);
+	readsym(RPT, EXPECT_RPT_ERROR);
 }
+
 void forstatement() {
-
+	string initvar, loopvar, conditionvar, loopbegin, loopend, step;
+	int neg = 0;
+	readsym(LPT, EXPECT_LPT_ERROR);
+	readsym(IDENT, EXPECT_ID_ERROR);
+	loopvar = id;
+	readsym(BECOMESY, EXPECT_BECOME_ERROR);
+	initvar = expression();
+	emit(BECOME, initvar, "", loopvar, NULL);//初始化循环变量
+	readsym(SEMICOLON, EXPECT_SEMI_ERROR);
+	emit(SET, "", "", "", &loopbegin);//循环开始
+	conditionvar = condition();
+	emit(BZ, "", conditionvar, "", &loopend);//不满足跳到结尾
+	readsym(SEMICOLON, EXPECT_SEMI_ERROR);
+	readsym(IDENT, EXPECT_ID_ERROR);
+	loopvar = id;
+	readsym(BECOMESY, EXPECT_BECOME_ERROR);
+	readsym(IDENT, EXPECT_ID_ERROR);
+	if (loopvar != id)
+		error(ILLEGAL_FORLOOP_ERROR);
+	if (sy == MINUS)
+		neg = 1;
+	else if (sy != PLUS)
+		error(ILLEGAL_FORLOOP_ERROR);
+	readsym(INTCON, EXPECT_INT_ERROR);
+	step = to_string(num);
+	readsym(RPT, EXPECT_RPT_ERROR);
+	statement();//循环内容
+	emit(neg ? SUB : ADD, loopvar, step, loopvar, NULL);//循环变量自增（自减）
+	emit(GOTO, loopbegin, "", "", NULL);//跳到循环开始
+	emit(SET, loopend, "", "", NULL);//循环结尾
 }
+
 void scanstatement() {
-
+	readsym(LPT, EXPECT_LPT_ERROR);
+	readsym(IDENT, EXPECT_ID_ERROR);
+	emit(SCAN, id, "", "", NULL);
+	while (sy == COMMA) {
+		readsym(IDENT, EXPECT_ID_ERROR);
+		emit(SCAN, id, "", "", NULL);
+	}
+	readsym(RPT, EXPECT_RPT_ERROR);
 }
+
 void printstatement() {
-
+	int strptr = -1;
+	readsym(LPT, EXPECT_LPT_ERROR);
+	if (sy == IDENT)
+		emit(PRINT, id, "", "", NULL);
+	else {
+		readsym(STRINGCON, ILLEGAL_PARALIST_ERROR);
+		for (int i = 0; i < const_strings.size(); i++) {
+			if (const_strings[i] == str) {
+				strptr = i;
+				break;
+			}
+		}
+		if (strptr == -1) {
+			strptr = const_strings.size();
+			const_strings.push_back(str);
+		}
+		emit(PRINTS, to_string(strptr), "", "", NULL);
+		if (sy == COMMA) {
+			readsym(IDENT, EXPECT_ID_ERROR);
+			emit(PRINT, id, "", "", NULL);
+		}
+	}
+	readsym(RPT, EXPECT_RPT_ERROR);
 }
+
 void assignment() {
-
+	string expvar, aryindex, idname;
+	readsym(IDENT, EXPECT_ID_ERROR);
+	idname = id;
+	if (CTAB.ele(id) == NULL) {
+		if (GTAB.ele(id) == NULL)
+			error(UNDEFINED_ID_ERROR);
+		else {//标识符在全局符号表里
+			int index = GTAB.index(id);
+			if (GTAB.ele(index)->idtype == ARRAY) {//全局数组
+				insymbol();
+				readsym(LBK, EXPECT_LBK_ERROR);
+				aryindex = expression();
+				readsym(RBK, EXPECT_RBK_ERROR);
+				readsym(BECOMESY, EXPECT_BECOME_ERROR);
+				expvar = expression();
+				emit(ARYS, aryindex, expvar, idname, NULL);
+			}
+			else {//全局的变量、常量
+				if (GTAB.ele(index)->idtype == CONST) {//全局常量
+					error(TYPE_CONFLICT_ERROR);
+					insymbol;
+				}
+				else {//全局变量
+					insymbol();
+					readsym(BECOMESY, EXPECT_BECOME_ERROR);
+					expvar = expression();
+					emit(BECOME, expvar, "", idname, NULL);
+				}
+			}
+		}
+	}
+	else {//标识符在局部符号表里
+		int index = CTAB.index(id);
+		if (CTAB.ele(index)->idtype == ARRAY) {//局部数组
+			insymbol();
+			readsym(LBK, EXPECT_LBK_ERROR);
+			aryindex = expression();
+			readsym(RBK, EXPECT_RBK_ERROR);
+			readsym(BECOMESY, EXPECT_BECOME_ERROR);
+			expvar = expression();
+			emit(ARYS, aryindex, expvar, idname, NULL);
+		}
+		else {//局部的变量、常量
+			if (CTAB.ele(index)->idtype == CONST) {//局部常量
+				error(TYPE_CONFLICT_ERROR);
+				insymbol;
+			}
+			else {//局部变量、参数
+				insymbol();
+				readsym(BECOMESY, EXPECT_BECOME_ERROR);
+				expvar = expression();
+				emit(BECOME, expvar, "", idname, NULL);
+			}
+		}
+	}
 }
-
-
 
 string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|＜字符＞｜＜有返回值函数调用语句＞ | '('＜表达式＞')'
 	string result;
@@ -514,7 +562,7 @@ string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|
 				insymbol();
 				return to_string(num);
 			}
-			else error(EXPECT_INT_RROR);
+			else error(EXPECT_INT_ERROR);
 			break;
 		}
 		case MINUS: {//整数标记
@@ -523,7 +571,7 @@ string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|
 				insymbol();
 				return to_string(-num);
 			}
-			else error(EXPECT_INT_RROR);
+			else error(EXPECT_INT_ERROR);
 			break;
 		}
 		case LPT: {//表达式
@@ -537,6 +585,7 @@ string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|
 		}
 	}
 }
+
 string term() {//＜项＞::= ＜因子＞{＜乘法运算符＞＜因子＞}
 	string mid;
 	mid = factor();
@@ -547,6 +596,7 @@ string term() {//＜项＞::= ＜因子＞{＜乘法运算符＞＜因子＞}
 	}
 	return mid;
 }
+
 string expression() {//＜表达式＞::= ［＋｜－］＜项＞{＜加法运算符＞＜项＞}   //[+|-]只作用于第一个<项>
 	int neg = 1;
 	if (sy == PLUS)
@@ -566,6 +616,7 @@ string expression() {//＜表达式＞::= ［＋｜－］＜项＞{＜加法运算符＞＜项＞}   //
 	}
 	return mid;
 }
+
 string condition() {
 	string o1, o2, result;
 	o1 = expression();

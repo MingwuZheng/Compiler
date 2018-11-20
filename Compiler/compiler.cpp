@@ -17,7 +17,7 @@ symbol sy;
 map<char, symbol> sps;//µ¥×Ö
 map<string, symbol> ksy;//¹Ø¼ü×Ö·ûºÅÓ³Éä
 set<string> key;//¹Ø¼ü×Ö
-set<string> const_strings;//³£Á¿×Ö·û´®
+vector<string> const_strings;//³£Á¿×Ö·û´®
 
 void symTab::insert(string name, idType idtype, symType symtype, int var, int size, int addr) {
 	for (int i = 0; i < ptr;i++) {
