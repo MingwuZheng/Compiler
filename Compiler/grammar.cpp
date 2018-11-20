@@ -9,6 +9,8 @@
 #define TP(x) ((x == INTSY) ? INT : ((x == VOIDSY) ? VOID : CHAR))
 #define UNMATCH(x,y) ((x == INTSY && y == CHARCON)||(x == CHARSY && y == INTCON))
 
+#define HW(x) 
+
 void readsym(symbol expect, int errormsg) {
 	if (sy == END_OF_FILE) {
 		if (!ENABLE_EOF) {
@@ -41,6 +43,10 @@ void program() {
 			func = true;
 			break;
 		}
+
+		cout << "This is a global vardec in line " << lc << endl;
+
+
 		if (sy == LBK) {//数组声明
 			insymbol();
 			if (sy == INTCON && num > 0) {
@@ -54,6 +60,9 @@ void program() {
 			GTAB.insert(id, VAR, TP(tp), 0, 4, GTAB.filledsize);
 		}
 		while (sy == COMMA) {
+
+			cout << "This is a global vardec in line " << lc << endl;
+
 			insymbol();
 			readsym(IDENT, EXPECT_ID_ERROR);
 			if (sy == LBK) {//数组声明
@@ -73,6 +82,10 @@ void program() {
 	}
 	if (func) {
 		//注册函数
+
+		cout << "This is a funcdec in line " << lc << endl;
+
+
 		CTAB.glbpos = GTAB.ptr;
 		GTAB.insert(temp, FUNCTION, TP(tp), paralist(), 0, tabptr);//函数的size填0，因为局部符号表有记录
 		readsym(RPT, EXPECT_RPT_ERROR);
@@ -86,6 +99,9 @@ void program() {
 				 //GTAB.insert(temp, FUNCTION, TP(tp), paranum, symtabs[tabptr].filledsize + paranum * 4, tabptr);
 	}
 	while (ISFUNCTYPE(sy)) {
+
+		cout << "This is a funcdec in line " << lc << endl;
+
 		tp = sy;
 		insymbol();
 		if (sy == IDENT) {
@@ -107,6 +123,10 @@ void program() {
 		else {
 			if (sy == MAIN) {
 				if (TP(tp) == VOID) {
+
+					cout << "This is a maindec in line " << lc << endl;
+
+
 					hasmain = true;
 					insymbol();
 					readsym(LPT, EXPECT_LPT_ERROR);
@@ -153,6 +173,9 @@ void constdec() {
 			}
 			if (UNMATCH(tp, sy))
 				error(TYPE_CONFLICT_ERROR);
+
+			cout << "This is a constdec in line " << lc << endl;
+
 			CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);//如果在函数内常量定义，偏移要减去参数空间
 			insymbol();
 			while (sy == COMMA) {//rapidly read same-type const
@@ -161,6 +184,9 @@ void constdec() {
 				readsym(BECOMESY, ILLEGAL_VARDEF_ERROR);
 				if (UNMATCH(tp, sy))
 					error(TYPE_CONFLICT_ERROR);
+
+				cout << "This is a constdec in line " << lc << endl;
+
 				CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);
 				insymbol();
 			}
@@ -173,6 +199,9 @@ void constdec() {
 void vardec() {
 	symbol tp;
 	while (ISVALTYPE(sy)) {//在同一类型中
+
+		cout << "This is a vardec in line " << lc << endl;
+
 		tp = sy;
 		insymbol();
 		readsym(IDENT, EXPECT_ID_ERROR);
@@ -189,6 +218,9 @@ void vardec() {
 			CTAB.insert(id, VAR, TP(tp), 0, 4, CTAB.filledsize);
 		}
 		while (sy == COMMA) {
+
+			cout << "This is a vardec in line " << lc << endl;
+
 			insymbol();
 			readsym(IDENT, EXPECT_ID_ERROR);
 			if (sy == LBK) {//数组声明
@@ -246,6 +278,9 @@ void compoundstatement() {
 	while (sy != RBR) {
 		statement();
 	}
+
+	cout << "This is a compoundstatement in line " << lc << endl;
+
 }
 
 void statement() {
@@ -291,6 +326,9 @@ void statement() {
 		}
 		else emit(RET, "", "", "", NULL);
 		readsym(SEMICOLON, EXPECT_SEMI_ERROR);
+
+		cout << "This is a returnstatement in line " << lc << endl;
+
 		break;
 	}
 	case PRINTSY: {
@@ -312,6 +350,9 @@ void statement() {
 		break;
 	}
 	}
+
+	cout << "This is a compoundstatement in line " << lc << endl;
+
 }
 
 string call(int pos) {//优化时注意，有返回值函数调用单列一句话可能会多出无意义中间返回值变量
@@ -343,6 +384,10 @@ string call(int pos) {//优化时注意，有返回值函数调用单列一句话可能会多出无意义中
 	for (int i = 0; i < pstk; i++)
 		emit(PUSH, parastk[i], name, "", NULL);
 	emit(CALL, name, "", "", &returnvar);
+
+	cout << "This is a callstatement in line " << lc << endl;
+
+
 	return returnvar;
 }
 
@@ -365,6 +410,10 @@ void ifstatement() {
 		statement();
 	}
 	emit(SET, endlabel, "", "", NULL);
+
+
+	cout << "This is a ifstatement in line " << lc << endl;
+
 }
 
 void whilestatement() {
@@ -378,6 +427,10 @@ void whilestatement() {
 	loopcondition = condition();
 	emit(BNZ, dobegin, loopcondition, "", NULL);
 	readsym(RPT, EXPECT_RPT_ERROR);
+
+
+	cout << "This is a dowhilestatement in line " << lc << endl;
+
 }
 
 void forstatement() {
@@ -413,6 +466,9 @@ void forstatement() {
 	emit(neg ? SUB : ADD, loopvar, step, loopvar, NULL);//循环变量自增（自减）
 	emit(GOTO, loopbegin, "", "", NULL);//跳到循环开始
 	emit(SET, loopend, "", "", NULL);//循环结尾
+
+	cout << "This is a forstatement in line " << lc << endl;
+
 }
 
 void scanstatement() {
@@ -426,6 +482,10 @@ void scanstatement() {
 		emit(SCAN, id, "", "", NULL);
 	}
 	readsym(RPT, EXPECT_RPT_ERROR);
+
+	cout << "This is a scanstatement in line " << lc << endl;
+
+
 }
 
 void printstatement() {
@@ -458,6 +518,10 @@ void printstatement() {
 	}
 	else error(ILLEGAL_PARALIST_ERROR);
 	readsym(RPT, EXPECT_RPT_ERROR);
+
+
+	cout << "This is a printstatement in line " << lc << endl;
+
 }
 
 void assignment() {//只有一次计算的表达式赋值（i=i+1）会生成不必要的中间变量，要优化
@@ -512,6 +576,10 @@ void assignment() {//只有一次计算的表达式赋值（i=i+1）会生成不必要的中间变量，要
 			}
 		}
 	}
+
+
+	cout << "This is a assignstatement in line " << lc << endl;
+
 }
 
 string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|＜字符＞｜＜有返回值函数调用语句＞ | '('＜表达式＞')'
