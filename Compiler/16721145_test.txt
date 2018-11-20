@@ -98,20 +98,21 @@ void test_all_cond(){
 
 //test expressions
 void test_expr(){
+	int res_of_expr;
 	printf("test for expression");
 	res_of_expr = --12--12--12-+12+-12--12--12--12--12;
 	printf("--12--12--12-+12+-12--12--12--12--12=", res_of_expr);
 	res_of_expr = 10*-5;
 	printf("10*-5=", res_of_expr);
 	res_of_expr = 10/+4;
-	printf("10/+4=", res_of_expr)
+	printf("10/+4=", res_of_expr);
 	res_of_expr = fib(12)-fib(14);
 	printf("fib(12)-fib(14)=", res_of_expr);
 	res_of_expr = 'c' + 12;
 	printf("c + 12 = ", res_of_expr);
 	res_of_expr = 'c'*12/1;
 	printf("c*12/1", res_of_expr);
-	res_of_expr = 1--((((12))));
+	res_of_expr = 1-((((12))));///////////////////////////////
 	printf("1-(((12+1)))", res_of_expr);
 	res_of_expr = arr[1]*'b'+fib(3);
 	printf("arr[1]*'b'+fib(3)=", res_of_expr);

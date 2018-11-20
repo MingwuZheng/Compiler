@@ -12,10 +12,10 @@ int labelnum = 1;
 quaternary midcodes[QTNRY_MAX];
 
 string gentempvar() {
-	return "t" + to_string(tempnum++);
+	return "#t" + to_string(tempnum++);
 }
 string genlabel() {
-	return "label" + to_string(labelnum++);
+	return "@LABEL" + to_string(labelnum++);
 }
 
 
