@@ -1,6 +1,7 @@
 #include "compiler.h"
 #define ETC 0
 #define FATAL (errorcode == 30|| \
+			   errorcode == 36|| \
 			   errorcode == ETC)
 void error(int errorcode) {
 	map<int, string> errorTab;
@@ -41,6 +42,7 @@ void error(int errorcode) {
 		errorTab[33] = "EXPECT_ID_ERROR";
 		errorTab[34] = "EXPECT_LBK_ERROR";
 		errorTab[35] = "EXPECT_BECOME_ERROR";
+		errorTab[36] = "UNEXPECTED_EOF_ERROR";
 	}
 	cout << errorTab[errorcode] << " in line " << lc << ",column " << cc << endl;
 	if (FATAL)

@@ -26,7 +26,7 @@ void nextch() {
 	}
 	else {
 		input_f.close();
-		exit(0);
+		cout << "END OF FILE READED." << endl;
 	}
 }
 
@@ -52,6 +52,8 @@ int chClassify() {
 	if (ch == '+' || ch == '-' || ch == '*' || ch == '(' || ch == ')' || \
 		ch == '[' || ch == ']' || ch == '{' || ch == '}' || ch == ';' || ch == ',')
 		return SINGLE;
+	if (ch == -1)
+		return -1;
 	return UNDEFSY;
 }
 
@@ -199,9 +201,13 @@ READ:
 		nextch();
 		break;
 	}
+	case -1: {
+		sy = END_OF_FILE;
+		nextch();
+		break;
+	}
 	default:
-		if (ch != -1)
-			error(UNDEFINED_CH_ERROR);
+		error(UNDEFINED_CH_ERROR);
 		nextch();
 	ERROR:
 		goto READ;

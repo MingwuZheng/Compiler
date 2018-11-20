@@ -35,4 +35,5 @@
 #define EXPECT_ID_ERROR			33
 #define EXPECT_LBK_ERROR		34
 #define EXPECT_BECOME_ERROR		35
+#define UNEXPECTED_EOF_ERROR	36
 void error(int errorcode);

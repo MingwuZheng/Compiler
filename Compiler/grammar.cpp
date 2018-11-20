@@ -10,9 +10,16 @@
 #define UNMATCH(x,y) ((x == INTSY && y == CHARCON)||(x == CHARSY && y == INTCON))
 
 void readsym(symbol expect, int errormsg) {
+	if (sy == END_OF_FILE) {
+		if (!ENABLE_EOF) {
+			error(UNEXPECTED_EOF_ERROR);
+		}
+	}
 	if (sy != expect)
 		error(errormsg);
-	else insymbol();
+	else {
+		insymbol();
+	}
 }
 
 void program() {
@@ -111,7 +118,15 @@ void program() {
 					emit(ENTER, "", "", "", NULL);
 					compoundstatement();
 					emit(EXIT, "", "", "", NULL);
-					readsym(RBR, EXPECT_RBR_ERROR);
+					if (sy == RBR) {
+						ENABLE_EOF = true;
+						insymbol();
+					}
+					else error(EXPECT_RBR_ERROR);
+					if (input_f.is_open()) {
+						error(UNEXPECTED_EOF_ERROR);
+						input_f.close();
+					}
 					tabptr++;//应当最后一增，无实际意义
 					return;
 				}
@@ -288,7 +303,14 @@ void statement() {
 		readsym(SEMICOLON, EXPECT_SEMI_ERROR);
 		break;
 	}
-	default: {error(ILLEGAL_STATE_ERROR); break; }
+	default: {
+		error(ILLEGAL_STATE_ERROR);
+		while (sy != SEMICOLON) {
+			insymbol();
+		}
+		statement();
+		break;
+	}
 	}
 }
 
@@ -394,10 +416,12 @@ void forstatement() {
 }
 
 void scanstatement() {
+	insymbol();
 	readsym(LPT, EXPECT_LPT_ERROR);
 	readsym(IDENT, EXPECT_ID_ERROR);
 	emit(SCAN, id, "", "", NULL);
 	while (sy == COMMA) {
+		insymbol();
 		readsym(IDENT, EXPECT_ID_ERROR);
 		emit(SCAN, id, "", "", NULL);
 	}
@@ -408,9 +432,6 @@ void printstatement() {
 	int strptr = -1;
 	insymbol();
 	readsym(LPT, EXPECT_LPT_ERROR);
-	/*if (sy == IDENT)
-	emit(PRINT, id, "", "", NULL);
-	else {*/
 	if (sy == STRINGCON) {
 		//readsym(STRINGCON, ILLEGAL_PARALIST_ERROR);
 		for (int i = 0; i < const_strings.size(); i++) {

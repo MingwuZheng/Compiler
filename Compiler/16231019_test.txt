@@ -68,14 +68,14 @@ void test(){
 	test_letter_s = 112; 
 
 
-	a[0] = -1;
-	a[1] = -a[0] * -2 + ( 'e' - echo_lower(test_letter_c) ) * 1 / 1;
+	a0[0] = -1;
+	a0[1] = -a0[0] * -2 + ( 'e' - echo_lower(test_letter_c) ) * 1 / 1;
 	;
-	if(a[1] != 0)
+	if(a0[1] != 0)
 		printf("ERROR!");
 	{
-		printf(a[0] + 1);
-		printf(a[1]);
+		printf(a0[0] + 1);
+		printf(a0[1]);
 		printf(test_letter_t);
 		printf(test_letter_e);
 		printf(test_letter_s);

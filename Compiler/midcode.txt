@@ -1,1 +1,153 @@
-6 main  
+GOTO main  
+SET recursive_cal  
+ENTER   
+EQL cur_pointer amount t1
+BZ label1 t1 
+ARYL f 0 t2
+PRINT t2  
+BECOME 1  i
+SET label2  
+LES i amount t3
+BZ label3 t3 
+PRINTS 0  
+ARYL f i t4
+PRINT t4  
+ADD i 1 i
+GOTO label2  
+SET label3  
+PRINTS 1  
+RET 0  
+GOTO label4  
+SET label1  
+LES cur_pointer amount t5
+BZ label5 t5 
+BECOME min  i
+SET label6  
+ADD cur_pointer numbers_to_be_selected t6
+SUB t6 amount t7
+ADD t7 1 t8
+LEQ i t8 t9
+BZ label7 t9 
+ARYS cur_pointer i f
+ADD cur_pointer 1 t10
+ADD i 1 t11
+PUSH t10 recursive_cal 
+PUSH t11 recursive_cal 
+CALL recursive_cal  t12
+NEG 1  t13
+EQL t12 t13 t14
+BZ label8 t14 
+NEG 1  t15
+RET t15  
+GOTO label9  
+SET label8  
+SET label9  
+ADD i 1 i
+GOTO label6  
+SET label7  
+RET 0  
+GOTO label10  
+SET label5  
+NEG 1  t16
+RET t16  
+SET label10  
+SET label4  
+EXIT   
+SET initial  
+ENTER   
+BECOME 0  i
+SET label11  
+ARYS i var f
+ADD i 1 t17
+BECOME t17  i
+LEQ i lenth t18
+BNZ label11 t18 
+RET   
+EXIT   
+SET echo_lower  
+ENTER   
+GEQ a 97 t19
+BZ label12 t19 
+LEQ a 122 t20
+BZ label13 t20 
+RET a  
+GOTO label14  
+SET label13  
+PRINTS 2  
+RET 48  
+SET label14  
+GOTO label15  
+SET label12  
+PRINTS 2  
+RET 48  
+SET label15  
+EXIT   
+SET test  
+ENTER   
+BECOME 105  test_letter_i
+BECOME 106  test_letter_j
+BECOME 107  test_letter_k
+BECOME 108  test_letter_l
+BECOME 109  test_letter_m
+BECOME 110  test_letter_n
+BECOME 111  test_letter_e
+BECOME 112  test_letter_s
+NEG 1  t21
+ARYS 0 t21 a0
+ARYL a0 0 t22
+DIV t22 -2 t23
+NEG t23  t24
+PUSH 99 echo_lower 
+CALL echo_lower  t25
+SUB 101 t25 t26
+DIV t27 1 t28
+DIV t26 1 t27
+ADD t24 t28 t29
+ARYS 1 t29 a0
+ARYL a0 1 t30
+NEQ t30 0 t31
+BZ label16 t31 
+PRINTS 2  
+GOTO label17  
+SET label16  
+SET label17  
+ARYL a0 0 t32
+ADD t32 1 t33
+PRINT t33  
+ARYL a0 1 t34
+PRINT t34  
+PRINT 116  
+PRINT test_letter_e  
+PRINT test_letter_s  
+PRINT 116  
+PRINTS 1  
+EXIT   
+SET main  
+ENTER   
+CALL test  t35
+SCAN numbers_to_be_selected  
+SCAN amount  
+ADD amount 1 t36
+GTR t36 1000 t37
+BZ label18 t37 
+PRINTS 3  
+RET 0  
+GOTO label19  
+SET label18  
+SET label19  
+ADD amount 1 t38
+DIV t38 1 t39
+PUSH 0 initial 
+PUSH t39 initial 
+CALL initial  t40
+PUSH 0 recursive_cal 
+PUSH 1 recursive_cal 
+CALL recursive_cal  t41
+NEG 1  t42
+EQL t41 t42 t43
+BZ label20 t43 
+PRINTS 3  
+GOTO label21  
+SET label20  
+SET label21  
+EXIT   

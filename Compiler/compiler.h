@@ -30,7 +30,8 @@ enum symbol {
 	PLUS, MINUS, MULSY, DIVSY, EQLSY, NEQSY, GTRSY, GEQSY, LESSY, LEQSY,
 	LPT, RPT, LBK, RBK, LBR, RBR, COMMA, SEMICOLON, BECOMESY,
 	IFSY, WHILESY, FORSY, DOSY, ELSESY, MAIN, RETURN, INTSY, CHARSY, VOIDSY,
-	PRINTSY, SCANSY
+	PRINTSY, SCANSY,
+	END_OF_FILE
 };
 enum symType {
 	INT, CHAR, VOID
@@ -85,6 +86,7 @@ public:
 	void print(fstream &midcode_file);
 };
 // 全局变量
+extern bool ENABLE_EOF;
 extern fstream input_f;
 extern int lc;
 extern int cc;

@@ -6,6 +6,7 @@
 #include "midcode.h"
 
 fstream input_f;
+bool ENABLE_EOF = false;
 int lc = 1;
 int cc = 1;
 char ch;
@@ -79,6 +80,7 @@ int main() {
 	init_midcode();
 	lexical_init();
 	program();
+
 	print_midcode();
 	return 0;
 }
