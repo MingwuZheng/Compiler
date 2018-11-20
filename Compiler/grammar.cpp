@@ -9,7 +9,6 @@
 #define TP(x) ((x == INTSY) ? INT : ((x == VOIDSY) ? VOID : CHAR))
 #define UNMATCH(x,y) ((x == INTSY && y == CHARCON)||(x == CHARSY && y == INTCON))
 
-
 void readsym(symbol expect, int errormsg) {
 	if (sy != expect)
 		error(errormsg);
@@ -126,6 +125,7 @@ void program() {
 
 void constdec() {
 	symbol tp;
+	string name;
 	while (sy == CONSTSY) {
 		insymbol();
 		if (ISVALTYPE(sy)) {
@@ -133,6 +133,10 @@ void constdec() {
 			insymbol();
 			readsym(IDENT, EXPECT_ID_ERROR);
 			readsym(BECOMESY, ILLEGAL_VARDEF_ERROR);
+			if (sy == PLUS || sy == MINUS) {
+				insymbol();
+				num = (sy == MINUS) ? -num : num;
+			}
 			if (UNMATCH(tp, sy))
 				error(TYPE_CONFLICT_ERROR);
 			CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);//如果在函数内常量定义，偏移要减去参数空间
@@ -491,7 +495,7 @@ string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|
 			break;
 		}
 		case IDENT: {
-			if (GTAB.ele(id)->idtype == FUNCTION) {
+			if (GTAB.ele(id) != NULL && GTAB.ele(id)->idtype == FUNCTION) {
 				if (GTAB.ele(id)->symtype == VOID) {
 					error(TYPE_CONFLICT_ERROR);
 				}

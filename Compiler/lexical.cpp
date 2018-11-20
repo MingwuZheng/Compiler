@@ -209,6 +209,11 @@ READ:
 	}
 }
 
+void lexical_init() {
+	nextch();
+	insymbol();
+}
+
 int lexical_main() {
 	int count = 1;
 	char f_name[100] = { 0 };

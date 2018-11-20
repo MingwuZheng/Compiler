@@ -1,23 +1,11 @@
 #include "compiler.h"
 
-class quaternary {
-public:
-	qtnry_operator op;
-	string op1;
-	string op2;
-	string result;
-	quaternary() {op1 = "";op2 = "";op = SET;}
-	void set(qtnry_operator op,string op1,string op2, string result) {
-		this->op = op;
-		this->op1 = op1;
-		this->op2 = op2;
-		this->result = result;
-	}
-	void print(fstream &midcode_file) {
-		/////////////////
-	}
-};
+map<qtnry_operator, string> op_print;
 
+
+void quaternary::print(fstream &midcode_file) {
+	midcode_file << op_print[this->op] << " " << this->op1 << " " << this->op2 << " " << this->result << endl;
+}
 int qtnry_ptr = 0;
 int tempnum = 1;
 int labelnum = 1;
@@ -57,12 +45,39 @@ void emit(qtnry_operator op, string op1, string op2, string result, string* temp
 	qtnry_ptr++;
 }
 
-void print_midcode(fstream &midcode_file) {
+void print_midcode() {
+	fstream midcode_file("midcode.txt");
 	for (int i = 0; i < qtnry_ptr; i++) {
 		midcodes[i].print(midcode_file);
 	}
 }
 
 void init_midcode() {
+	op_print[RET] = "RET";
+	op_print[PUSH] = "PUSH";
+	op_print[CALL] = "CALL";
+	op_print[EXIT] = "EXIT";
+	op_print[ENTER] = "ENTER";
+	op_print[SET] = "SET";
+	op_print[GOTO] = "GOTO";
+	op_print[BNZ] = "BNZ";
+	op_print[BZ] = "BZ";
+	op_print[ADD] = "ADD";
+	op_print[SUB] = "SUB";
+	op_print[MUL] = "MUL";
+	op_print[DIV] = "DIV";
+	op_print[NEG] = "NEG";
+	op_print[EQL] = "EQL";
+	op_print[NEQ] = "NEQ";
+	op_print[GTR] = "GTR";
+	op_print[LES] = "LES";
+	op_print[GEQ] = "GEQ";
+	op_print[LEQ] = "LEQ";
+	op_print[BECOME] = "BECOME";
+	op_print[PRINT] = "PRINT";
+	op_print[SCAN] = "SCAN";
+	op_print[PRINTS] = "PRINTS";
+	op_print[ARYL] = "ARYL";
+	op_print[ARYS] = "ARYS";
 	emit(GOTO, "main", "", "", NULL);
 }

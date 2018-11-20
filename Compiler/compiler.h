@@ -62,14 +62,28 @@ public:
 	int ptr;
 	int filledsize;
 	symbolEle symbols[TAB_MAX];
-	symTab() { glbpos = -1; ptr = 0; filledsize = 0; memset(symbols, 0, sizeof(symbolEle)); }
+	symTab() { glbpos = -1; ptr = 0; filledsize = 0; }
 	void insert(string name, idType idtype, symType symtype, int var, int size, int addr);
 	symbolEle *ele(int);
 	symbolEle *ele(string);
 	int index(string x);
 	//void change(int, int);
 };
-
+class quaternary {
+public:
+	qtnry_operator op;
+	string op1;
+	string op2;
+	string result;
+	quaternary() { op1 = ""; op2 = ""; op = SET; }
+	void set(qtnry_operator op, string op1, string op2, string result) {
+		this->op = op;
+		this->op1 = op1;
+		this->op2 = op2;
+		this->result = result;
+	}
+	void print(fstream &midcode_file);
+};
 // 全局变量
 extern fstream input_f;
 extern int lc;
@@ -85,5 +99,6 @@ extern symbol sy;
 extern map<char, symbol> sps;//单字
 extern map<string, symbol> ksy;//关键字符号映射
 extern set<string> key;//关键字
-extern symTab symtabs[TAB_MAX];
+extern symTab symtabs[];
 extern vector<string> const_strings;
+extern quaternary midcodes[];
