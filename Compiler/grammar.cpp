@@ -482,7 +482,7 @@ void assignment() {//只有一次计算的表达式赋值（i=i+1）会生成不必要的中间变量，要
 		else {//局部的变量、常量
 			if (CTAB.ele(index)->idtype == CONST) {//局部常量
 				error(TYPE_CONFLICT_ERROR);
-				insymbol;
+				insymbol();
 			}
 			else {//局部变量、参数
 				readsym(BECOMESY, EXPECT_BECOME_ERROR);
@@ -504,7 +504,7 @@ string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|
 	}
 	case CHARCON: {
 		int n = chr;
-		insymbol;
+		insymbol();
 		return to_string(n);
 		break;
 	}

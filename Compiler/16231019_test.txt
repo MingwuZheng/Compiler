@@ -52,11 +52,22 @@ void test(){
 	const char test_letter_a = 'a', test_letter_b = 'b';
 	const int test_letter_d = 100, test_letter_f = 102;
 	const int test_letter_g = 103, test_letter_h = 104;
-	char test_letter_i = 'i',test_letter_j = 'j'; 
-	char test_letter_k = 'k',test_letter_l = 'l'; 
-	int test_letter_m = 109,test_letter_n = 110; 
-	int test_letter_e = 111,test_letter_s = 112; 
-	int a0[2], a1,___123;
+	char test_letter_i, test_letter_j; 
+	char test_letter_k, test_letter_l; 
+	int test_letter_m, test_letter_n; 
+	int test_letter_e, test_letter_s; 
+	int a0[2], a1, ___123;
+
+	test_letter_i = 'i';
+	test_letter_j = 'j'; 
+	test_letter_k = 'k';
+	test_letter_l = 'l';
+	test_letter_m = 109;
+	test_letter_n = 110; 
+	test_letter_e = 111;
+	test_letter_s = 112; 
+
+
 	a[0] = -1;
 	a[1] = -a[0] * -2 + ( 'e' - echo_lower(test_letter_c) ) * 1 / 1;
 	;
