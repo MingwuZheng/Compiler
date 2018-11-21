@@ -79,18 +79,21 @@ int flush_graph::gen_block(int pos, int preblk) {
 	int i, curblk;
 	if (pos2blk.find(pos) != pos2blk.end()) {
 		blocks[pos2blk[pos]].addpre(preblk);
-		return;
+		return pos2blk[pos];
 	}
 	if (preblk == NONBLK) {
 		blocks[0].entrance = pos;//入口
+		blocks[0].exit = pos;
 		blocks[0].next1 = 1;
 		blocks[0].next2 = NONBLK;
 		blocknum++;
 		gen_block(pos + 1, 0);
 		return 0;
 	}
-	if (pos == -1) {
+	if (pos == -1) {//出口
 		pos2blk[pos] = blocknum;
+		blocks[blocknum].entrance = -1;
+		blocks[blocknum].exit = -1;
 		blocks[blocknum].next1 = NONBLK;
 		blocks[blocknum].next2 = NONBLK;
 		return blocknum++;
@@ -109,7 +112,7 @@ int flush_graph::gen_block(int pos, int preblk) {
 	}
 	else if (midcodes[i - 1].op == GOTO)
 		blocks[curblk].next1 = gen_block(label2pos[midcodes[i - 1].op1], curblk);
-	else if (midcodes[i - 1].op == RET || midcodes[i - 1].op == EXIT)
+	else if (midcodes[i - 1].op == RET || midcodes[i - 1].op == EXIT) 
 		blocks[curblk].next1 = gen_block(-1, curblk);
 	else blocks[curblk].next1 = gen_block(i, curblk);
 	return curblk;

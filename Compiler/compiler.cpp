@@ -81,8 +81,8 @@ int main() {
 	init_midcode();
 	lexical_init();
 	program();
+	init_block();
 	print_midcode();
-
 
 	return 0;
 }

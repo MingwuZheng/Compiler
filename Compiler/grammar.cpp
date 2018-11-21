@@ -621,6 +621,11 @@ string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|
 		return result;
 		break;
 	}
+	default: {
+		error(ILLEGAL_FACTOR_ERROR);
+		return "";
+		break;
+	}
 	}
 }
 

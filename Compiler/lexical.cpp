@@ -229,7 +229,6 @@ int lexical_main() {
 		cout << "Not a valid filename!" << endl;
 		return 0;
 	}
-	char c;
 	init();
 	nextch();
 	while (true) {

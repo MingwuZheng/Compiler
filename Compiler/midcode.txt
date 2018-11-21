@@ -1,20 +1,13 @@
-GOTO main  
-
-SET comparison  
+GOTO main  SET comparison  
 ENTER   
 GEQ i_1 j_1 #t1
 BZ @LABEL1 #t1 
-
 RET 1 
-
 GOTO @LABEL2 
-
 SET @LABEL1  
 RET 0  
-
 SET @LABEL2  
 EXIT   
-
 SET quickSort  
 ENTER   
 BECOME left  i
@@ -26,93 +19,70 @@ BECOME #t3  ctemp
 PUSH i comparison 
 PUSH j comparison 
 CALL comparison  #t4
-
 EQL 1 #t4 #t5
 BZ @LABEL3 #t5 
-
 RET   
-
 GOTO @LABEL4  
-
 SET @LABEL3  
-
 SET @LABEL4 
-
 SET @LABEL5  
 ADD 1 2 #t6
 ADD #t6 3 #t7
 ADD #t7 97 #t8
 BECOME #t8  l
-
 SET @LABEL6  
 ARYL a j #t9
 GEQ #t9 temp #t10
 BZ @LABEL7 #t10 
-
 SUB j 1 j
 GOTO @LABEL6 
-
 SET @LABEL7  
 GTR j i #t11
 BZ @LABEL8 #t11 
-
 ARYL a j #t12
 ARYS i #t12 a
 ARYL c j #t13
 ARYS i #t13 c
 GOTO @LABEL9  
-
 SET @LABEL8  
-
 SET @LABEL9  
 NEG 1  #t14
 DIV 2 3 #t15
 SUB #t14 #t15 #t16
 BECOME #t16  l
-
 SET @LABEL10  
 ARYL a i #t17
 LEQ #t17 temp #t18
 BZ @LABEL11 #t18
-
 ADD i 1 i
 GOTO @LABEL10  
-
 SET @LABEL11  
 LES i j #t19
 BZ @LABEL12 #t19 
-
 ARYL a i #t20
 ARYS j #t20 a
 ARYL c i #t21
 ARYS j #t21 c
 GOTO @LABEL13 
-
 SET @LABEL12
-
 SET @LABEL13  
 NEQ i j #t22
 BNZ @LABEL5 #t22
-
 ARYS i temp a
 ARYS j ctemp c
 SUB i 1 #t23
 PUSH left quickSort 
 PUSH #t23 quickSort 
 CALL quickSort  #t24
-
 ADD i 1 #t25
 PUSH #t25 quickSort 
 PUSH right quickSort 
 CALL quickSort  #t26
-
 EXIT 
-
 SET initialize  
 ENTER   
 SUB 10 1 #t27
 BECOME #t27  i
-
 SET @LABEL14  
 GEQ i 0 #t28
 BZ @LABEL15 #t28 
@@ -120,47 +90,35 @@ DIV 4 2 #t29
 SUB #t29 2 #t30
 ARYS i #t30 a
 SUB i 1 i
-
 GOTO @LABEL14 
-
 SET @LABEL15  
 RET 99  
-
 EXIT   
-
 SET main  
 ENTER   
 CALL initialize  #t31
-
 EQL #t31 99 #t32
 BZ @LABEL16 #t32 
-
 BECOME 0  i
-
 SET @LABEL17  
 LES i 10 #t33
 BZ @LABEL18 #t33 
-
 SCAN tmp  
 SCAN ctmp  
 ARYS i tmp a
 ARYS i ctmp c
 ADD i 1 i
 GOTO @LABEL17  
-
 SET @LABEL18  
 SUB 10 1 #t34
 PUSH 0 quickSort 
 PUSH #t34 quickSort 
 CALL quickSort  #t35
-
 PRINTS 0  
 BECOME 0  i
-
 SET @LABEL19  
 LES i 10 #t36
 BZ @LABEL20 #t36 
-
 PRINTS 1  
 ADD i 1 #t37
 PRINT #t37  
@@ -169,10 +127,8 @@ PRINT #t38
 ARYL c i #t39
 EQL #t39 119 #t40
 BZ @LABEL21 #t40 
-
 PRINTS 2  
 GOTO @LABEL22  
-
 SET @LABEL21  
 SET @LABEL22  
 
