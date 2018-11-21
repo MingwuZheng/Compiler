@@ -318,7 +318,6 @@ string call(int pos) {//优化时注意，有返回值函数调用单列一句话可能会多出无意义中
 	string name = id;
 	string returnvar;
 	string parastk[TAB_MAX];
-
 	int paranum = 0, pstk = 0;
 	insymbol();
 	readsym(LPT, EXPECT_LPT_ERROR);

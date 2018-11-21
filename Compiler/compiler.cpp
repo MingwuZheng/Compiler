@@ -4,6 +4,7 @@
 #include "error.h"
 #include "grammar.h"
 #include "midcode.h"
+#include "analyse.h"
 
 fstream input_f;
 bool ENABLE_EOF = false;
@@ -80,7 +81,8 @@ int main() {
 	init_midcode();
 	lexical_init();
 	program();
-
 	print_midcode();
+
+
 	return 0;
 }
