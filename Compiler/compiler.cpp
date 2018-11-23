@@ -70,6 +70,7 @@ int main() {
 		return 0;
 	}
 	*/
+
 	char f_name[100] = "16231281_test.txt";
 	input_f.open(f_name, ios::in);
 	if (input_f.is_open() == false) {
@@ -83,6 +84,5 @@ int main() {
 	program();
 	init_block();
 	print_midcode();
-
 	return 0;
 }

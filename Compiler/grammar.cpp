@@ -9,6 +9,10 @@
 #define TP(x) ((x == INTSY) ? INT : ((x == VOIDSY) ? VOID : CHAR))
 #define UNMATCH(x,y) ((x == INTSY && y == CHARCON)||(x == CHARSY && y == INTCON))
 
+#define ISCHAR(x) (x[0] == '\'')
+#define CH2ASC(x) x = ((x[0] == '\'')?to_string((int)(x[1])):x)
+
+
 void readsym(symbol expect, int errormsg) {
 	if (sy == END_OF_FILE) {
 		if (!ENABLE_EOF) {
@@ -477,7 +481,7 @@ void assignment() {//只有一次计算的表达式赋值（i=i+1）会生成不必要的中间变量，要
 				emit(ARYS, aryindex, expvar, idname, NULL);
 			}
 			else {//全局的变量、常量
-				if (GTAB.ele(index)->idtype == CONST) {//全局常量
+				if (GTAB.ele(index)->idtype == CONST || GTAB.ele(index)->idtype == FUNCTION) {//全局常量、函数
 					error(TYPE_CONFLICT_ERROR);
 					insymbol();
 				}
@@ -500,11 +504,11 @@ void assignment() {//只有一次计算的表达式赋值（i=i+1）会生成不必要的中间变量，要
 			emit(ARYS, aryindex, expvar, idname, NULL);
 		}
 		else {//局部的变量、常量
-			if (CTAB.ele(index)->idtype == CONST) {//局部常量
+			if (CTAB.ele(index)->idtype == CONST || CTAB.ele(index)->idtype == PARA) {//局部常量、参数
 				error(TYPE_CONFLICT_ERROR);
 				insymbol();
 			}
-			else {//局部变量、参数
+			else {//局部变量
 				readsym(BECOMESY, EXPECT_BECOME_ERROR);
 				expvar = expression();
 				emit(BECOME, expvar, "", idname, NULL);
@@ -523,9 +527,10 @@ string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|
 		break;
 	}
 	case CHARCON: {
-		int n = chr;
 		insymbol();
-		return to_string(n);
+		string temp_str = "\'";
+		temp_str = temp_str + chr + temp_str;
+		return temp_str;
 		break;
 	}
 	case IDENT: {
@@ -615,6 +620,7 @@ string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|
 	case LPT: {//表达式
 		insymbol();
 		result = expression();
+		CH2ASC(result);
 		if (sy == RPT)
 			insymbol();
 		else error(EXPECT_RPT_ERROR);
@@ -635,6 +641,8 @@ string term() {//＜项＞::= ＜因子＞{＜乘法运算符＞＜因子＞}
 	while (sy == MULSY || sy == DIVSY) {
 		insymbol();
 		string tmp = factor();
+		CH2ASC(mid);
+		CH2ASC(tmp);
 		emit((sy == MULSY) ? MUL : DIV, mid, tmp, "", &mid);
 	}
 	return mid;
@@ -650,58 +658,76 @@ string expression() {//＜表达式＞::= ［＋｜－］＜项＞{＜加法运算符＞＜项＞}   //
 	}
 	string mid;
 	mid = term();
-	if (neg == -1)
+	if (neg == -1) {
+		CH2ASC(mid);
 		emit(NEG, mid, "", "", &mid);
+	}
 	while (sy == PLUS || sy == MINUS) {
 		symbol addop = sy;
 		insymbol();
 		string tmp = term();
+		CH2ASC(mid);
+		CH2ASC(tmp);
 		emit((addop == PLUS) ? ADD : SUB, mid, tmp, "", &mid);
 	}
 	return mid;
 }
 
 string condition() {
+#define ADAPT if(ISCHAR(o1) && ISCHAR(o2)) \
+				 {CH2ASC(o1);CH2ASC(o2);} \
+			  else if(ISCHAR(o1) || ISCHAR(o2)) \
+				 {error(TYPE_CONFLICT_ERROR);CH2ASC(o1);CH2ASC(o2);}
 	string o1, o2, result;
 	o1 = expression();
 	switch (sy) {
 	case EQLSY: {
 		insymbol();
 		o2 = expression();
+		ADAPT
 		emit(EQL, o1, o2, "", &result);
 		break;
 	}
 	case NEQSY: {
 		insymbol();
 		o2 = expression();
+		ADAPT
 		emit(NEQ, o1, o2, "", &result);
 		break;
 	}
 	case GTRSY: {
 		insymbol();
 		o2 = expression();
+		ADAPT
 		emit(GTR, o1, o2, "", &result);
 		break;
 	}
 	case GEQSY: {
 		insymbol();
 		o2 = expression();
+		ADAPT
 		emit(GEQ, o1, o2, "", &result);
 		break;
 	}
 	case LESSY: {
 		insymbol();
 		o2 = expression();
+		ADAPT
 		emit(LES, o1, o2, "", &result);
 		break;
 	}
 	case LEQSY: {
 		insymbol();
 		o2 = expression();
+		ADAPT
 		emit(LEQ, o1, o2, "", &result);
 		break;
 	}
 	default: {
+		if (ISCHAR(o1)) {
+			error(TYPE_CONFLICT_ERROR);
+			CH2ASC(o1);
+		}
 		return o1;
 		break;
 	}
