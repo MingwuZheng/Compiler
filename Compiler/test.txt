@@ -1,0 +1,26 @@
+const char a = 'a';
+char b;
+char c[2];
+char fc(char d){
+	int integer;
+	char e;
+	e = 'e';
+	integer = d + 1;
+	printf(integer);
+	f = d;
+	if(d > a)
+		printf(d);
+	else printf('a');
+	if(a)
+		printf("right")
+	return f;
+}
+void main(){
+	char g;
+	c[0] = 'c';
+	c[1] = c[0];
+	printf(c[0]);
+	d = 'd';
+	fc('d');
+	fc(d);
+}

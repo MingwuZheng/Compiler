@@ -290,7 +290,11 @@ void statement() {
 			if (GTAB.ele(CTAB.glbpos)->symtype == VOID)
 				error(TYPE_CONFLICT_ERROR);
 			insymbol();
-			emit(RET, expression(), "", "", NULL);
+			bool isch;
+			string expr= expression(&isch);
+			if (isch && GTAB.ele(CTAB.glbpos)->symtype != CHAR)
+				error(TYPE_CONFLICT_ERROR);
+			emit(RET, expr, "", "", NULL);
 			readsym(RPT, EXPECT_RPT_ERROR);
 		}
 		else emit(RET, "", "", "", NULL);
@@ -331,12 +335,19 @@ string call(int pos) {//优化时注意，有返回值函数调用单列一句话可能会多出无意义中
 		insymbol();
 	}
 	else {
-		parastk[pstk++] = expression();
+		bool temp;
+		int func_stab = GTAB.ele(pos)->addr;
+		
+		parastk[pstk] = expression(&temp);
+		if (temp != ((symtabs[func_stab]).ele(pstk++)->symtype == CHAR))
+			error(TYPE_CONFLICT_ERROR);
 		//emit(PUSH, expression(), name, "", nullptr);
 		paranum++;
 		while (sy == COMMA) {
 			insymbol();
-			parastk[pstk++] = expression();
+			parastk[pstk] = expression(&temp);
+			if (temp != ((symtabs[func_stab]).ele(pstk++)->symtype == CHAR))
+				error(TYPE_CONFLICT_ERROR);
 			paranum++;
 		}
 		if (paranum != GTAB.ele(pos)->var)
@@ -385,13 +396,15 @@ void whilestatement() {
 
 void forstatement() {
 	string initvar, loopvar, conditionvar, loopbegin, loopend, step;
+	bool temp;
 	int neg = 0;
 	insymbol();
 	readsym(LPT, EXPECT_LPT_ERROR);
 	readsym(IDENT, EXPECT_ID_ERROR);
 	loopvar = id;
 	readsym(BECOMESY, EXPECT_BECOME_ERROR);
-	initvar = expression();
+	initvar = expression(&temp);
+	if (temp)error(TYPE_CONFLICT_ERROR);
 	emit(BECOME, initvar, "", loopvar, NULL);//初始化循环变量
 	readsym(SEMICOLON, EXPECT_SEMI_ERROR);
 	emit(SET, "", "", "", &loopbegin);//循环开始
@@ -433,6 +446,7 @@ void scanstatement() {
 
 void printstatement() {
 	int strptr = -1;
+	bool temp;
 	insymbol();
 	readsym(LPT, EXPECT_LPT_ERROR);
 	if (sy == STRINGCON) {
@@ -451,13 +465,13 @@ void printstatement() {
 		insymbol();
 		if (sy == COMMA) {
 			insymbol();
-			string content = expression();
-			emit(PRINT, content, "", "", NULL);
+			string content = expression(&temp);
+			emit(temp ? PRINTC : PRINT, content, "", "", NULL);
 		}
 	}
 	else if (sy != RPT) {
-		string content = expression();
-		emit(PRINT, content, "", "", NULL);
+		string content = expression(&temp);
+		emit(temp ? PRINTC : PRINT, content, "", "", NULL);
 	}
 	else error(ILLEGAL_PARALIST_ERROR);
 	readsym(RPT, EXPECT_RPT_ERROR);
@@ -465,6 +479,7 @@ void printstatement() {
 
 void assignment() {//只有一次计算的表达式赋值（i=i+1）会生成不必要的中间变量，要优化
 	string expvar, aryindex, idname;
+	bool temp;
 	readsym(IDENT, EXPECT_ID_ERROR);
 	idname = id;
 	if (CTAB.ele(id) == NULL) {
@@ -474,10 +489,12 @@ void assignment() {//只有一次计算的表达式赋值（i=i+1）会生成不必要的中间变量，要
 			int index = GTAB.index(id);
 			if (GTAB.ele(index)->idtype == ARRAY) {//全局数组
 				readsym(LBK, EXPECT_LBK_ERROR);
-				aryindex = expression();
+				aryindex = expression(&temp);
+				if (temp)error(TYPE_CONFLICT_ERROR);
 				readsym(RBK, EXPECT_RBK_ERROR);
 				readsym(BECOMESY, EXPECT_BECOME_ERROR);
-				expvar = expression();
+				expvar = expression(&temp);
+				if ((GTAB.ele(index)->symtype == CHAR) != temp)error(TYPE_CONFLICT_ERROR);
 				emit(ARYS, aryindex, expvar, idname, NULL);
 			}
 			else {//全局的变量、常量
@@ -487,7 +504,8 @@ void assignment() {//只有一次计算的表达式赋值（i=i+1）会生成不必要的中间变量，要
 				}
 				else {//全局变量
 					readsym(BECOMESY, EXPECT_BECOME_ERROR);
-					expvar = expression();
+					expvar = expression(&temp);
+					if ((GTAB.ele(index)->symtype == CHAR) != temp)error(TYPE_CONFLICT_ERROR);
 					emit(BECOME, expvar, "", idname, NULL);
 				}
 			}
@@ -497,10 +515,12 @@ void assignment() {//只有一次计算的表达式赋值（i=i+1）会生成不必要的中间变量，要
 		int index = CTAB.index(id);
 		if (CTAB.ele(index)->idtype == ARRAY) {//局部数组
 			readsym(LBK, EXPECT_LBK_ERROR);
-			aryindex = expression();
+			aryindex = expression(&temp);
+			if (temp)error(TYPE_CONFLICT_ERROR);
 			readsym(RBK, EXPECT_RBK_ERROR);
 			readsym(BECOMESY, EXPECT_BECOME_ERROR);
-			expvar = expression();
+			expvar = expression(&temp);
+			if ((CTAB.ele(index)->symtype == CHAR) != temp)error(TYPE_CONFLICT_ERROR);
 			emit(ARYS, aryindex, expvar, idname, NULL);
 		}
 		else {//局部的变量、常量
@@ -510,14 +530,15 @@ void assignment() {//只有一次计算的表达式赋值（i=i+1）会生成不必要的中间变量，要
 			}
 			else {//局部变量
 				readsym(BECOMESY, EXPECT_BECOME_ERROR);
-				expvar = expression();
+				expvar = expression(&temp);
+				if ((CTAB.ele(index)->symtype == CHAR) != temp)error(TYPE_CONFLICT_ERROR);
 				emit(BECOME, expvar, "", idname, NULL);
 			}
 		}
 	}
 }
 
-string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|＜字符＞｜＜有返回值函数调用语句＞ | '('＜表达式＞')'
+string factor(bool *isch) {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|＜字符＞｜＜有返回值函数调用语句＞ | '('＜表达式＞')'
 	string result;
 	switch (sy) {
 	case INTCON: {
@@ -530,6 +551,7 @@ string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|
 		insymbol();
 		string temp_str = "\'";
 		temp_str = temp_str + chr + temp_str;
+		*isch = true;
 		return temp_str;
 		break;
 	}
@@ -538,6 +560,8 @@ string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|
 			if (GTAB.ele(id)->symtype == VOID) {
 				error(TYPE_CONFLICT_ERROR);
 			}
+			if (GTAB.ele(id)->symtype == CHAR)
+				*isch = true;
 			return call(GTAB.index(id));
 		}
 		else {
@@ -545,12 +569,17 @@ string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|
 				if (GTAB.ele(id) == NULL)
 					error(UNDEFINED_ID_ERROR);
 				else {//标识符在全局符号表里
+					if (GTAB.ele(id)->symtype == CHAR)
+						*isch = true;
 					int index = GTAB.index(id);
 					if (GTAB.ele(index)->idtype == ARRAY) {//全局数组
 						insymbol();
 						if (sy == LBK) {
 							insymbol();
-							emit(ARYL, GTAB.ele(index)->name, expression(), "", &result);
+							bool temp;
+							string expr = expression(&temp);
+							if (temp)error(TYPE_CONFLICT_ERROR);
+							emit(ARYL, GTAB.ele(index)->name, expr, "", &result);
 							if (sy = RBK)
 								insymbol();
 							else error(EXPECT_RBK_ERROR);
@@ -571,12 +600,17 @@ string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|
 				}
 			}
 			else {//标识符在局部符号表里
+				if (CTAB.ele(id)->symtype == CHAR)
+					*isch = true;
 				int index = CTAB.index(id);
 				if (CTAB.ele(index)->idtype == ARRAY) {//局部数组
 					insymbol();
 					if (sy == LBK) {
 						insymbol();
-						emit(ARYL, CTAB.ele(index)->name, expression(), "", &result);
+						bool temp;
+						string expr = expression(&temp);
+						if (temp)error(TYPE_CONFLICT_ERROR);
+						emit(ARYL, CTAB.ele(index)->name, expr, "", &result);
 						if (sy = RBK)
 							insymbol();
 						else error(EXPECT_RBK_ERROR);
@@ -619,7 +653,8 @@ string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|
 	}
 	case LPT: {//表达式
 		insymbol();
-		result = expression();
+		bool temp;
+		result = expression(&temp);
 		CH2ASC(result);
 		if (sy == RPT)
 			insymbol();
@@ -635,12 +670,15 @@ string factor() {//＜因子＞::= ＜标识符＞｜＜标识符＞'['＜表达式＞']'｜＜整数＞|
 	}
 }
 
-string term() {//＜项＞::= ＜因子＞{＜乘法运算符＞＜因子＞}
+string term(bool *isch) {//＜项＞::= ＜因子＞{＜乘法运算符＞＜因子＞}
 	string mid;
-	mid = factor();
+	bool temp;
+	mid = factor(&temp);
+	if (temp)*isch = true;
 	while (sy == MULSY || sy == DIVSY) {
+		*isch = false;
 		insymbol();
-		string tmp = factor();
+		string tmp = factor(&temp);
 		CH2ASC(mid);
 		CH2ASC(tmp);
 		emit((sy == MULSY) ? MUL : DIV, mid, tmp, "", &mid);
@@ -648,24 +686,32 @@ string term() {//＜项＞::= ＜因子＞{＜乘法运算符＞＜因子＞}
 	return mid;
 }
 
-string expression() {//＜表达式＞::= ［＋｜－］＜项＞{＜加法运算符＞＜项＞}   //[+|-]只作用于第一个<项>
+string expression(bool *isch) {//＜表达式＞::= ［＋｜－］＜项＞{＜加法运算符＞＜项＞}   //[+|-]只作用于第一个<项>
 	int neg = 1;
-	if (sy == PLUS)
+	bool temp;
+	*isch = true;
+	if (sy == PLUS) {
+		*isch = false;
 		insymbol();
+	}
 	else if (sy == MINUS) {
+		*isch = false;
 		insymbol();
 		neg = -1;
 	}
 	string mid;
-	mid = term();
+	mid = term(&temp);
+	if (!temp)*isch = false;
 	if (neg == -1) {
 		CH2ASC(mid);
+		*isch = false;
 		emit(NEG, mid, "", "", &mid);
 	}
 	while (sy == PLUS || sy == MINUS) {
+		*isch = false;
 		symbol addop = sy;
 		insymbol();
-		string tmp = term();
+		string tmp = term(&temp);
 		CH2ASC(mid);
 		CH2ASC(tmp);
 		emit((addop == PLUS) ? ADD : SUB, mid, tmp, "", &mid);
@@ -674,57 +720,58 @@ string expression() {//＜表达式＞::= ［＋｜－］＜项＞{＜加法运算符＞＜项＞}   //
 }
 
 string condition() {
-#define ADAPT if(ISCHAR(o1) && ISCHAR(o2)) \
+#define ADAPT if(isch_o1 && isch_o2) \
 				 {CH2ASC(o1);CH2ASC(o2);} \
-			  else if(ISCHAR(o1) || ISCHAR(o2)) \
+			  else if(isch_o1 || isch_o2) \
 				 {error(TYPE_CONFLICT_ERROR);CH2ASC(o1);CH2ASC(o2);}
 	string o1, o2, result;
-	o1 = expression();
+	bool isch_o1, isch_o2;
+	o1 = expression(&isch_o1);
 	switch (sy) {
 	case EQLSY: {
 		insymbol();
-		o2 = expression();
+		o2 = expression(&isch_o2);
 		ADAPT
 		emit(EQL, o1, o2, "", &result);
 		break;
 	}
 	case NEQSY: {
 		insymbol();
-		o2 = expression();
+		o2 = expression(&isch_o2);
 		ADAPT
 		emit(NEQ, o1, o2, "", &result);
 		break;
 	}
 	case GTRSY: {
 		insymbol();
-		o2 = expression();
+		o2 = expression(&isch_o2);
 		ADAPT
 		emit(GTR, o1, o2, "", &result);
 		break;
 	}
 	case GEQSY: {
 		insymbol();
-		o2 = expression();
+		o2 = expression(&isch_o2);
 		ADAPT
 		emit(GEQ, o1, o2, "", &result);
 		break;
 	}
 	case LESSY: {
 		insymbol();
-		o2 = expression();
+		o2 = expression(&isch_o2);
 		ADAPT
 		emit(LES, o1, o2, "", &result);
 		break;
 	}
 	case LEQSY: {
 		insymbol();
-		o2 = expression();
+		o2 = expression(&isch_o2);
 		ADAPT
 		emit(LEQ, o1, o2, "", &result);
 		break;
 	}
 	default: {
-		if (ISCHAR(o1)) {
+		if (isch_o1) {
 			error(TYPE_CONFLICT_ERROR);
 			CH2ASC(o1);
 		}
