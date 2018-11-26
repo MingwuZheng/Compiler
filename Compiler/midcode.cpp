@@ -10,10 +10,10 @@ int tempnum = 1;
 int labelnum = 1;
 quaternary midcodes[QTNRY_MAX];
 string gentempvar() {
-	return "#t" + to_string(tempnum++);
+	return "#" + to_string(tempnum++);
 }
 string genlabel() {
-	return "@LABEL" + to_string(labelnum++);
+	return "$LABEL" + to_string(labelnum++);
 }
 
 bool needtemp(qtnry_operator op) {
@@ -28,6 +28,8 @@ bool needlabel(qtnry_operator op) {
 	return false;
 }
 void emit(qtnry_operator op, string op1, string op2, string result, string* temp) {
+	if (op == ENTER)
+		tempnum = 1;
 	if (needtemp(op) && result == "") {
 		if (temp)
 			*temp = gentempvar();
@@ -76,6 +78,6 @@ void init_midcode() {
 	op_print[PRINTC] = "PRINTC";
 	op_print[ARYL] = "ARYL";
 	op_print[ARYS] = "ARYS";
-	emit(GOTO, "main", "", "", NULL);
+	//emit(GOTO, "main", "", "", NULL);
 }
 
