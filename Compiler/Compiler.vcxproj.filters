@@ -36,6 +36,9 @@
     <ClCompile Include="analyse.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="mips.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lexical.h">

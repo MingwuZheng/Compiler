@@ -71,7 +71,7 @@ int main() {
 	}
 	*/
 
-	char f_name[100] = "16231281_test.txt";
+	char f_name[100] = "test.txt";
 	input_f.open(f_name, ios::in);
 	if (input_f.is_open() == false) {
 		cout << "Not a valid filename!" << endl;
@@ -82,7 +82,7 @@ int main() {
 	init_midcode();
 	lexical_init();
 	program();
-	init_block();
+	//init_block();
 	print_midcode();
 	return 0;
 }

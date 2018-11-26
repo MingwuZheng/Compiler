@@ -3,7 +3,7 @@ char b;
 char c[2];
 char fc(char d){
 	int integer;
-	char e;
+	char e, f;
 	e = 'e';
 	integer = d + 1;
 	printf(integer);
@@ -11,12 +11,12 @@ char fc(char d){
 	if(d > a)
 		printf(d);
 	else printf('a');
-	if(a)
-		printf("right")
-	return f;
+	if(a + 1)
+		printf("right");
+	return (f);
 }
 void main(){
-	char g;
+	char d, g;
 	c[0] = 'c';
 	c[1] = c[0];
 	printf(c[0]);

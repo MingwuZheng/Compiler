@@ -540,6 +540,7 @@ void assignment() {//Ö»ÓĞÒ»´Î¼ÆËãµÄ±í´ïÊ½¸³Öµ£¨i=i+1£©»áÉú³É²»±ØÒªµÄÖĞ¼ä±äÁ¿£¬Òª
 
 string factor(bool *isch) {//£¼Òò×Ó£¾::= £¼±êÊ¶·û£¾£ü£¼±êÊ¶·û£¾'['£¼±í´ïÊ½£¾']'£ü£¼ÕûÊı£¾|£¼×Ö·û£¾£ü£¼ÓĞ·µ»ØÖµº¯Êıµ÷ÓÃÓï¾ä£¾ | '('£¼±í´ïÊ½£¾')'
 	string result;
+	*isch = false;
 	switch (sy) {
 	case INTCON: {
 		int n = num;
@@ -672,9 +673,10 @@ string factor(bool *isch) {//£¼Òò×Ó£¾::= £¼±êÊ¶·û£¾£ü£¼±êÊ¶·û£¾'['£¼±í´ïÊ½£¾']'£
 
 string term(bool *isch) {//£¼Ïî£¾::= £¼Òò×Ó£¾{£¼³Ë·¨ÔËËã·û£¾£¼Òò×Ó£¾}
 	string mid;
+	*isch = true;
 	bool temp;
 	mid = factor(&temp);
-	if (temp)*isch = true;
+	if (!temp)*isch = false;
 	while (sy == MULSY || sy == DIVSY) {
 		*isch = false;
 		insymbol();
@@ -686,7 +688,7 @@ string term(bool *isch) {//£¼Ïî£¾::= £¼Òò×Ó£¾{£¼³Ë·¨ÔËËã·û£¾£¼Òò×Ó£¾}
 	return mid;
 }
 
-string expression(bool *isch) {//£¼±í´ïÊ½£¾::= £Û£«£ü£­£İ£¼Ïî£¾{£¼¼Ó·¨ÔËËã·û£¾£¼Ïî£¾}   //[+|-]Ö»×÷ÓÃÓÚµÚÒ»¸ö<Ïî>
+string expression(bool* isch) {//£¼±í´ïÊ½£¾::= £Û£«£ü£­£İ£¼Ïî£¾{£¼¼Ó·¨ÔËËã·û£¾£¼Ïî£¾}   //[+|-]Ö»×÷ÓÃÓÚµÚÒ»¸ö<Ïî>
 	int neg = 1;
 	bool temp;
 	*isch = true;

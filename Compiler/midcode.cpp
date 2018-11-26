@@ -73,6 +73,7 @@ void init_midcode() {
 	op_print[PRINT] = "PRINT";
 	op_print[SCAN] = "SCAN";
 	op_print[PRINTS] = "PRINTS";
+	op_print[PRINTC] = "PRINTC";
 	op_print[ARYL] = "ARYL";
 	op_print[ARYS] = "ARYS";
 	emit(GOTO, "main", "", "", NULL);

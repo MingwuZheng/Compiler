@@ -150,6 +150,7 @@
     <ClCompile Include="init.cpp" />
     <ClCompile Include="lexical.cpp" />
     <ClCompile Include="midcode.cpp" />
+    <ClCompile Include="mips.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="analyse.h" />
