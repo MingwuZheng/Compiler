@@ -50,7 +50,8 @@ void print_midcode() {
 	}
 }
 
-void init_midcode() {
+void init_midcode()
+{
 	op_print[RET] = "RET";
 	op_print[PUSH] = "PUSH";
 	op_print[CALL] = "CALL";
@@ -78,6 +79,7 @@ void init_midcode() {
 	op_print[PRINTC] = "PRINTC";
 	op_print[ARYL] = "ARYL";
 	op_print[ARYS] = "ARYS";
+	op_print[SCANC] = "SCANC";
 	//emit(GOTO, "main", "", "", NULL);
 }
 

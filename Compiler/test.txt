@@ -13,6 +13,8 @@ char fc(char d){
 	else printf('a');
 	if(a + 1)
 		printf("right");
+	if('a'<'b')
+		printf("right")
 	return (f);
 }
 void main(){

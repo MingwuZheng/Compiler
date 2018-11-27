@@ -435,11 +435,53 @@ void scanstatement() {
 	insymbol();
 	readsym(LPT, EXPECT_LPT_ERROR);
 	readsym(IDENT, EXPECT_ID_ERROR);
-	emit(SCAN, id, "", "", NULL);
+	if (CTAB.ele(id) == NULL) {
+		if (GTAB.ele(id) == NULL)
+			error(UNDEFINED_ID_ERROR);
+		else {//标识符在全局符号表里
+			int index = GTAB.index(id);
+			if (GTAB.ele(index)->idtype == ARRAY|| \
+				GTAB.ele(index)->idtype == CONST || \
+				GTAB.ele(index)->idtype == FUNCTION) {//全局数组、常量、函数
+				error(TYPE_CONFLICT_ERROR);
+			}
+			else emit(GTAB.ele(index)->symtype == CHAR ? SCANC : SCAN, id, "", "", NULL);//全局的变量
+		}
+	}
+	else {//标识符在局部符号表里
+		int index = CTAB.index(id);
+		if (CTAB.ele(index)->idtype == ARRAY|| \
+			CTAB.ele(index)->idtype == CONST || \
+			CTAB.ele(index)->idtype == PARA) {//局部数组、常量、参数
+			error(TYPE_CONFLICT_ERROR);
+		}
+		else emit(CTAB.ele(index)->symtype == CHAR ? SCANC : SCAN, id, "", "", NULL);//局部的变量
+	}
 	while (sy == COMMA) {
 		insymbol();
 		readsym(IDENT, EXPECT_ID_ERROR);
-		emit(SCAN, id, "", "", NULL);
+		if (CTAB.ele(id) == NULL) {
+			if (GTAB.ele(id) == NULL)
+				error(UNDEFINED_ID_ERROR);
+			else {//标识符在全局符号表里
+				int index = GTAB.index(id);
+				if (GTAB.ele(index)->idtype == ARRAY || \
+					GTAB.ele(index)->idtype == CONST || \
+					GTAB.ele(index)->idtype == FUNCTION) {//全局数组、常量、函数
+					error(TYPE_CONFLICT_ERROR);
+				}
+				else emit(GTAB.ele(index)->symtype == CHAR ? SCANC : SCAN, id, "", "", NULL);//全局的变量
+			}
+		}
+		else {//标识符在局部符号表里
+			int index = CTAB.index(id);
+			if (CTAB.ele(index)->idtype == ARRAY || \
+				CTAB.ele(index)->idtype == CONST || \
+				CTAB.ele(index)->idtype == PARA) {//局部数组、常量、参数
+				error(TYPE_CONFLICT_ERROR);
+			}
+			else emit(CTAB.ele(index)->symtype == CHAR ? SCANC : SCAN, id, "", "", NULL);//局部的变量
+		}
 	}
 	readsym(RPT, EXPECT_RPT_ERROR);
 }

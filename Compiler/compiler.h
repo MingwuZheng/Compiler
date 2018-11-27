@@ -43,7 +43,7 @@ enum qtnry_operator {
 	SET, GOTO, BNZ, BZ,
 	ADD, SUB, MUL, DIV, NEG,
 	EQL, NEQ, GTR, LES, GEQ, LEQ, BECOME,
-	PRINT, SCAN, PRINTS, PRINTC,
+	PRINT, SCAN, PRINTS, PRINTC, SCANC,
 	ARYL, ARYS
 };
 typedef struct symbolEle {
