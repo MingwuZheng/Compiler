@@ -160,6 +160,7 @@
     <ClInclude Include="init.h" />
     <ClInclude Include="lexical.h" />
     <ClInclude Include="midcode.h" />
+    <ClInclude Include="mips.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="16231019_test.txt" />
@@ -167,6 +168,9 @@
     <Text Include="16721145_test.txt" />
     <Text Include="midcode.txt" />
     <Text Include="test.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="mips.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

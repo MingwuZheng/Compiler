@@ -1,38 +1,147 @@
-SET fc  
+SET comparison  
 ENTER   
-BECOME 'e'  e
-ADD d 1 #1
-BECOME #1  integer
-PRINT integer  
-BECOME d  f
-GTR d 97 #2
-BZ $LABEL1 #2 
-PRINTC d  
+GEQ i_1 j_1 #1
+BZ $LABEL1 #1 
+RET 1  
 GOTO $LABEL2  
 SET $LABEL1  
-PRINTC 'a'  
+RET 0  
 SET $LABEL2  
-ADD 97 1 #3
-BZ $LABEL3 #3 
-PRINTS 0  
+EXIT   
+SET quickSort  
+ENTER   
+BECOME left  i
+BECOME right  j
+ARYL a left #1
+BECOME #1  temp
+ARYL c left #2
+BECOME #2  ctemp
+PUSH i comparison 
+PUSH j comparison 
+CALL comparison  #3
+EQL 1 #3 #4
+BZ $LABEL3 #4 
+RET   
 GOTO $LABEL4  
 SET $LABEL3  
 SET $LABEL4  
-RET f  
+SET $LABEL5  
+ADD 1 2 #5
+ADD #5 3 #6
+ADD #6 97 #7
+BECOME #7  l
+SET $LABEL6  
+ARYL a j #8
+GEQ #8 temp #9
+BZ $LABEL7 #9 
+SUB j 1 j
+GOTO $LABEL6  
+SET $LABEL7  
+GTR j i #10
+BZ $LABEL8 #10 
+ARYL a j #11
+ARYS i #11 a
+ARYL c j #12
+ARYS i #12 c
+GOTO $LABEL9  
+SET $LABEL8  
+SET $LABEL9  
+NEG 1  #13
+DIV 2 3 #14
+SUB #13 #14 #15
+BECOME #15  l
+SET $LABEL10  
+ARYL a i #16
+LEQ #16 temp #17
+BZ $LABEL11 #17 
+ADD i 1 i
+GOTO $LABEL10  
+SET $LABEL11  
+LES i j #18
+BZ $LABEL12 #18 
+ARYL a i #19
+ARYS j #19 a
+ARYL c i #20
+ARYS j #20 c
+GOTO $LABEL13  
+SET $LABEL12  
+SET $LABEL13  
+NEQ i j #21
+BNZ $LABEL5 #21 
+ARYS i temp a
+ARYS j ctemp c
+SUB i 1 #22
+PUSH left quickSort 
+PUSH #22 quickSort 
+CALL quickSort  #23
+ADD i 1 #24
+PUSH #24 quickSort 
+PUSH right quickSort 
+CALL quickSort  #25
+EXIT   
+SET initialize  
+ENTER   
+SUB 10 1 #1
+BECOME #1  i
+SET $LABEL14  
+GEQ i 0 #2
+BZ $LABEL15 #2 
+DIV 4 2 #3
+SUB #3 2 #4
+ARYS i #4 a
+SUB i 1 i
+GOTO $LABEL14  
+SET $LABEL15  
+RET 99  
 EXIT   
 SET main  
 ENTER   
-ARYS 0 'c' c
-ARYL c 0 #4
-ARYS 1 #4 c
-ARYL c 0 #5
-PRINTC #5  
-BECOME 'd'  d
-PUSH 'd' fc 
-CALL fc  #6
-PUSH d fc 
-CALL fc  #7
-EXIT   
-
-CALL fc  #t7
+CALL initialize  #1
+EQL #1 99 #2
+BZ $LABEL16 #2 
+BECOME 0  i
+SET $LABEL17  
+LES i 10 #3
+BZ $LABEL18 #3 
+SCAN tmp  
+SCANC ctmp  
+ARYS i tmp a
+ARYS i ctmp c
+ADD i 1 i
+GOTO $LABEL17  
+SET $LABEL18  
+SUB 10 1 #4
+PUSH 0 quickSort 
+PUSH #4 quickSort 
+CALL quickSort  #5
+PRINTS 0  
+BECOME 0  i
+SET $LABEL19  
+LES i 10 #6
+BZ $LABEL20 #6 
+PRINTS 1  
+ADD i 1 #7
+PRINT #7  
+ARYL a i #8
+PRINT #8  
+ARYL c i #9
+EQL #9 119 #10
+BZ $LABEL21 #10 
+PRINTS 2  
+GOTO $LABEL22  
+SET $LABEL21  
+SET $LABEL22  
+ARYL a i #11
+EQL #11 42 #12
+BZ $LABEL23 #12 
+PRINTS 3  
+GOTO $LABEL24  
+SET $LABEL23  
+SET $LABEL24  
+ADD i 1 i
+GOTO $LABEL19  
+SET $LABEL20  
+GOTO $LABEL25  
+SET $LABEL16  
+SET $LABEL25  
 EXIT   

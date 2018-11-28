@@ -62,6 +62,9 @@
     <ClInclude Include="analyse.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="mips.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="16231019_test.txt">
@@ -79,5 +82,10 @@
     <Text Include="test.txt">
       <Filter>资源文件</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="mips.asm">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

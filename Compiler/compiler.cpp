@@ -5,6 +5,7 @@
 #include "grammar.h"
 #include "midcode.h"
 #include "analyse.h"
+#include "mips.h"
 
 fstream input_f;
 bool ENABLE_EOF = false;
@@ -71,7 +72,7 @@ int main() {
 	}
 	*/
 	
-	char f_name[100] = "test.txt";
+	char f_name[100] = "16231281_test.txt";
 	input_f.open(f_name, ios::in);
 	if (input_f.is_open() == false) {
 		cout << "Not a valid filename!" << endl;
@@ -84,5 +85,6 @@ int main() {
 	program();
 	//init_block();
 	print_midcode();
+	mips_main();
 	return 0;
 }

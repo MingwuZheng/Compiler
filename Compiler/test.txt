@@ -14,7 +14,7 @@ char fc(char d){
 	if(a + 1)
 		printf("right");
 	if('a'<'b')
-		printf("right")
+		printf("right");
 	return (f);
 }
 void main(){
