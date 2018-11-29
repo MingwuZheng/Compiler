@@ -167,7 +167,9 @@
     <Text Include="16231281_test.txt" />
     <Text Include="16721145_test.txt" />
     <Text Include="midcode.txt" />
-    <Text Include="test.txt" />
+    <Text Include="test_char.txt" />
+    <Text Include="test_recurse.txt" />
+    <Text Include="wsyc_reduce.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="mips.asm" />

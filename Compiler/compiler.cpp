@@ -72,7 +72,7 @@ int main() {
 	}
 	*/
 	
-	char f_name[100] = "16231281_test.txt";
+	char f_name[100] = "wsyc_reduce.txt";
 	input_f.open(f_name, ios::in);
 	if (input_f.is_open() == false) {
 		cout << "Not a valid filename!" << endl;

@@ -1,0 +1,74 @@
+const char CORRECT = 'c', INCORRECT = 'f';
+const int COUNT = 10, BESTNUM = 42;
+int a[10];
+char c[10];
+
+int comparison(int i_1, int j_1)
+{
+	if(i_1 >= j_1)
+		return(+1);
+	else
+		return(0);
+}
+void quickSort(int left, int right)
+{
+	int i, j, l;
+	int temp;
+	char ctemp;
+	i = left;
+	j = right;
+	temp = a[left];
+	ctemp = c[left];
+	if(1 == (comparison(i, j)))
+		return;
+	do
+	{
+		if (j > i)
+		{
+			a[i] = a[j];
+			c[i] = c[j];
+		}
+		if (i < j)
+		{
+			a[j] = a[i];
+			c[j] = c[i];
+		}
+	} while(i != j)
+	a[i] = temp;
+	c[j] = ctemp;
+	quickSort(left, i - 1);
+	quickSort(i + 1, right);
+}
+
+char initialize()
+{
+	int i;
+	for(i = COUNT - 1; i >= 0; i = i - 1)
+		a[i] = 4 / 2 - 2;
+	return(CORRECT);
+}
+
+void main()
+{
+	const char CHOSEN = 'w';
+	int i, tmp;
+	char ctmp;
+	if (initialize() == 'c')
+	{
+		for(i = 0; i < COUNT; i = i + 1)
+		{
+			scanf(tmp);
+			a[i] = tmp;
+		}
+		quickSort(0, COUNT - 1);
+		printf("Sorting finished~");
+		for(i = 0; i < COUNT; i = i + 1)
+		{
+			printf(a[i]);
+			if(a[i] == BESTNUM)
+			{
+				printf("And here comes the best number!");
+			}
+		}
+	}
+}

@@ -153,7 +153,7 @@ int var2offset(string var, bool *sp) {
 		if (midvar[index] == 0) {//新建中间变量
 			midnum++;
 			midvar[index] = midnum;
-			mips_f << "sub " << STK_BOTTOM << "," << STK_BOTTOM << ",4" << endl;
+			mips_f << "sub $fp,$fp,4" << endl;
 			return  -4 * midnum;
 		}
 		else return  -4 * midvar[index];
@@ -425,6 +425,12 @@ void content(string funcname) {
 		}
 		int op1_reg = rp.apply_reg(curmc.op1,1);
 		mips_f << "move " << TREG(res_reg) << "," << TREG(op1_reg) << endl;
+		if (GTAB.ele(curmc.result)) {//全局变量改了要回写
+			bool nul;
+			int off = var2offset(curmc.result, &nul);
+			mips_f << "add " << TEMP << "," << GLOBAL << "," << off << endl;
+			mips_f << "sw " << TREG(res_reg) << ",0(" << TEMP << ")" << endl;
+		}
 		break;
 	}
 	case PRINT: {
@@ -439,6 +445,12 @@ void content(string funcname) {
 		mips_f << "li $v0,5" << endl;
 		mips_f << "syscall" << endl;
 		mips_f << "move " << TREG(res_reg) << ",$v0" << endl;
+		if (GTAB.ele(curmc.op1)) {//全局变量改了要回写
+			bool nul;
+			int off = var2offset(curmc.op1, &nul);
+			mips_f << "add " << TEMP << "," << GLOBAL << "," << off << endl;
+			mips_f << "sw " << TREG(res_reg) << ",0(" << TEMP << ")" << endl;
+		}
 		break;
 	}
 	case SCANC: {
@@ -446,6 +458,12 @@ void content(string funcname) {
 		mips_f << "li $v0,12" << endl;
 		mips_f << "syscall" << endl;
 		mips_f << "move " << TREG(res_reg) << ",$v0" << endl;
+		if (GTAB.ele(curmc.op1)) {//全局变量改了要回写
+			bool nul;
+			int off = var2offset(curmc.op1, &nul);
+			mips_f << "add " << TEMP << "," << GLOBAL << "," << off << endl;
+			mips_f << "sw " << TREG(res_reg) << ",0(" << TEMP << ")" << endl;
+		}  
 		break;
 	}
 	case PRINTS: {
@@ -463,34 +481,35 @@ void content(string funcname) {
 	}
 	case ARYL: {
 		bool sp;
-		int ary = rp.apply_reg(curmc.op1, 0);
+		int ary = 3;
 		int off = var2offset(curmc.op1, &sp);
 		int des = rp.apply_reg(curmc.result, 0);
-		mips_f << "add " << TREG(ary) << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
+		mips_f << "add " << "$v0" << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
 		if (ISLNUM(curmc.op2)) {
-			mips_f << "lw " << TREG(des) << "," << 4 * stoi(curmc.op2) << "(" << TREG(ary) << ")" << endl;
+			mips_f << "lw " << TREG(des) << "," << 4 * stoi(curmc.op2) << "(" << "$v0" << ")" << endl;
 			break;
 		}
 		int idx = rp.apply_reg(curmc.op2,1);
 		mips_f << "mul " << TEMP << "," << TREG(idx) << ",4" << endl;
-		mips_f << "add " << TEMP << "," << TREG(ary) << "," << TEMP << endl;
+		mips_f << "add " << TEMP << "," << "$v0" << "," << TEMP << endl;
 		mips_f << "lw " << TREG(des) << "," << "0(" << TEMP << ")" << endl;
 		break;
 	}
 	case ARYS: {         
 		bool sp;
-		int ary = rp.apply_reg(curmc.result,0);
+		int ary = 3;
 		int off = var2offset(curmc.result, &sp);
-		mips_f << "add " << TREG(ary) << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
-		int src = rp.apply_reg(curmc.op2,1);
+		mips_f << "add " << "$v0" << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
 		if (ISLNUM(curmc.op1)) {
-			mips_f << "sw " << TREG(src) << "," << 4 * stoi(curmc.op1) << "(" << TREG(ary) << ")" << endl;
+			int src = rp.apply_reg(curmc.op2, 1);
+			mips_f << "sw " << TREG(src) << "," << 4 * stoi(curmc.op1) << "(" << "$v0" << ")" << endl;
 			break;
 		}
-		int idx = rp.apply_reg(curmc.op1,1);//申请的寄存器理论上有可能因为被出队导致寄存器号无效，但是这里只申请了三个
+		int idx = rp.apply_reg(curmc.op1, 1);
 		mips_f << "mul " << TEMP << "," << TREG(idx) << ",4" << endl;
-		mips_f << "add " << TEMP << "," << TREG(ary) << "," << TEMP << endl;
-		mips_f << "sw " << TREG(src) << "," << "0(" << TEMP << ")" << endl;
+		mips_f << "add " << "$v0" << "," << "$v0" << "," << TEMP << endl;
+		int src = rp.apply_reg(curmc.op2,1);//申请的寄存器理论上有可能因为被出队导致寄存器号无效，但是这里只申请了三个
+		mips_f << "sw " << TREG(src) << "," << "0(" << "$v0" << ")" << endl;
 		break;
 	}
 	default:
@@ -537,17 +556,19 @@ void call_handler() {
 		paranum++;
 		string para = midcodes[mcptr].op1;
 		int reg = rp.apply_reg(para, 1);
-		mips_f << "sw " << TREG(reg) << "," << -4 * paranum << "(" << STK_BOTTOM << ")" << endl;//存参数
+		mips_f << "sw " << TREG(reg) << "," << -4 * paranum << "($fp)" << endl;//存参数
 		mcptr++;
 	}
 	string retvar = midcodes[mcptr].result;
-	for (int i = 0; i < 32; i++)//将寄存器压栈
-		mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "(" << STK_BOTTOM << ")" << endl;
+	for (int i = 8; i < 32; i++)//将寄存器$s~,$t~,$sp,$ra压栈
+		mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
 	mips_f << "sub " << "$sp," << STK_BOTTOM << "," << REGS_OFFSET + funcsize << endl;
 	mips_f << "move $fp,$sp" << endl;
 	mips_f << "jal " << funcname << endl;
-	for (int i = 3; i < 32 && i != 29; i++) //将寄存器弹栈,不要写$v0、$sp
-		mips_f << "lw $" << i << "," << (31 - i) * 4 << "($sp)" << endl;
+	for (int i = 8; i < 32; i++) { //将寄存器弹栈,不要写$v0、$sp
+		if (i != 29)
+			mips_f << "lw $" << i << "," << (31 - i) * 4 << "($sp)" << endl;
+	}
 	mips_f << "lw $sp" << "," << 8 << "($sp)" << endl;
 	if (retvar != "") {
 		int ret_reg = rp.apply_reg(retvar, 0);

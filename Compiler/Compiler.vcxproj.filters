@@ -79,7 +79,13 @@
     <Text Include="16231281_test.txt">
       <Filter>资源文件</Filter>
     </Text>
-    <Text Include="test.txt">
+    <Text Include="test_char.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="test_recurse.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="wsyc_reduce.txt">
       <Filter>资源文件</Filter>
     </Text>
   </ItemGroup>

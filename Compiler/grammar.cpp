@@ -336,8 +336,7 @@ string call(int pos) {//优化时注意，有返回值函数调用单列一句话可能会多出无意义中
 	}
 	else {
 		bool temp;
-		int func_stab = GTAB.ele(pos)->addr;
-		
+		int func_stab = GTAB.ele(pos)->addr;	
 		parastk[pstk] = expression(&temp);
 		if (temp != ((symtabs[func_stab]).ele(pstk++)->symtype == CHAR))
 			error(TYPE_CONFLICT_ERROR);
