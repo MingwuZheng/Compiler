@@ -76,7 +76,7 @@ public:
 			bool sp;
 			int off = var2offset(queue2var(0), &sp);
 			mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
-			mips_f << "sw " << TREG(queue[0]) << ",0(" << TEMP << ")" << endl;
+			mips_f << "sw " << TREG(queue[0]) << ",0(" << TEMP << ")" << endl;//踢出一个变量会导致之前取得的号码不再能用
 			reg[queue[0]] = true;
 			queue2var(0) = "";
 			for (int i = 0; i < varnum - 1; i++)
