@@ -108,7 +108,7 @@ public:
 		queue[i] = reg;
 	}
 	int apply_reg(string name, bool needlw) {
-		int r = var2reg(name);
+		//int r = var2reg(name);
 		if (ISLNUM(name)) {
 			mips_f << "li " << TEMP << "," << name << endl;
 			return 9;
@@ -118,6 +118,14 @@ public:
 			mips_f << "li " << TEMP << "," << ascii << endl;
 			return 9;
 		}
+		bool sp;  
+		int off = var2offset(name, &sp);
+		mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
+		mips_f << "lw " << TEMP << ",0(" << TEMP << ")" << endl;
+		return 9;
+
+
+		/*
 		if (r != -1) {
 			toend(r);
 			return r;
@@ -132,6 +140,7 @@ public:
 			}
 			return reg;
 		}
+		*/
 	}
 };
 reg_pool rp;
@@ -176,7 +185,7 @@ void content(string funcname) {
 			int reg = rp.apply_reg(curmc.op1, 1);
 			mips_f << "move " << "$v0," << TREG(reg) << endl;
 		}
-		if(funcname!="main")
+		if(funcname != "main")
 			mips_f << "jr $ra" << endl;
 		else exit_main();
 		break;
@@ -200,6 +209,7 @@ void content(string funcname) {
 	case ADD: {
 		int res;
 		int res_reg = rp.apply_reg(curmc.result, 0);
+		mips_f << "move $t0,$t9" << endl;
 		if (ISLNUM(curmc.op1) && ISLNUM(curmc.op2)) {//常量合并优化
 			res = stoi(curmc.op1) + stoi(curmc.op2);
 			mips_f << "li " << TREG(res_reg) << "," << res << endl;
@@ -215,22 +225,34 @@ void content(string funcname) {
 		}
 		else {
 			int op1_reg = rp.apply_reg(curmc.op1, 1);
+			mips_f << "move $t1,$t9" << endl;
 			int op2_reg = rp.apply_reg(curmc.op2, 1);
-			mips_f << "add " << TREG(res_reg) << "," << TREG(op1_reg) << "," << TREG(op2_reg) << endl;
+			mips_f << "add " << TREG(0) << "," << "$t1" << "," << TREG(9) << endl;
+			bool sp;
+			int off = var2offset(curmc.result, &sp);
+			mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
+			mips_f << "sw " << "$t0" << ",0(" << TEMP << ")" << endl;
+
 		}
 		break;
 	}
 	case SUB: {
 		int res;
 		int res_reg = rp.apply_reg(curmc.result, 0);
+		mips_f << "move $t0,$t9" << endl;
 		if (ISLNUM(curmc.op1) && ISLNUM(curmc.op2)) {//常量合并优化
 			res = stoi(curmc.op1) - stoi(curmc.op2);
 			mips_f << "li " << TREG(res_reg) << "," << res << endl;
 			break;
 		}
 		int op1_reg = rp.apply_reg(curmc.op1, 1);
+		mips_f << "move $t1,$t9" << endl;
 		int op2_reg = rp.apply_reg(curmc.op2, 1);
-		mips_f << "sub " << TREG(res_reg) << "," << TREG(op1_reg) << "," << TREG(op2_reg) << endl;
+		mips_f << "sub " << "$t0" << "," << "$t1" << "," << TEMP << endl;
+		bool sp;
+		int off = var2offset(curmc.result, &sp);
+		mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
+		mips_f << "sw " << "$t0" << ",0(" << TEMP << ")" << endl;
 		break;
 	}
 	case MUL: {
