@@ -1,18 +1,25 @@
 #include "compiler.h"
 #include "midcode.h"
-
+#include "analyse.h"
 #define REG_NUM 9 //$t9用于缓冲
 #define MIDVAR_MAX 100
 #define REGS_OFFSET 32*4//栈底默认存32个寄存器
 #define STK_BOTTOM "$fp"//栈底寄存器 $v1 编号3\$fp
 #define GLOBAL "$gp"//先认为是0开始存全局变量
 #define TEMP "$t9"
+#define TEMP_ "$v1"
 #define TREG(x) ("$t" + to_string(x))
+#define SREG(x) ("$s" + to_string(x))
+
 
 #define ISLNUM(x) (((x[0] >= '0') && (x[0] <= '9')) || x[0] == '+' || x[0] == '-')
 #define ISLCHAR(x) (x[0] == '\'')
+#define ISSVAR(x) (graphs[cur_func - 1].global_var.find(x) != graphs[cur_func - 1].global_var.end())
+#define IS_UNALLOC_SVAR(x) (ISSVAR(x) && cgraph.gvar2sreg(x) == -1)
 
+#define ACTAB symtabs[cur_func]
 #define curmc midcodes[mcptr]
+#define cgraph graphs[cur_func - 1]
 fstream mips_f;
 
 int cur_func;//记得更新
@@ -107,28 +114,42 @@ public:
 			queue[i] = queue[i + 1];
 		queue[i] = reg;
 	}
-	int apply_reg(string name, bool needlw) {
-		//int r = var2reg(name);
+	string apply_reg(string name, bool needlw) {
+		bool sp;
+		int sreg;
 		if (ISLNUM(name)) {
 			mips_f << "li " << TEMP << "," << name << endl;
-			return 9;
+			return TEMP;
 		}
 		else if (ISLCHAR(name)) {
 			int ascii = name[1];
 			mips_f << "li " << TEMP << "," << ascii << endl;
-			return 9;
+			return TEMP;
 		}
-		bool sp;  
 		int off = var2offset(name, &sp);
-		mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
-		mips_f << "lw " << TEMP << ",0(" << TEMP << ")" << endl;
-		return 9;
-
-
-		/*
+		if (ISGLOBAL(name)) {
+			if (needlw) {
+				bool nul;
+				int off = var2offset(name, &nul);
+				mips_f << "add " << TEMP << "," << GLOBAL << "," << off << endl;
+				mips_f << "lw " << TEMP << ",0(" << TEMP << ")" << endl;
+			}
+			return TEMP;
+		}
+		if (ISSVAR(name)) {
+			if ((sreg = cgraph.gvar2sreg(name)) == -1 ) {
+				if (needlw) {
+					mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
+					mips_f << "lw " << TEMP << ",0(" << TEMP << ")" << endl;
+				}
+				return TEMP;
+			}
+			else return SREG(sreg);
+		}
+		int r = var2reg(name);
 		if (r != -1) {
 			toend(r);
-			return r;
+			return TREG(r);
 		}
 		else {
 			int reg = inqueue(name);
@@ -138,9 +159,8 @@ public:
 				mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
 				mips_f << "lw " << TREG(reg) << ",0(" << TEMP << ")" << endl;
 			}
-			return reg;
+			return TREG(reg);
 		}
-		*/
 	}
 };
 reg_pool rp;
@@ -152,7 +172,7 @@ void exit_main() {
 
 //读到中间变量记得登记
 int var2offset(string var, bool *sp) {
-#define ACTAB symtabs[cur_func]
+
 	if (var[0] == '#') {
 		*sp = true;
 		int index;
@@ -182,10 +202,10 @@ void content(string funcname) {
 	{
 	case RET: {
 		if (curmc.op1 != "") {
-			int reg = rp.apply_reg(curmc.op1, 1);
-			mips_f << "move " << "$v0," << TREG(reg) << endl;
+			string reg = rp.apply_reg(curmc.op1, 1);
+			mips_f << "move " << "$v0," << reg << endl;
 		}
-		if(funcname != "main")
+		if(funcname!="main")
 			mips_f << "jr $ra" << endl;
 		else exit_main();
 		break;
@@ -208,87 +228,88 @@ void content(string funcname) {
 	}
 	case ADD: {
 		int res;
-		int res_reg = rp.apply_reg(curmc.result, 0);
-		mips_f << "move $t0,$t9" << endl;
+		string res_reg = rp.apply_reg(curmc.result, 0);//结果不可能为常数、代码全局变量、块全局变量
 		if (ISLNUM(curmc.op1) && ISLNUM(curmc.op2)) {//常量合并优化
 			res = stoi(curmc.op1) + stoi(curmc.op2);
-			mips_f << "li " << TREG(res_reg) << "," << res << endl;
+			mips_f << "li " << res_reg << "," << res << endl;
 			break;
 		}
 		if (ISLNUM(curmc.op1)) {
-			int op2_reg = rp.apply_reg(curmc.op2, 1);
-			mips_f << "addi " << TREG(res_reg) << "," << TREG(op2_reg) << "," << curmc.op1 << endl;
+			string op2_reg = rp.apply_reg(curmc.op2, 1);
+			mips_f << "addi " << res_reg << "," << op2_reg << "," << curmc.op1 << endl;
 		}
 		else if (ISLNUM(curmc.op2)) {
-			int op1_reg = rp.apply_reg(curmc.op1, 1);
-			mips_f << "addi " << TREG(res_reg) << "," << TREG(op1_reg) << "," << curmc.op2 << endl;
+			string op1_reg = rp.apply_reg(curmc.op1, 1);
+			mips_f << "addi " << res_reg << "," << op1_reg << "," << curmc.op2 << endl;
 		}
 		else {
-			int op1_reg = rp.apply_reg(curmc.op1, 1);
-			mips_f << "move $t1,$t9" << endl;
-			int op2_reg = rp.apply_reg(curmc.op2, 1);
-			mips_f << "add " << TREG(0) << "," << "$t1" << "," << TREG(9) << endl;
-			bool sp;
-			int off = var2offset(curmc.result, &sp);
-			mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
-			mips_f << "sw " << "$t0" << ",0(" << TEMP << ")" << endl;
-
+			string op1_reg = rp.apply_reg(curmc.op1, 1);
+			if (op1_reg == TEMP)
+				mips_f << "move " << TEMP_ << "," << op1_reg << endl;
+			string op2_reg = rp.apply_reg(curmc.op2, 1);
+			mips_f << "add " << res_reg << "," << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << endl;
 		}
 		break;
 	}
 	case SUB: {
 		int res;
-		int res_reg = rp.apply_reg(curmc.result, 0);
-		mips_f << "move $t0,$t9" << endl;
+		string res_reg = rp.apply_reg(curmc.result, 0);
 		if (ISLNUM(curmc.op1) && ISLNUM(curmc.op2)) {//常量合并优化
 			res = stoi(curmc.op1) - stoi(curmc.op2);
-			mips_f << "li " << TREG(res_reg) << "," << res << endl;
+			mips_f << "li " << res_reg << "," << res << endl;
 			break;
 		}
-		int op1_reg = rp.apply_reg(curmc.op1, 1);
-		mips_f << "move $t1,$t9" << endl;
-		int op2_reg = rp.apply_reg(curmc.op2, 1);
-		mips_f << "sub " << "$t0" << "," << "$t1" << "," << TEMP << endl;
-		bool sp;
-		int off = var2offset(curmc.result, &sp);
-		mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
-		mips_f << "sw " << "$t0" << ",0(" << TEMP << ")" << endl;
+		string op1_reg = rp.apply_reg(curmc.op1, 1);
+		if (op1_reg == TEMP)
+			mips_f << "move " << TEMP_ << "," << op1_reg << endl;
+		string op2_reg = rp.apply_reg(curmc.op2, 1);
+		mips_f << "sub " << res_reg << "," << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << endl;
 		break;
 	}
 	case MUL: {
 		int res;
-		int res_reg = rp.apply_reg(curmc.result, 0);
+		string res_reg = rp.apply_reg(curmc.result, 0);
 		if (ISLNUM(curmc.op1) && ISLNUM(curmc.op2)) {//常量合并优化
 			res = stoi(curmc.op1) * stoi(curmc.op2);
-			mips_f << "li " << TREG(res_reg) << "," << res << endl;
+			mips_f << "li " << res_reg << "," << res << endl;
 			break;
 		}
-		int op1_reg = rp.apply_reg(curmc.op1, 1);
-		int op2_reg = rp.apply_reg(curmc.op2, 1);
-		mips_f << "mul " << TREG(res_reg) << "," << TREG(op1_reg) << "," << TREG(op2_reg) << endl;
+		string op1_reg = rp.apply_reg(curmc.op1, 1);
+		if (op1_reg == TEMP)
+			mips_f << "move " << TEMP_ << "," << op1_reg << endl;
+		string op2_reg = rp.apply_reg(curmc.op2, 1);
+		mips_f << "mul " << res_reg << "," << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << endl;
 		break;
 	}
 	case DIV: {
 		int res;
-		int res_reg = rp.apply_reg(curmc.result, 0);
+		string res_reg = rp.apply_reg(curmc.result, 0);
 		if (ISLNUM(curmc.op1) && ISLNUM(curmc.op2)) {//常量合并优化
 			res = stoi(curmc.op1) / stoi(curmc.op2);
-			mips_f << "li " << TREG(res_reg) << "," << res << endl;
+			mips_f << "li " << res_reg << "," << res << endl;
 			break;
 		}
-		int op1_reg = rp.apply_reg(curmc.op1,1);
-		int op2_reg = rp.apply_reg(curmc.op2,1);
-		mips_f << "div " << TREG(res_reg) << "," << TREG(op1_reg) << "," << TREG(op2_reg) << endl;
+		string op1_reg = rp.apply_reg(curmc.op1, 1);
+		if (op1_reg == TEMP)
+			mips_f << "move " << TEMP_ << "," << op1_reg << endl;
+		string op2_reg = rp.apply_reg(curmc.op2, 1);
+		mips_f << "div " << res_reg << "," << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << endl;
 		break;
 	}
 	case NEG: {
-		int res_reg = rp.apply_reg(curmc.result,0);
-		if (ISLNUM(curmc.op1)) {
-			mips_f << "li " << TREG(res_reg) << "," << -stoi(curmc.op1) << endl;
-			break;
+		string res_reg = rp.apply_reg(curmc.result,0);
+		if (ISLNUM(curmc.op1)) 
+			mips_f << "li " << res_reg << "," << -stoi(curmc.op1) << endl;
+		else {
+			string op1_reg = rp.apply_reg(curmc.op1, 1);
+			mips_f << "sub " << res_reg << ",$0," << op1_reg << endl;
 		}
-		int op1_reg = rp.apply_reg(curmc.op1,1);
-		mips_f << "sub " << TREG(res_reg) << ",$0," << TREG(op1_reg) << endl;
+		if (ISGLOBAL(curmc.result) || IS_UNALLOC_SVAR(curmc.result)) {
+			bool sp;
+			int off = var2offset(curmc.result, &sp);
+			mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
+			mips_f << "sw " << res_reg << ",0(" << TEMP << ")" << endl;
+		}
 		break;
 	}
 	case EQL: {
@@ -307,12 +328,14 @@ void content(string funcname) {
 				mips_f << "j " << curmc.op1 << endl;
 			break;
 		}
-		int op1_reg = rp.apply_reg(curmc.op1,1);
-		int op2_reg = rp.apply_reg(curmc.op2,1);
+		string op1_reg = rp.apply_reg(curmc.op1,1);
+		if (op1_reg == TEMP)
+			mips_f << "move " << TEMP_ << "," << op1_reg << endl;
+		string op2_reg = rp.apply_reg(curmc.op2,1);
 		mcptr++;
 		if (curmc.op == BNZ)
-			mips_f << "beq " << TREG(op1_reg) << "," << TREG(op2_reg) << "," << curmc.op1 << endl;
-		else mips_f << "bne " << TREG(op1_reg) << "," << TREG(op2_reg) << "," << curmc.op1 << endl;
+			mips_f << "beq " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
+		else mips_f << "bne " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
 		break;
 	}
 	case NEQ: {
@@ -331,12 +354,14 @@ void content(string funcname) {
 				mips_f << "j " << curmc.op1 << endl;
 			break;
 		}
-		int op1_reg = rp.apply_reg(curmc.op1,1);
-		int op2_reg = rp.apply_reg(curmc.op2,1);
+		string op1_reg = rp.apply_reg(curmc.op1,1);
+		if (op1_reg == TEMP)
+			mips_f << "move " << TEMP_ << "," << op1_reg << endl;
+		string op2_reg = rp.apply_reg(curmc.op2,1);
 		mcptr++;
 		if (curmc.op == BNZ)
-			mips_f << "bne " << TREG(op1_reg) << "," << TREG(op2_reg) << "," << curmc.op1 << endl;
-		else mips_f << "beq " << TREG(op1_reg) << "," << TREG(op2_reg) << "," << curmc.op1 << endl;
+			mips_f << "bne " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
+		else mips_f << "beq " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
 		break;
 	}
 	case GTR: {
@@ -355,12 +380,14 @@ void content(string funcname) {
 				mips_f << "j " << curmc.op1 << endl;
 			break;
 		}
-		int op1_reg = rp.apply_reg(curmc.op1, 1);
-		int op2_reg = rp.apply_reg(curmc.op2, 1);
+		string op1_reg = rp.apply_reg(curmc.op1, 1);
+		if (op1_reg == TEMP)
+			mips_f << "move " << TEMP_ << "," << op1_reg << endl;
+		string op2_reg = rp.apply_reg(curmc.op2, 1);
 		mcptr++;
 		if (curmc.op == BNZ)
-			mips_f << "bgt " << TREG(op1_reg) << "," << TREG(op2_reg) << "," << curmc.op1 << endl;
-		else mips_f << "ble " << TREG(op1_reg) << "," << TREG(op2_reg) << "," << curmc.op1 << endl;
+			mips_f << "bgt " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
+		else mips_f << "ble " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
 		break;
 	}
 	case LES: {
@@ -379,12 +406,14 @@ void content(string funcname) {
 				mips_f << "j " << curmc.op1 << endl;
 			break;
 		}
-		int op1_reg = rp.apply_reg(curmc.op1, 1);
-		int op2_reg = rp.apply_reg(curmc.op2, 1);
+		string op1_reg = rp.apply_reg(curmc.op1, 1);
+		if (op1_reg == TEMP)
+			mips_f << "move " << TEMP_ << "," << op1_reg << endl;
+		string op2_reg = rp.apply_reg(curmc.op2, 1);
 		mcptr++;
 		if (curmc.op == BNZ)
-			mips_f << "ble " << TREG(op1_reg) << "," << TREG(op2_reg) << "," << curmc.op1 << endl;
-		else mips_f << "bge " << TREG(op1_reg) << "," << TREG(op2_reg) << "," << curmc.op1 << endl;
+			mips_f << "ble " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
+		else mips_f << "bge " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
 		break;
 	}
 	case GEQ: {
@@ -403,12 +432,14 @@ void content(string funcname) {
 				mips_f << "j " << curmc.op1 << endl;
 			break;
 		}
-		int op1_reg = rp.apply_reg(curmc.op1, 1);
-		int op2_reg = rp.apply_reg(curmc.op2, 1);
+		string op1_reg = rp.apply_reg(curmc.op1, 1);
+		if (op1_reg == TEMP)
+			mips_f << "move " << TEMP_ << "," << op1_reg << endl;
+		string op2_reg = rp.apply_reg(curmc.op2, 1);
 		mcptr++;
 		if (curmc.op == BNZ)
-			mips_f << "bge " << TREG(op1_reg) << "," << TREG(op2_reg) << "," << curmc.op1 << endl;
-		else mips_f << "ble " << TREG(op1_reg) << "," << TREG(op2_reg) << "," << curmc.op1 << endl;
+			mips_f << "bge " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
+		else mips_f << "ble " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
 		break;
 	}
 	case LEQ: {
@@ -427,65 +458,65 @@ void content(string funcname) {
 				mips_f << "j " << curmc.op1 << endl;
 			break;
 		}
-		int op1_reg = rp.apply_reg(curmc.op1, 1);
-		int op2_reg = rp.apply_reg(curmc.op2, 1);
+		string op1_reg = rp.apply_reg(curmc.op1, 1);
+		if (op1_reg == TEMP)
+			mips_f << "move " << TEMP_ << "," << op1_reg << endl;
+		string op2_reg = rp.apply_reg(curmc.op2, 1);
 		mcptr++;
 		if (curmc.op == BNZ)
-			mips_f << "ble " << TREG(op1_reg) << "," << TREG(op2_reg) << "," << curmc.op1 << endl;
-		else mips_f << "bgt " << TREG(op1_reg) << "," << TREG(op2_reg) << "," << curmc.op1 << endl;
+			mips_f << "ble " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
+		else mips_f << "bgt " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
 		break;
 	}
 	case BECOME: {
-		int res_reg = rp.apply_reg(curmc.result,0);
-		if (ISLNUM(curmc.op1)) {
-			mips_f << "li " << TREG(res_reg) << "," << stoi(curmc.op1) << endl;
-			break;
+		string res_reg = rp.apply_reg(curmc.result,0);
+		if (ISLNUM(curmc.op1))
+			mips_f << "li " << res_reg << "," << stoi(curmc.op1) << endl;
+		else if (ISLCHAR(curmc.op1))
+			mips_f << "li " << res_reg << "," << (int)curmc.op1[1] << endl;
+		else {
+			string op1_reg = rp.apply_reg(curmc.op1, 1);//这里有可能产生复用TEMP，但是由于是赋值，所以无视
+			mips_f << "move " << res_reg << "," << op1_reg << endl;
 		}
-		if (ISLCHAR(curmc.op1)) {
-			mips_f << "li " << TREG(res_reg) << "," << (int)curmc.op1[1] << endl;
-			break;
-		}
-		int op1_reg = rp.apply_reg(curmc.op1,1);
-		mips_f << "move " << TREG(res_reg) << "," << TREG(op1_reg) << endl;
-		if (GTAB.ele(curmc.result)) {//全局变量改了要回写
-			bool nul;
-			int off = var2offset(curmc.result, &nul);
-			mips_f << "add " << TEMP << "," << GLOBAL << "," << off << endl;
-			mips_f << "sw " << TREG(res_reg) << ",0(" << TEMP << ")" << endl;
+		if (ISGLOBAL(curmc.result) || IS_UNALLOC_SVAR(curmc.result)) {
+			bool sp;
+			int off = var2offset(curmc.result, &sp);
+			mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
+			mips_f << "sw " << res_reg << ",0(" << TEMP << ")" << endl;
 		}
 		break;
 	}
 	case PRINT: {
 		mips_f << "li $v0,1" << endl;
-		int res = rp.apply_reg(curmc.op1, 1);
-		mips_f << "move $a0," << TREG(res) << endl;
+		string res_reg = rp.apply_reg(curmc.op1, 1);
+		mips_f << "move $a0," << res_reg << endl;
 		mips_f << "syscall" << endl;
 		break;
 	}
 	case SCAN: {
-		int res_reg = rp.apply_reg(curmc.op1, 0);
+		string res_reg = rp.apply_reg(curmc.op1, 0);
 		mips_f << "li $v0,5" << endl;
 		mips_f << "syscall" << endl;
-		mips_f << "move " << TREG(res_reg) << ",$v0" << endl;
-		if (GTAB.ele(curmc.op1)) {//全局变量改了要回写
-			bool nul;
-			int off = var2offset(curmc.op1, &nul);
-			mips_f << "add " << TEMP << "," << GLOBAL << "," << off << endl;
-			mips_f << "sw " << TREG(res_reg) << ",0(" << TEMP << ")" << endl;
+		mips_f << "move " << res_reg << ",$v0" << endl;
+		if (ISGLOBAL(curmc.op1) || IS_UNALLOC_SVAR(curmc.op1)) {
+			bool sp;
+			int off = var2offset(curmc.op1, &sp);
+			mips_f << "add " << TEMP_ << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
+			mips_f << "sw " << res_reg << ",0(" << TEMP_ << ")" << endl;
 		}
 		break;
 	}
 	case SCANC: {
-		int res_reg = rp.apply_reg(curmc.op1, 0);
+		string res_reg = rp.apply_reg(curmc.op1, 0);
 		mips_f << "li $v0,12" << endl;
 		mips_f << "syscall" << endl;
-		mips_f << "move " << TREG(res_reg) << ",$v0" << endl;
-		if (GTAB.ele(curmc.op1)) {//全局变量改了要回写
-			bool nul;
-			int off = var2offset(curmc.op1, &nul);
-			mips_f << "add " << TEMP << "," << GLOBAL << "," << off << endl;
-			mips_f << "sw " << TREG(res_reg) << ",0(" << TEMP << ")" << endl;
-		}  
+		mips_f << "move " << res_reg << ",$v0" << endl;
+		if (ISGLOBAL(curmc.op1) || IS_UNALLOC_SVAR(curmc.op1)) {
+			bool sp;
+			int off = var2offset(curmc.op1, &sp);
+			mips_f << "add " << TEMP_ << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
+			mips_f << "sw " << res_reg << ",0(" << TEMP_ << ")" << endl;
+		}
 		break;
 	}
 	case PRINTS: {
@@ -496,42 +527,48 @@ void content(string funcname) {
 	}
 	case PRINTC: {
 		mips_f << "li $v0,11" << endl;
-		int res = rp.apply_reg(curmc.op1, 1);
-		mips_f << "move $a0," << TREG(res) << endl;
+		string res = rp.apply_reg(curmc.op1, 1);
+		mips_f << "move $a0," << res << endl;
 		mips_f << "syscall" << endl;
 		break;
 	}
 	case ARYL: {
 		bool sp;
-		int ary = 3;
 		int off = var2offset(curmc.op1, &sp);
-		int des = rp.apply_reg(curmc.result, 0);
-		mips_f << "add " << "$v0" << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
-		if (ISLNUM(curmc.op2)) {
-			mips_f << "lw " << TREG(des) << "," << 4 * stoi(curmc.op2) << "(" << "$v0" << ")" << endl;
-			break;
+		string des = rp.apply_reg(curmc.result, 0);
+		mips_f << "add " << TEMP_ << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
+		if (ISLNUM(curmc.op2)) 
+			mips_f << "lw " << des << "," << 4 * stoi(curmc.op2) << "(" << TEMP_ << ")" << endl;
+		else {
+			string idx = rp.apply_reg(curmc.op2, 1);
+			mips_f << "mul " << TEMP << "," << idx << ",4" << endl;
+			mips_f << "add " << TEMP << "," << TEMP_ << "," << TEMP << endl;
+			mips_f << "lw " << des << "," << "0(" << TEMP << ")" << endl;
 		}
-		int idx = rp.apply_reg(curmc.op2,1);
-		mips_f << "mul " << TEMP << "," << TREG(idx) << ",4" << endl;
-		mips_f << "add " << TEMP << "," << "$v0" << "," << TEMP << endl;
-		mips_f << "lw " << TREG(des) << "," << "0(" << TEMP << ")" << endl;
+		if (ISGLOBAL(curmc.result) || IS_UNALLOC_SVAR(curmc.result)) {
+			bool sp;
+			int off = var2offset(curmc.result, &sp);
+			mips_f << "add " << TEMP_ << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
+			mips_f << "sw " << des << ",0(" << TEMP_ << ")" << endl;
+		}
 		break;
 	}
 	case ARYS: {         
-		bool sp;
-		int ary = 3;
+		bool sp; 
 		int off = var2offset(curmc.result, &sp);
-		mips_f << "add " << "$v0" << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
+		mips_f << "add " << TEMP_ << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
 		if (ISLNUM(curmc.op1)) {
-			int src = rp.apply_reg(curmc.op2, 1);
-			mips_f << "sw " << TREG(src) << "," << 4 * stoi(curmc.op1) << "(" << "$v0" << ")" << endl;
+			string src = rp.apply_reg(curmc.op2, 1);
+			mips_f << "sw " << src << "," << 4 * stoi(curmc.op1) << "(" << TEMP_ << ")" << endl;
 			break;
 		}
-		int idx = rp.apply_reg(curmc.op1, 1);
-		mips_f << "mul " << TEMP << "," << TREG(idx) << ",4" << endl;
-		mips_f << "add " << "$v0" << "," << "$v0" << "," << TEMP << endl;
-		int src = rp.apply_reg(curmc.op2,1);//申请的寄存器理论上有可能因为被出队导致寄存器号无效，但是这里只申请了三个
-		mips_f << "sw " << TREG(src) << "," << "0(" << "$v0" << ")" << endl;
+		string idx = rp.apply_reg(curmc.op1, 1);
+		mips_f << "mul " << TEMP << "," << idx << ",4" << endl;
+		mips_f << "add " << TEMP_ << "," << TEMP_ << "," << TEMP << endl;
+		string src = rp.apply_reg(curmc.op2,1);//申请的寄存器理论上有可能因为被出队导致寄存器号无效，但是这里只申请了三个
+		mips_f << "sw " << src << "," << "0(" << TEMP_ << ")" << endl;
+
+
 		break;
 	}
 	default:
@@ -549,6 +586,15 @@ void function_handler(string name) {
 	midnum = 0;
 	//
 	mcptr++;
+	for (int i = 0; i < GTAB.ele(name)->var; i++) {//为分配了全局寄存器的参数赋初值
+		int para_sreg;
+		if (ISSVAR(ACTAB.ele(i)->name) && (para_sreg=cgraph.gvar2sreg(ACTAB.ele(i)->name)) != -1) {
+			bool sp;
+			int off = var2offset(ACTAB.ele(i)->name, &sp);
+			mips_f << "add " << TEMP << "," << "$sp" << "," << off << endl;
+			mips_f << "lw " << SREG(para_sreg) << ",0(" << TEMP << ")" << endl;
+		}
+	}
 	while (midcodes[mcptr].op != EXIT)
 		content(name);
 	if (name != "main")
@@ -577,24 +623,26 @@ void call_handler() {
 	while (midcodes[mcptr].op != CALL) {
 		paranum++;
 		string para = midcodes[mcptr].op1;
-		int reg = rp.apply_reg(para, 1);
-		mips_f << "sw " << TREG(reg) << "," << -4 * paranum << "($fp)" << endl;//存参数
+		string reg = rp.apply_reg(para, 1);
+		mips_f << "sw " << reg << "," << -4 * paranum << "($fp)" << endl;//存参数
 		mcptr++;
 	}
 	string retvar = midcodes[mcptr].result;
-	for (int i = 8; i < 32; i++)//将寄存器$s~,$t~,$sp,$ra压栈
-		mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
+	for (int i = 8; i < 32; i++) {//将寄存器$s~,$t~,$sp,$ra压栈
+		if (i != 26 && i != 27 && i != 28)
+			mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
+	}
 	mips_f << "sub " << "$sp," << STK_BOTTOM << "," << REGS_OFFSET + funcsize << endl;
 	mips_f << "move $fp,$sp" << endl;
 	mips_f << "jal " << funcname << endl;
 	for (int i = 8; i < 32; i++) { //将寄存器弹栈,不要写$v0、$sp
-		if (i != 29)
+		if (i != 29 && i != 26 && i != 27 && i != 28)
 			mips_f << "lw $" << i << "," << (31 - i) * 4 << "($sp)" << endl;
 	}
 	mips_f << "lw $sp" << "," << 8 << "($sp)" << endl;
 	if (retvar != "") {
-		int ret_reg = rp.apply_reg(retvar, 0);
-		mips_f << "move " << TREG(ret_reg) << ",$v0" << endl;
+		string ret_reg = rp.apply_reg(retvar, 0);
+		mips_f << "move " << ret_reg << ",$v0" << endl;
 	}
 	mips_f << endl;
 }

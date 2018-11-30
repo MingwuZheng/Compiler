@@ -72,7 +72,7 @@ int main() {
 	}
 	*/
 	
-	char f_name[100] = "wsyc_reduce.txt";
+	char f_name[100] = "test_recurse.txt";
 	input_f.open(f_name, ios::in);
 	if (input_f.is_open() == false) {
 		cout << "Not a valid filename!" << endl;
@@ -83,8 +83,8 @@ int main() {
 	init_midcode();
 	lexical_init();
 	program();
-	//init_block();
 	print_midcode();
+	analyse_main();
 	mips_main();
 	return 0;
 }

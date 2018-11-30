@@ -818,7 +818,8 @@ string condition() {
 			error(TYPE_CONFLICT_ERROR);
 			CH2ASC(o1);
 		}
-		return o1;
+		CH2ASC(o1);
+		emit(NEQ, o1, "0", "", &result);
 		break;
 	}
 	}
