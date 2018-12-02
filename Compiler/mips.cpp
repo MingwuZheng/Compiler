@@ -1,7 +1,7 @@
 #include "compiler.h"
 #include "midcode.h"
 #include "analyse.h"
-#define REG_NUM 9 //$t9用于缓冲
+#define TREG_NUM 9 //$t9用于缓冲
 #define MIDVAR_MAX 100
 #define REGS_OFFSET 32*4//栈底默认存32个寄存器
 #define STK_BOTTOM "$fp"//栈底寄存器 $v1 编号3\$fp
@@ -15,11 +15,11 @@
 #define ISLNUM(x) (((x[0] >= '0') && (x[0] <= '9')) || x[0] == '+' || x[0] == '-')
 #define ISLCHAR(x) (x[0] == '\'')
 #define ISSVAR(x) (graphs[cur_func - 1].global_var.find(x) != graphs[cur_func - 1].global_var.end())
-#define IS_UNALLOC_SVAR(x) (ISSVAR(x) && cgraph.gvar2sreg(x) == -1)
+#define IS_UNALLOC_SVAR(x) (ISSVAR(x) && curgraph.gvar2sreg(x) == -1)
 
 #define ACTAB symtabs[cur_func]
 #define curmc midcodes[mcptr]
-#define cgraph graphs[cur_func - 1]
+#define curgraph graphs[cur_func - 1]
 fstream mips_f;
 
 int cur_func;//记得更新
@@ -34,14 +34,14 @@ void call_handler();
 class reg_pool {
 #define queue2var(x) reg2var[queue[x]]
 public:
-	bool reg[REG_NUM];
-	string reg2var[REG_NUM];
-	int queue[REG_NUM];
+	bool reg[TREG_NUM];
+	string reg2var[TREG_NUM];
+	int queue[TREG_NUM];
 	int varnum;
 
 	reg_pool() {
 		varnum = 0;
-		for (int i = 0; i < REG_NUM; i++) {
+		for (int i = 0; i < TREG_NUM; i++) {
 			reg[i] = true;
 			queue[i] = -1;
 			reg2var[i] = "";
@@ -49,28 +49,28 @@ public:
 	}
 	void flush() {
 		varnum = 0;
-		for (int i = 0; i < REG_NUM; i++) {
+		for (int i = 0; i < TREG_NUM; i++) {
 			reg[i] = true;
 			queue[i] = -1;
 			reg2var[i] = "";
 		}
 	}
 	int var2reg(string var) {
-		for (int i = 0; i < REG_NUM; i++) {
+		for (int i = 0; i < TREG_NUM; i++) {
 			if (reg2var[i] == var)
 				return i;
 		}
 		return -1;
 	}
 	int reg2queue(int reg) {
-		for (int i = 0; i < REG_NUM; i++) {
+		for (int i = 0; i < TREG_NUM; i++) {
 			if (queue[i] == reg)
 				return i;
 		}
 		return -1;
 	}
 	int ralloc() {
-		for (int i = 0; i < REG_NUM; i++) {
+		for (int i = 0; i < TREG_NUM; i++) {
 			if (reg[i] == true) {
 				reg[i] = false;
 				return i;
@@ -93,7 +93,7 @@ public:
 		}
 	}
 	int inqueue(string name) {
-		if (varnum < REG_NUM) {
+		if (varnum < TREG_NUM) {
 			int r = ralloc();
 			queue[varnum++] = r;
 			reg2var[r] = name;
@@ -137,7 +137,7 @@ public:
 			return TEMP;
 		}
 		if (ISSVAR(name)) {
-			if ((sreg = cgraph.gvar2sreg(name)) == -1 ) {
+			if ((sreg = curgraph.gvar2sreg(name)) == -1 ) {
 				if (needlw) {
 					mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
 					mips_f << "lw " << TEMP << ",0(" << TEMP << ")" << endl;
@@ -195,6 +195,65 @@ int var2offset(string var, bool *sp) {
 		*sp = true;
 		return REGS_OFFSET + ACTAB.filledsize - ACTAB.ele(var)->addr - 4;
 	}
+}
+
+/*//////////////////////////////////
+*************<--存储的32个寄存器中的$fp
+参数			|
+常量			|->function size
+变量			|
+*************
+32个寄存器	|->REGS_OFFSET(低地址存编号大的）
+*************<--$sp
+临时变量		|
+*************<--$fp
+//////////////////////////////////*/
+void call_handler() {
+	string funcname = (midcodes[mcptr].op == CALL) ? midcodes[mcptr].op1 : midcodes[mcptr].op2;
+	int funcsize = symtabs[GTAB.ele(funcname)->addr].filledsize;
+	int paranum = 0;
+	mips_f << endl;
+	while (midcodes[mcptr].op != CALL) {
+		paranum++;
+		string para = midcodes[mcptr].op1;
+		string reg = rp.apply_reg(para, 1);
+		mips_f << "sw " << reg << "," << -4 * paranum << "($fp)" << endl;//存参数
+		mcptr++;
+	}
+	string retvar = midcodes[mcptr].result;
+	for (int i = 8; i < 16; i++) {//将$t0~$t7分配的寄存器压栈
+		if (!rp.reg[i - 8])
+			mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
+	}
+	for (int i = 16; i < 24; i++) {//将$s0~$s7分配的寄存器压栈
+		if(curgraph.sreg2var[i-16] != "")
+			mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
+	}
+	if (rp.reg[8])
+		mips_f << "sw $t8," << -(funcsize + (24 + 1) * 4) << "($fp)" << endl;
+	for (int i = 29; i < 32; i++) //压$sp,$fp,$ra
+		mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
+	mips_f << "sub " << "$sp," << STK_BOTTOM << "," << REGS_OFFSET + funcsize << endl;
+	mips_f << "move $fp,$sp" << endl;
+	mips_f << "jal " << funcname << endl;
+	for (int i = 8; i < 16; i++) {//将$t0~$t7分配的寄存器弹栈
+		if (!rp.reg[i - 8])
+			mips_f << "lw $" << i << "," << (31 - i) * 4 << "($sp)" << endl;
+	}
+	for (int i = 16; i < 24; i++) {//将$s0~$s7分配的寄存器弹栈
+		if (curgraph.sreg2var[i - 16] != "")
+			mips_f << "lw $" << i << "," << (31 - i) * 4 << "($sp)" << endl;
+	}
+	if (rp.reg[8])
+		mips_f << "lw $t8," << (31 - 24) * 4 << "($sp)" << endl;
+	mips_f << "lw $" << 30 << "," << (31 - 30) * 4 << "($sp)" << endl;
+	mips_f << "lw $" << 31 << "," << (31 - 31) * 4 << "($sp)" << endl;
+	mips_f << "lw $sp" << "," << 8 << "($sp)" << endl;
+	if (retvar != "") {
+		string ret_reg = rp.apply_reg(retvar, 0);
+		mips_f << "move " << ret_reg << ",$v0" << endl;
+	}
+	mips_f << endl;
 }
 
 void content(string funcname) {
@@ -577,7 +636,6 @@ void content(string funcname) {
 	mcptr++;
 }
 
-
 void function_handler(string name) {
 	//init
 	cur_func = GTAB.ele(name)->addr;
@@ -588,63 +646,24 @@ void function_handler(string name) {
 	mcptr++;
 	for (int i = 0; i < GTAB.ele(name)->var; i++) {//为分配了全局寄存器的参数赋初值
 		int para_sreg;
-		if (ISSVAR(ACTAB.ele(i)->name) && (para_sreg=cgraph.gvar2sreg(ACTAB.ele(i)->name)) != -1) {
+		if (ISSVAR(ACTAB.ele(i)->name) && (para_sreg=curgraph.gvar2sreg(ACTAB.ele(i)->name)) != -1) {
 			bool sp;
 			int off = var2offset(ACTAB.ele(i)->name, &sp);
 			mips_f << "add " << TEMP << "," << "$sp" << "," << off << endl;
 			mips_f << "lw " << SREG(para_sreg) << ",0(" << TEMP << ")" << endl;
 		}
 	}
-	while (midcodes[mcptr].op != EXIT)
+	while (midcodes[mcptr].op != EXIT) {
+		for (int i = 0; i < curgraph.blocknum; i++) {//如果是一个基本块的开始，清空寄存器池
+			if (mcptr == curgraph.blocks[i].entrance)
+				rp.flush();
+		}
 		content(name);
+	}
 	if (name != "main")
 		mips_f << "jr $ra" << endl;
 	else exit_main();
 	mcptr++;
-}
-
-
-/*//////////////////////////////////
-*************<--存储的32个寄存器中的$fp
-参数			|
-常量			|->function size
-变量			|
-*************
-32个寄存器	|->REGS_OFFSET(低地址存编号大的）
-*************<--$sp
-临时变量		|
-*************<--$fp
-//////////////////////////////////*/
-void call_handler() {
-	string funcname = (midcodes[mcptr].op == CALL) ? midcodes[mcptr].op1 : midcodes[mcptr].op2;
-	int funcsize = symtabs[GTAB.ele(funcname)->addr].filledsize;
-	int paranum = 0;
-	mips_f << endl;
-	while (midcodes[mcptr].op != CALL) {
-		paranum++;
-		string para = midcodes[mcptr].op1;
-		string reg = rp.apply_reg(para, 1);
-		mips_f << "sw " << reg << "," << -4 * paranum << "($fp)" << endl;//存参数
-		mcptr++;
-	}
-	string retvar = midcodes[mcptr].result;
-	for (int i = 8; i < 32; i++) {//将寄存器$s~,$t~,$sp,$ra压栈
-		if (i != 26 && i != 27 && i != 28)
-			mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
-	}
-	mips_f << "sub " << "$sp," << STK_BOTTOM << "," << REGS_OFFSET + funcsize << endl;
-	mips_f << "move $fp,$sp" << endl;
-	mips_f << "jal " << funcname << endl;
-	for (int i = 8; i < 32; i++) { //将寄存器弹栈,不要写$v0、$sp
-		if (i != 29 && i != 26 && i != 27 && i != 28)
-			mips_f << "lw $" << i << "," << (31 - i) * 4 << "($sp)" << endl;
-	}
-	mips_f << "lw $sp" << "," << 8 << "($sp)" << endl;
-	if (retvar != "") {
-		string ret_reg = rp.apply_reg(retvar, 0);
-		mips_f << "move " << ret_reg << ",$v0" << endl;
-	}
-	mips_f << endl;
 }
 
 void header() {
