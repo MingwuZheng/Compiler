@@ -71,14 +71,12 @@ int main() {
 		return 0;
 	}
 	*/
-	
-	char f_name[100] = "16231019_test.txt";
+	char f_name[100] = "test_recurse.txt";
 	input_f.open(f_name, ios::in);
 	if (input_f.is_open() == false) {
 		cout << "Not a valid filename!" << endl;
 		return 0;
 	}
-
 	init();
 	init_midcode();
 	lexical_init();

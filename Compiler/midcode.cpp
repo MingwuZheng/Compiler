@@ -9,7 +9,11 @@ int qtnry_ptr = 0;
 int tempnum = 1;
 int labelnum = 1;
 quaternary midcodes[QTNRY_MAX];
+map<string, int> func_midvars;
+string cur_func_name;
+
 string gentempvar() {
+	func_midvars[cur_func_name]++;
 	return "#" + to_string(tempnum++);
 }
 string genlabel() {
@@ -28,8 +32,11 @@ bool needlabel(qtnry_operator op) {
 	return false;
 }
 void emit(qtnry_operator op, string op1, string op2, string result, string* temp) {
-	if (op == ENTER)
+	if (op == ENTER) {
+		cur_func_name = midcodes[qtnry_ptr - 1].op1;
+		func_midvars[cur_func_name] = 0;
 		tempnum = 1;
+	}
 	if (needtemp(op) && result == "") {
 		if (temp)
 			*temp = gentempvar();

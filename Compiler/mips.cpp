@@ -177,7 +177,7 @@ int var2offset(string var, bool *sp) {
 		if (midvar[index] == 0) {//新建中间变量
 			midnum++;
 			midvar[index] = midnum;
-			mips_f << "sub $fp,$fp,4" << endl;
+			//mips_f << "sub $fp,$fp,4" << endl;
 			return  -4 * midnum;
 		}
 		else return  -4 * midvar[index];
@@ -230,6 +230,7 @@ void call_handler() {
 		mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
 	mips_f << "sub " << "$sp," << STK_BOTTOM << "," << REGS_OFFSET + funcsize << endl;
 	mips_f << "move $fp,$sp" << endl;
+	mips_f << "sub " << "$fp,$fp," << 4 * func_midvars[funcname] << endl;
 	mips_f << "jal " << funcname << endl;
 	for (int i = 8; i < 16; i++) {//将$t0~$t7分配的寄存器弹栈
 		if (!rp.reg[i - 8])
@@ -661,8 +662,9 @@ void header() {
 		mips_f << "    $string" << i << ":" << " .asciiz" << " \"" << const_strings[i] << "\"" << endl;
 	mips_f << ".text" << endl;
 	int mainsize = symtabs[GTAB.ele("main")->addr].filledsize;
-	mips_f << "    sub " << "$sp,$sp" << "," << REGS_OFFSET + mainsize << endl;
+	mips_f << "    sub " << "$sp,$sp," << REGS_OFFSET + mainsize << endl;
 	mips_f << "    move $fp,$sp" << endl;
+	mips_f << "    sub " << "$fp,$fp" << "," << 4 * func_midvars["main"] << endl;
 	mips_f << "    j main" << endl;
 }
 

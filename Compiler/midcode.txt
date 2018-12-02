@@ -15,60 +15,58 @@ ADD i 1 i
 GOTO $LABEL2  
 SET $LABEL3  
 PRINTS 1  
-RET 0  
+RET   
 GOTO $LABEL4  
 SET $LABEL1  
-LES cur_pointer amount #5
-BZ $LABEL5 #5 
-BECOME min  i
-SET $LABEL6  
-ADD cur_pointer numbers_to_be_selected #6
-SUB #6 amount #7
-ADD #7 1 #8
-LEQ i #8 #9
-BZ $LABEL7 #9 
-ARYS cur_pointer i f
-ADD cur_pointer 1 #10
-ADD i 1 #11
-PUSH #10 recursive_cal 
-PUSH #11 recursive_cal 
-CALL recursive_cal  #12
-NEG 1  #13
-EQL #12 #13 #14
-BZ $LABEL8 #14 
-NEG 1  #15
-RET #15  
-GOTO $LABEL9  
-SET $LABEL8  
-SET $LABEL9  
-ADD i 1 i
-GOTO $LABEL6  
-SET $LABEL7  
-RET 0  
-GOTO $LABEL10  
-SET $LABEL5  
-NEG 1  #16
-RET #16  
-SET $LABEL10  
 SET $LABEL4  
+BECOME min  i
+SET $LABEL5  
+ADD cur_pointer numbers_to_be_selected #5
+SUB #5 amount #6
+ADD #6 1 #7
+LEQ i #7 #8
+BZ $LABEL6 #8 
+ARYS cur_pointer i f
+ADD cur_pointer 1 #9
+ADD i 1 #10
+PUSH #9 recursive_cal 
+PUSH #10 recursive_cal 
+CALL recursive_cal  #11
+ADD i 1 i
+GOTO $LABEL5  
+SET $LABEL6  
 EXIT   
 SET initial  
 ENTER   
 BECOME 0  i
-SET $LABEL11  
+SET $LABEL7  
 ARYS i var f
 ADD i 1 #1
 BECOME #1  i
 LEQ i lenth #2
-BNZ $LABEL11 #2 
+BNZ $LABEL7 #2 
 RET   
 EXIT   
-SET echo_lower  
+SET main  
 ENTER   
-GEQ a 97 #1
-BZ $LABEL12 #1 
-LEQ a 122 #2
-BZ $LABEL13 #2 
+SCAN numbers_to_be_selected  
+SCAN amount  
+ADD amount 1 #1
+GTR #1 1000 #2
+BZ $LABEL8 #2 
+PRINTS 2  
+RET   
+GOTO $LABEL9  
+SET $LABEL8  
+SET $LABEL9  
+ADD amount 1 #3
+PUSH 0 initial 
+PUSH #3 initial 
+CALL initial  #4
+PUSH 0 recursive_cal 
+PUSH 1 recursive_cal 
+CALL recursive_cal  #5
+EXIT   
 RET a  
 GOTO $LABEL14  
 SET $LABEL13  
