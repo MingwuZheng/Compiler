@@ -82,8 +82,7 @@ public:
 		if (name == "") {//默认弹出队首
 			bool sp;
 			int off = var2offset(queue2var(0), &sp);
-			mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
-			mips_f << "sw " << TREG(queue[0]) << ",0(" << TEMP << ")" << endl;//踢出一个变量会导致之前取得的号码不再能用
+			mips_f << "sw " << TREG(queue[0]) << "," << off << "(" << (sp ? "$sp" : GLOBAL) << ")" << endl;//踢出一个变量会导致之前取得的号码不再能用
 			reg[queue[0]] = true;
 			queue2var(0) = "";
 			for (int i = 0; i < varnum - 1; i++)
@@ -131,17 +130,14 @@ public:
 			if (needlw) {
 				bool nul;
 				int off = var2offset(name, &nul);
-				mips_f << "add " << TEMP << "," << GLOBAL << "," << off << endl;
-				mips_f << "lw " << TEMP << ",0(" << TEMP << ")" << endl;
+				mips_f << "lw " << TEMP << "," << off << "(" << GLOBAL << ")" << endl;
 			}
 			return TEMP;
 		}
 		if (ISSVAR(name)) {
 			if ((sreg = curgraph.gvar2sreg(name)) == -1 ) {
-				if (needlw) {
-					mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
-					mips_f << "lw " << TEMP << ",0(" << TEMP << ")" << endl;
-				}
+				if (needlw)
+					mips_f << "lw " << TEMP << "," << off << "(" << (sp ? "$sp" : GLOBAL) << ")" << endl;
 				return TEMP;
 			}
 			else return SREG(sreg);
@@ -156,8 +152,7 @@ public:
 			if (needlw) {
 				bool sp;
 				int off = var2offset(name, &sp);
-				mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
-				mips_f << "lw " << TREG(reg) << ",0(" << TEMP << ")" << endl;
+				mips_f << "lw " << TREG(reg) << "," << off << "(" << (sp ? "$sp" : GLOBAL) << ")" << endl;
 			}
 			return TREG(reg);
 		}
@@ -366,8 +361,7 @@ void content(string funcname) {
 		if (ISGLOBAL(curmc.result) || IS_UNALLOC_SVAR(curmc.result)) {
 			bool sp;
 			int off = var2offset(curmc.result, &sp);
-			mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
-			mips_f << "sw " << res_reg << ",0(" << TEMP << ")" << endl;
+			mips_f << "sw " << res_reg << "," << off << "(" << (sp ? "$sp" : GLOBAL) << ")" << endl;
 		}
 		break;
 	}
@@ -471,7 +465,7 @@ void content(string funcname) {
 		string op2_reg = rp.apply_reg(curmc.op2, 1);
 		mcptr++;
 		if (curmc.op == BNZ)
-			mips_f << "ble " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
+			mips_f << "blt " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
 		else mips_f << "bge " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
 		break;
 	}
@@ -498,7 +492,7 @@ void content(string funcname) {
 		mcptr++;
 		if (curmc.op == BNZ)
 			mips_f << "bge " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
-		else mips_f << "ble " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
+		else mips_f << "blt " << ((op1_reg == TEMP) ? TEMP_ : op1_reg) << "," << op2_reg << "," << curmc.op1 << endl;
 		break;
 	}
 	case LEQ: {
@@ -540,8 +534,7 @@ void content(string funcname) {
 		if (ISGLOBAL(curmc.result) || IS_UNALLOC_SVAR(curmc.result)) {
 			bool sp;
 			int off = var2offset(curmc.result, &sp);
-			mips_f << "add " << TEMP << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
-			mips_f << "sw " << res_reg << ",0(" << TEMP << ")" << endl;
+			mips_f << "sw " << res_reg << "," << off << "(" << (sp ? "$sp" : GLOBAL) << ")" << endl;
 		}
 		break;
 	}
@@ -560,8 +553,7 @@ void content(string funcname) {
 		if (ISGLOBAL(curmc.op1) || IS_UNALLOC_SVAR(curmc.op1)) {
 			bool sp;
 			int off = var2offset(curmc.op1, &sp);
-			mips_f << "add " << TEMP_ << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
-			mips_f << "sw " << res_reg << ",0(" << TEMP_ << ")" << endl;
+			mips_f << "sw " << res_reg << "," << off << "(" << (sp ? "$sp" : GLOBAL) << ")" << endl;
 		}
 		break;
 	}
@@ -573,8 +565,7 @@ void content(string funcname) {
 		if (ISGLOBAL(curmc.op1) || IS_UNALLOC_SVAR(curmc.op1)) {
 			bool sp;
 			int off = var2offset(curmc.op1, &sp);
-			mips_f << "add " << TEMP_ << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
-			mips_f << "sw " << res_reg << ",0(" << TEMP_ << ")" << endl;
+			mips_f << "sw " << res_reg << "," << off << "(" << (sp ? "$sp" : GLOBAL) << ")" << endl;
 		}
 		break;
 	}
@@ -600,15 +591,14 @@ void content(string funcname) {
 			mips_f << "lw " << des << "," << 4 * stoi(curmc.op2) << "(" << TEMP_ << ")" << endl;
 		else {
 			string idx = rp.apply_reg(curmc.op2, 1);
-			mips_f << "mul " << TEMP << "," << idx << ",4" << endl;
+			mips_f << "sll " << TEMP << "," << idx << ",2" << endl;
 			mips_f << "add " << TEMP << "," << TEMP_ << "," << TEMP << endl;
 			mips_f << "lw " << des << "," << "0(" << TEMP << ")" << endl;
 		}
 		if (ISGLOBAL(curmc.result) || IS_UNALLOC_SVAR(curmc.result)) {
 			bool sp;
 			int off = var2offset(curmc.result, &sp);
-			mips_f << "add " << TEMP_ << "," << (sp ? "$sp" : GLOBAL) << "," << off << endl;
-			mips_f << "sw " << des << ",0(" << TEMP_ << ")" << endl;
+			mips_f << "sw " << des << "," << off << "(" << (sp ? "$sp" : GLOBAL) << ")" << endl;
 		}
 		break;
 	}
@@ -622,7 +612,7 @@ void content(string funcname) {
 			break;
 		}
 		string idx = rp.apply_reg(curmc.op1, 1);
-		mips_f << "mul " << TEMP << "," << idx << ",4" << endl;
+		mips_f << "sll " << TEMP << "," << idx << ",2" << endl;
 		mips_f << "add " << TEMP_ << "," << TEMP_ << "," << TEMP << endl;
 		string src = rp.apply_reg(curmc.op2,1);//申请的寄存器理论上有可能因为被出队导致寄存器号无效，但是这里只申请了三个
 		mips_f << "sw " << src << "," << "0(" << TEMP_ << ")" << endl;
@@ -649,8 +639,7 @@ void function_handler(string name) {
 		if (ISSVAR(ACTAB.ele(i)->name) && (para_sreg=curgraph.gvar2sreg(ACTAB.ele(i)->name)) != -1) {
 			bool sp;
 			int off = var2offset(ACTAB.ele(i)->name, &sp);
-			mips_f << "add " << TEMP << "," << "$sp" << "," << off << endl;
-			mips_f << "lw " << SREG(para_sreg) << ",0(" << TEMP << ")" << endl;
+			mips_f << "lw " << SREG(para_sreg) << "," << off << "($sp)" << endl;
 		}
 	}
 	while (midcodes[mcptr].op != EXIT) {

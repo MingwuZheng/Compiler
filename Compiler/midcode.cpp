@@ -45,9 +45,8 @@ void emit(qtnry_operator op, string op1, string op2, string result, string* temp
 }
 void print_midcode() {
 	fstream midcode_file("midcode.txt");
-	for (int i = 0; i < qtnry_ptr; i++) {
+	for (int i = 0; i < qtnry_ptr; i++)
 		midcodes[i].print(midcode_file);
-	}
 }
 
 void init_midcode()

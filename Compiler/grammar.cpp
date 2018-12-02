@@ -719,12 +719,13 @@ string term(bool *isch) {//＜项＞::= ＜因子＞{＜乘法运算符＞＜因子＞}
 	mid = factor(&temp);
 	if (!temp)*isch = false;
 	while (sy == MULSY || sy == DIVSY) {
+		symbol t = sy;
 		*isch = false;
 		insymbol();
 		string tmp = factor(&temp);
 		CH2ASC(mid);
 		CH2ASC(tmp);
-		emit((sy == MULSY) ? MUL : DIV, mid, tmp, "", &mid);
+		emit((t == MULSY) ? MUL : DIV, mid, tmp, "", &mid);
 	}
 	return mid;
 }

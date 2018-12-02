@@ -169,6 +169,7 @@
     <Text Include="midcode.txt" />
     <Text Include="test_char.txt" />
     <Text Include="test_recurse.txt" />
+    <Text Include="test_recurse_switch.txt" />
     <Text Include="wsyc_reduce.txt" />
   </ItemGroup>
   <ItemGroup>

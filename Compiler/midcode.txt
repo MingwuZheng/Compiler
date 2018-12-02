@@ -15,55 +15,138 @@ ADD i 1 i
 GOTO $LABEL2  
 SET $LABEL3  
 PRINTS 1  
-RET   
+RET 0  
 GOTO $LABEL4  
 SET $LABEL1  
-SET $LABEL4  
+LES cur_pointer amount #5
+BZ $LABEL5 #5 
 BECOME min  i
-SET $LABEL5  
-ADD cur_pointer numbers_to_be_selected #5
-SUB #5 amount #6
-ADD #6 1 #7
-LEQ i #7 #8
-BZ $LABEL6 #8 
-ARYS cur_pointer i f
-ADD cur_pointer 1 #9
-ADD i 1 #10
-PUSH #9 recursive_cal 
-PUSH #10 recursive_cal 
-CALL recursive_cal  #11
-ADD i 1 i
-GOTO $LABEL5  
 SET $LABEL6  
+ADD cur_pointer numbers_to_be_selected #6
+SUB #6 amount #7
+ADD #7 1 #8
+LEQ i #8 #9
+BZ $LABEL7 #9 
+ARYS cur_pointer i f
+ADD cur_pointer 1 #10
+ADD i 1 #11
+PUSH #10 recursive_cal 
+PUSH #11 recursive_cal 
+CALL recursive_cal  #12
+NEG 1  #13
+EQL #12 #13 #14
+BZ $LABEL8 #14 
+NEG 1  #15
+RET #15  
+GOTO $LABEL9  
+SET $LABEL8  
+SET $LABEL9  
+ADD i 1 i
+GOTO $LABEL6  
+SET $LABEL7  
+RET 0  
+GOTO $LABEL10  
+SET $LABEL5  
+NEG 1  #16
+RET #16  
+SET $LABEL10  
+SET $LABEL4  
 EXIT   
 SET initial  
 ENTER   
 BECOME 0  i
-SET $LABEL7  
+SET $LABEL11  
 ARYS i var f
 ADD i 1 #1
 BECOME #1  i
 LEQ i lenth #2
-BNZ $LABEL7 #2 
+BNZ $LABEL11 #2 
 RET   
+EXIT   
+SET echo_lower  
+ENTER   
+GEQ a 97 #1
+BZ $LABEL12 #1 
+LEQ a 122 #2
+BZ $LABEL13 #2 
+RET a  
+GOTO $LABEL14  
+SET $LABEL13  
+PRINTS 2  
+RET '0'  
+SET $LABEL14  
+GOTO $LABEL15  
+SET $LABEL12  
+PRINTS 2  
+RET '0'  
+SET $LABEL15  
+EXIT   
+SET test  
+ENTER   
+BECOME 'i'  test_letter_i
+BECOME 'j'  test_letter_j
+BECOME 'k'  test_letter_k
+BECOME 'l'  test_letter_l
+BECOME 109  test_letter_m
+BECOME 110  test_letter_n
+BECOME 111  test_letter_e
+BECOME 112  test_letter_s
+NEG 1  #1
+ARYS 0 #1 a0
+ARYL a0 0 #2
+MUL #2 -2 #3
+NEG #3  #4
+PUSH 99 echo_lower 
+CALL echo_lower  #5
+SUB 101 #5 #6
+MUL #6 1 #7
+DIV #7 1 #8
+ADD #4 #8 #9
+ARYS 1 #9 a0
+ARYL a0 1 #10
+NEQ #10 0 #11
+BZ $LABEL16 #11 
+PRINTS 2  
+GOTO $LABEL17  
+SET $LABEL16  
+SET $LABEL17  
+ARYL a0 0 #12
+ADD #12 1 #13
+PRINT #13  
+ARYL a0 1 #14
+PRINT #14  
+PRINTC 116  
+PRINT test_letter_e  
+PRINT test_letter_s  
+PRINTC 116  
+PRINTS 1  
 EXIT   
 SET main  
 ENTER   
+CALL test  #1
 SCAN numbers_to_be_selected  
 SCAN amount  
-ADD amount 1 #1
-GTR #1 1000 #2
-BZ $LABEL8 #2 
-PRINTS 2  
-RET   
-GOTO $LABEL9  
-SET $LABEL8  
-SET $LABEL9  
-ADD amount 1 #3
+ADD amount 1 #2
+GTR #2 1000 #3
+BZ $LABEL18 #3 
+PRINTS 3  
+RET 0  
+GOTO $LABEL19  
+SET $LABEL18  
+SET $LABEL19  
+ADD amount 1 #4
+MUL #4 1 #5
 PUSH 0 initial 
-PUSH #3 initial 
-CALL initial  #4
+PUSH #5 initial 
+CALL initial  #6
 PUSH 0 recursive_cal 
 PUSH 1 recursive_cal 
-CALL recursive_cal  #5
+CALL recursive_cal  #7
+NEG 1  #8
+EQL #7 #8 #9
+BZ $LABEL20 #9 
+PRINTS 3  
+GOTO $LABEL21  
+SET $LABEL20  
+SET $LABEL21  
 EXIT   

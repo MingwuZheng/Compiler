@@ -1,0 +1,49 @@
+const int MAX = 1000;
+int numbers_to_be_selected, amount;
+int f[1000];
+void recursive_cal(int cur_pointer, int min) {
+	int i;
+	if (cur_pointer == amount) {
+		printf(f[0]);
+		i = 1;
+		do{
+			printf(" ", f[i]);
+			i = i + 1;
+		} while(i < amount); 	
+		printf("\n");
+		return;
+	}
+	else ;
+	i = min;
+	if(i <= cur_pointer + numbers_to_be_selected - amount + 1){
+		do{
+			f[cur_pointer] = i;
+			recursive_cal(cur_pointer + 1, i + 1);
+			i = i + 1;
+		}while(i <= cur_pointer + numbers_to_be_selected - amount + 1)
+	}
+	else ;
+}
+
+void initial(int var, int lenth) {
+	int i;
+	i = 0;
+	do
+	{
+		f[i] = var;
+		i = i + 1;
+	} while (i <= lenth)
+	return;
+}
+
+void main() {
+	int i, j;
+	scanf(numbers_to_be_selected, amount);
+	if (amount + 1 > MAX){
+		printf("ERROR!");
+		return;
+	}
+	else ;
+	initial(0, amount + 1);
+	recursive_cal(0, 1);
+}
