@@ -1,150 +1,193 @@
-SET recursive_cal  
+SET comparison  
 ENTER   
-EQL cur_pointer amount #1
+GEQ i_1 j_1 #1
 BZ $LABEL1 #1 
-ARYL f 0 #2
-PRINT #2  
-BECOME 1  i
-SET $LABEL2  
-LES i amount #3
-BZ $LABEL3 #3 
-PRINTS 0  
-ARYL f i #4
-PRINT #4  
-ADD i 1 i
+RET 1  
 GOTO $LABEL2  
-SET $LABEL3  
-PRINTS 1  
+SET $LABEL1  
+RET 0  
+SET $LABEL2  
+EXIT   
+SET quickSort  
+ENTER   
+BECOME left  i
+BECOME right  j
+ARYL a left #1
+BECOME #1  temp
+ARYL c left #2
+BECOME #2  ctemp
+PUSH i comparison 
+PUSH j comparison 
+CALL comparison  #3
+EQL 1 #3 #4
+BZ $LABEL3 #4 
 RET   
 GOTO $LABEL4  
-SET $LABEL1  
+SET $LABEL3  
 SET $LABEL4  
-BECOME min  i
 SET $LABEL5  
-ADD cur_pointer numbers_to_be_selected #5
-SUB #5 amount #6
-ADD #6 1 #7
-LEQ i #7 #8
-BZ $LABEL6 #8 
-ARYS cur_pointer i f
-ADD cur_pointer 1 #9
-ADD i 1 #10
-PUSH #9 recursive_cal 
-PUSH #10 recursive_cal 
-CALL recursive_cal  #11
-ADD i 1 i
-GOTO $LABEL5  
+BECOME 0  flag
+ADD 1 2 #5
+ADD #5 3 #6
+ADD #6 97 #7
+BECOME #7  l
 SET $LABEL6  
-EXIT   
-SET initial  
-ENTER   
-BECOME 0  i
-SET $LABEL7  
-ARYS i var f
-ADD i 1 #1
-BECOME #1  i
-LEQ i lenth #2
-BNZ $LABEL7 #2 
-RET   
-EXIT   
-SET main  
-ENTER   
-SCAN numbers_to_be_selected  
-SCAN amount  
-ADD amount 1 #1
-GTR #1 1000 #2
-BZ $LABEL8 #2 
-PRINTS 2  
-RET   
+ARYL a j #8
+GEQ #8 temp #9
+BZ $LABEL7 #9 
+EQL j i #10
+BZ $LABEL8 #10 
+BECOME 1  flag
+ARYL a j #11
+BECOME #11  ints
+ARYS j temp a
 GOTO $LABEL9  
 SET $LABEL8  
 SET $LABEL9  
-ADD amount 1 #3
-PUSH 0 initial 
-PUSH #3 initial 
-CALL initial  #4
-PUSH 0 recursive_cal 
-PUSH 1 recursive_cal 
-CALL recursive_cal  #5
-EXIT   
-RET a  
-GOTO $LABEL14  
-SET $LABEL13  
-PRINTS 2  
-RET '0'  
-SET $LABEL14  
-GOTO $LABEL15  
+SUB j 1 j
+GOTO $LABEL6  
+SET $LABEL7  
+NEQ flag 0 #12
+BZ $LABEL10 #12 
+ADD j 1 #13
+BECOME #13  j
+ARYS j ints a
+GOTO $LABEL11  
+SET $LABEL10  
+SET $LABEL11  
+GTR j i #14
+BZ $LABEL12 #14 
+ARYL a j #15
+ARYS i #15 a
+ARYL c j #16
+ARYS i #16 c
+ADD i 1 #17
+BECOME #17  i
+GOTO $LABEL13  
 SET $LABEL12  
-PRINTS 2  
-RET '0'  
-SET $LABEL15  
-EXIT   
-SET test  
-ENTER   
-BECOME 'i'  test_letter_i
-BECOME 'j'  test_letter_j
-BECOME 'k'  test_letter_k
-BECOME 'l'  test_letter_l
-BECOME 109  test_letter_m
-BECOME 110  test_letter_n
-BECOME 111  test_letter_e
-BECOME 112  test_letter_s
-NEG 1  #1
-ARYS 0 #1 a0
-ARYL a0 0 #2
-MUL #2 -2 #3
-NEG #3  #4
-PUSH 99 echo_lower 
-CALL echo_lower  #5
-SUB 101 #5 #6
-MUL #6 1 #7
-DIV #7 1 #8
-ADD #4 #8 #9
-ARYS 1 #9 a0
-ARYL a0 1 #10
-NEQ #10 0 #11
-BZ $LABEL16 #11 
-PRINTS 2  
+SET $LABEL13  
+BECOME 0  flag
+NEG 1  #18
+MUL 2 3 #19
+SUB #18 #19 #20
+SUB #20 -1 #21
+ADD #21 -1 #22
+MUL 2 97 #23
+ADD #22 #23 #24
+BECOME #24  l
+SET $LABEL14  
+ARYL a i #25
+LEQ #25 temp #26
+BZ $LABEL15 #26 
+EQL i j #27
+BZ $LABEL16 #27 
+BECOME 1  flag
+ARYL a i #28
+BECOME #28  ints
+ARYS i temp a
 GOTO $LABEL17  
 SET $LABEL16  
 SET $LABEL17  
-ARYL a0 0 #12
-ADD #12 1 #13
-PRINT #13  
-ARYL a0 1 #14
-PRINT #14  
-PRINTC 116  
-PRINT test_letter_e  
-PRINT test_letter_s  
-PRINTC 116  
-PRINTS 1  
-EXIT   
-SET main  
-ENTER   
-CALL test  #1
-SCAN numbers_to_be_selected  
-SCAN amount  
-ADD amount 1 #2
-GTR #2 1000 #3
-BZ $LABEL18 #3 
-PRINTS 3  
-RET 0  
+ADD i 1 i
+GOTO $LABEL14  
+SET $LABEL15  
+NEQ flag 0 #29
+BZ $LABEL18 #29 
+SUB i 1 #30
+BECOME #30  i
+ARYS i ints a
 GOTO $LABEL19  
 SET $LABEL18  
 SET $LABEL19  
-ADD amount 1 #4
-MUL #4 1 #5
-PUSH 0 initial 
-PUSH #5 initial 
-CALL initial  #6
-PUSH 0 recursive_cal 
-PUSH 1 recursive_cal 
-CALL recursive_cal  #7
-NEG 1  #8
-EQL #7 #8 #9
-BZ $LABEL20 #9 
-PRINTS 3  
+LES i j #31
+BZ $LABEL20 #31 
+ARYL a i #32
+ARYS j #32 a
+ARYL c i #33
+ARYS j #33 c
+SUB j 1 #34
+BECOME #34  j
 GOTO $LABEL21  
 SET $LABEL20  
 SET $LABEL21  
+LES i j #35
+BNZ $LABEL5 #35 
+ARYS i temp a
+ARYS j ctemp c
+SUB i 1 #36
+PUSH left quickSort 
+PUSH #36 quickSort 
+CALL quickSort  #37
+ADD i 1 #38
+PUSH #38 quickSort 
+PUSH right quickSort 
+CALL quickSort  #39
+EXIT   
+SET initialize  
+ENTER   
+SUB 10 1 #1
+BECOME #1  i
+SET $LABEL22  
+NEG 1  #2
+GTR i #2 #3
+BZ $LABEL23 #3 
+DIV 4 2 #4
+SUB #4 2 #5
+ARYS i #5 a
+SUB i 1 i
+GOTO $LABEL22  
+SET $LABEL23  
+RET 99  
+EXIT   
+SET main  
+ENTER   
+CALL initialize  #1
+EQL #1 99 #2
+BZ $LABEL24 #2 
+BECOME 0  i
+SET $LABEL25  
+LES i 10 #3
+BZ $LABEL26 #3 
+SCAN tmp  
+SCANC Tmp  
+ARYS i tmp a
+ARYS i Tmp c
+ADD i 1 i
+GOTO $LABEL25  
+SET $LABEL26  
+SUB 10 1 #4
+PUSH 0 quickSort 
+PUSH #4 quickSort 
+CALL quickSort  #5
+PRINTS 0  
+BECOME 0  i
+SET $LABEL27  
+SUB 10 1 #6
+LEQ i #6 #7
+BZ $LABEL28 #7 
+PRINTS 1  
+ADD i 1 #8
+PRINT #8  
+ARYL a i #9
+PRINT #9  
+ARYL c i #10
+EQL #10 119 #11
+BZ $LABEL29 #11 
+PRINTS 2  
+GOTO $LABEL30  
+SET $LABEL29  
+SET $LABEL30  
+ARYL a i #12
+EQL #12 42 #13
+BZ $LABEL31 #13 
+PRINTS 3  
+GOTO $LABEL32  
+SET $LABEL31  
+SET $LABEL32  
+ADD i 1 i
+GOTO $LABEL27  
+SET $LABEL28  
+GOTO $LABEL33  
+SET $LABEL24  
+SET $LABEL33  
 EXIT   

@@ -165,6 +165,7 @@
   <ItemGroup>
     <Text Include="16231019_test.txt" />
     <Text Include="16231281_test.txt" />
+    <Text Include="16231281_test_new.txt" />
     <Text Include="16721145_test.txt" />
     <Text Include="midcode.txt" />
     <Text Include="test_char.txt" />
