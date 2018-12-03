@@ -1,77 +1,73 @@
-SET comparison  
+SET recursive_cal  
 ENTER   
-GEQ i_1 j_1 #1
+EQL cur_pointer amount #1
 BZ $LABEL1 #1 
-RET 1  
-GOTO $LABEL2  
-SET $LABEL1  
-RET 0  
+ARYL f 0 #2
+PRINT #2  
+BECOME 1  i
 SET $LABEL2  
-EXIT   
-SET quickSort  
-ENTER   
-BECOME left  i
-BECOME right  j
-ARYL a left #1
-BECOME #1  temp
-ARYL c left #2
-BECOME #2  ctemp
-PUSH i comparison 
-PUSH j comparison 
-CALL comparison  #3
-EQL 1 #3 #4
-BZ $LABEL3 #4 
+LES i amount #3
+BZ $LABEL3 #3 
+PRINTS 0  
+ARYL f i #4
+PRINT #4  
+ADD i 1 i
+GOTO $LABEL2  
+SET $LABEL3  
+PRINTS 1  
 RET   
 GOTO $LABEL4  
-SET $LABEL3  
+SET $LABEL1  
 SET $LABEL4  
+BECOME min  i
 SET $LABEL5  
-BECOME 0  flag
-ADD 1 2 #5
-ADD #5 3 #6
-ADD #6 97 #7
-BECOME #7  l
+ADD cur_pointer numbers_to_be_selected #5
+SUB #5 amount #6
+ADD #6 1 #7
+LEQ i #7 #8
+BZ $LABEL6 #8 
+ARYS cur_pointer i f
+ADD cur_pointer 1 #9
+ADD i 1 #10
+PUSH #9 recursive_cal 
+PUSH #10 recursive_cal 
+CALL recursive_cal  #11
+ADD i 1 i
+GOTO $LABEL5  
 SET $LABEL6  
-ARYL a j #8
-GEQ #8 temp #9
-BZ $LABEL7 #9 
-EQL j i #10
-BZ $LABEL8 #10 
-BECOME 1  flag
-ARYL a j #11
-BECOME #11  ints
-ARYS j temp a
+EXIT   
+SET initial  
+ENTER   
+BECOME 0  i
+SET $LABEL7  
+ARYS i var f
+ADD i 1 #1
+BECOME #1  i
+LEQ i lenth #2
+BNZ $LABEL7 #2 
+RET   
+EXIT   
+SET main  
+ENTER   
+SCAN numbers_to_be_selected  
+SCAN amount  
+ADD amount 1 #1
+GTR #1 1000 #2
+BZ $LABEL8 #2 
+PRINTS 2  
+RET   
 GOTO $LABEL9  
 SET $LABEL8  
 SET $LABEL9  
-SUB j 1 j
-GOTO $LABEL6  
-SET $LABEL7  
-NEQ flag 0 #12
-BZ $LABEL10 #12 
-ADD j 1 #13
-BECOME #13  j
-ARYS j ints a
-GOTO $LABEL11  
-SET $LABEL10  
-SET $LABEL11  
-GTR j i #14
-BZ $LABEL12 #14 
-ARYL a j #15
-ARYS i #15 a
-ARYL c j #16
-ARYS i #16 c
-ADD i 1 #17
-BECOME #17  i
-GOTO $LABEL13  
-SET $LABEL12  
-SET $LABEL13  
-BECOME 0  flag
-NEG 1  #18
-MUL 2 3 #19
-SUB #18 #19 #20
-SUB #20 -1 #21
-ADD #21 -1 #22
+ADD amount 1 #3
+PUSH 0 initial 
+PUSH #3 initial 
+CALL initial  #4
+PUSH 0 recursive_cal 
+PUSH 1 recursive_cal 
+CALL recursive_cal  #5
+EXIT   
+D #21 -1 #22
 MUL 2 97 #23
 ADD #22 #23 #24
 BECOME #24  l

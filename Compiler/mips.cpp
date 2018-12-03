@@ -224,8 +224,8 @@ void call_handler() {
 		if(curgraph.sreg2var[i-16] != "")
 			mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
 	}
-	if (rp.reg[8])
-		mips_f << "sw $t8," << -(funcsize + (24 + 1) * 4) << "($fp)" << endl;
+	if (!rp.reg[8])
+		mips_f << "sw $24," << -(funcsize + (24 + 1) * 4) << "($fp)" << endl;
 	for (int i = 29; i < 32; i++) //ѹ$sp,$fp,$ra
 		mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
 	mips_f << "sub " << "$sp," << STK_BOTTOM << "," << REGS_OFFSET + funcsize << endl;
@@ -240,8 +240,8 @@ void call_handler() {
 		if (curgraph.sreg2var[i - 16] != "")
 			mips_f << "lw $" << i << "," << (31 - i) * 4 << "($sp)" << endl;
 	}
-	if (rp.reg[8])
-		mips_f << "lw $t8," << (31 - 24) * 4 << "($sp)" << endl;
+	if (!rp.reg[8])
+		mips_f << "lw $24," << (31 - 24) * 4 << "($sp)" << endl;
 	mips_f << "lw $" << 30 << "," << (31 - 30) * 4 << "($sp)" << endl;
 	mips_f << "lw $" << 31 << "," << (31 - 31) * 4 << "($sp)" << endl;
 	mips_f << "lw $sp" << "," << 8 << "($sp)" << endl;
