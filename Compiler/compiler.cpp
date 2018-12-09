@@ -66,7 +66,7 @@ symTab symtabs[TAB_MAX];
 int main() {
 
 
-	
+
 	char f_name[100] = { 0 };
 	cin >> f_name;
 	input_f.open(f_name, ios::in);
@@ -75,12 +75,35 @@ int main() {
 		return 0;
 	}
 
-	/*char f_name[100] = "16231019_test.txt";
+	/*
+	char f_name[100] = "1606xjf.txt";
 	input_f.open(f_name, ios::in);
 	if (input_f.is_open() == false) {
 		cout << "Not a valid filename!" << endl;
 		return 0;
-	}*/
+	}
+	*/
+
+
+
+
+
+
+	int t20, t21, t22, t19;
+	t19 = 14;
+	//6.2 步长减. 执行1,1,2,3次
+	for (t20 = 100; t20 >= 97; t20 = t20 - 1) {
+		t22 = 1;
+		for (t21 = 100; t21>t20; t21 = t21 - 2) {
+			t22 = t22 * t21;
+		}
+		t19 = t19 + t22;
+	}
+	cout << t19;
+
+
+
+	/*
 	init();
 	init_midcode();
 	lexical_init();
@@ -89,6 +112,7 @@ int main() {
 	midcode_optimize();
 	analyse_main();
 	mips_main();
+	*/
 	return 0;
 
 }

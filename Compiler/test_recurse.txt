@@ -35,5 +35,17 @@ void main() {
 		return;
 	}
 	initial(0, amount + 1);
-	recursive_cal(0, 1);
+	//recursive_cal(0, 1);
+
+	if( 1 > -0 ){
+            ;;;;;
+            ;;;;
+            ;;;
+            printf(" ojbk");
+            ;;
+            ;
+        }
+
+
+
 }

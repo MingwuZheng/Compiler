@@ -426,7 +426,10 @@ void forstatement() {
 	step = to_string(num);
 	readsym(RPT, EXPECT_RPT_ERROR);
 	statement();//循环内容
-	emit(neg ? SUB : ADD, loopvar, step, loopvar, NULL);//循环变量自增（自减）
+	///////////////////////
+	string looptemp;
+	emit(neg ? SUB : ADD, loopvar, step, "", &looptemp);//循环变量自增（自减）
+	emit(BECOME, looptemp, "", loopvar, NULL);
 	emit(GOTO, loopbegin, "", "", NULL);//跳到循环开始
 	emit(SET, loopend, "", "", NULL);//循环结尾
 }

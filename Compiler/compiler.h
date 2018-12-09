@@ -17,8 +17,8 @@
 #define ISSTRCHAR(x)	(x == 32 || x == 33 || ((x >= 35) && (x <= 126)))
 
 #define INT_MAX 4294967295
-#define TAB_MAX 100
-#define QTNRY_MAX 1000
+#define TAB_MAX 500
+#define QTNRY_MAX 40000
 
 #define GTAB symtabs[0]
 #define CTAB symtabs[tabptr]

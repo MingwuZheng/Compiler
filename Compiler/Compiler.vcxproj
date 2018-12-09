@@ -165,6 +165,7 @@
     <ClInclude Include="optimize.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="1606xjf.txt" />
     <Text Include="16231019_test.txt" />
     <Text Include="16231281_test.txt" />
     <Text Include="16231281_test_new.txt" />
