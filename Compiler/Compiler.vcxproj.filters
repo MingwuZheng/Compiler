@@ -39,6 +39,9 @@
     <ClCompile Include="mips.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="optimize.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lexical.h">
@@ -63,6 +66,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="mips.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="optimize.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,6 +98,9 @@
       <Filter>资源文件</Filter>
     </Text>
     <Text Include="16231281_test_new.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="mjl.txt">
       <Filter>资源文件</Filter>
     </Text>
   </ItemGroup>

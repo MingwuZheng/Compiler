@@ -151,6 +151,7 @@
     <ClCompile Include="lexical.cpp" />
     <ClCompile Include="midcode.cpp" />
     <ClCompile Include="mips.cpp" />
+    <ClCompile Include="optimize.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="analyse.h" />
@@ -161,6 +162,7 @@
     <ClInclude Include="lexical.h" />
     <ClInclude Include="midcode.h" />
     <ClInclude Include="mips.h" />
+    <ClInclude Include="optimize.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="16231019_test.txt" />
@@ -168,6 +170,7 @@
     <Text Include="16231281_test_new.txt" />
     <Text Include="16721145_test.txt" />
     <Text Include="midcode.txt" />
+    <Text Include="mjl.txt" />
     <Text Include="test_char.txt" />
     <Text Include="test_recurse.txt" />
     <Text Include="test_recurse_switch.txt" />

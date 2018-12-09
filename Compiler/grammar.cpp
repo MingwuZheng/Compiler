@@ -114,6 +114,7 @@ void program() {
 					hasmain = true;
 					insymbol();
 					readsym(LPT, EXPECT_LPT_ERROR);
+					CTAB.glbpos = GTAB.ptr;
 					GTAB.insert("main", FUNCTION, VOID, 0, 0, tabptr);
 					readsym(RPT, EXPECT_RPT_ERROR);
 					//test-skip
@@ -565,7 +566,8 @@ void assignment() {//只有一次计算的表达式赋值（i=i+1）会生成不必要的中间变量，要
 			emit(ARYS, aryindex, expvar, idname, NULL);
 		}
 		else {//局部的变量、常量
-			if (CTAB.ele(index)->idtype == CONST || CTAB.ele(index)->idtype == PARA) {//局部常量、参数
+			//if (CTAB.ele(index)->idtype == CONST || CTAB.ele(index)->idtype == PARA) {//局部常量、参数
+			if (CTAB.ele(index)->idtype == CONST) {//局部常量
 				error(TYPE_CONFLICT_ERROR);
 				insymbol();
 			}

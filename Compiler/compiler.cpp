@@ -6,6 +6,7 @@
 #include "midcode.h"
 #include "analyse.h"
 #include "mips.h"
+#include "optimize.h"
 
 fstream input_f;
 bool ENABLE_EOF = false;
@@ -61,8 +62,11 @@ int symTab::index(string x) {
 symTab symtabs[TAB_MAX];
 
 
+
 int main() {
-	/*
+
+
+	
 	char f_name[100] = { 0 };
 	cin >> f_name;
 	input_f.open(f_name, ios::in);
@@ -70,19 +74,21 @@ int main() {
 		cout << "Not a valid filename!" << endl;
 		return 0;
 	}
-	*/
-	char f_name[100] = "test_recurse.txt";
+
+	/*char f_name[100] = "16231019_test.txt";
 	input_f.open(f_name, ios::in);
 	if (input_f.is_open() == false) {
 		cout << "Not a valid filename!" << endl;
 		return 0;
-	}
+	}*/
 	init();
 	init_midcode();
 	lexical_init();
 	program();
 	print_midcode();
+	midcode_optimize();
 	analyse_main();
 	mips_main();
 	return 0;
+
 }

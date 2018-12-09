@@ -1,0 +1,1 @@
+void midcode_optimize();

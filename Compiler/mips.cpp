@@ -226,12 +226,15 @@ void call_handler() {
 	}
 	if (!rp.reg[8])
 		mips_f << "sw $24," << -(funcsize + (24 + 1) * 4) << "($fp)" << endl;
-	for (int i = 29; i < 32; i++) //压$sp,$fp,$ra
-		mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
-	mips_f << "sub " << "$sp," << STK_BOTTOM << "," << REGS_OFFSET + funcsize << endl;
-	mips_f << "move $fp,$sp" << endl;
-	mips_f << "sub " << "$fp,$fp," << 4 * func_midvars[funcname] << endl;
+	//for (int i = 29; i < 32; i++) //压$sp,$fp,$ra
+		//mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
+	mips_f << "sw $ra," << -(funcsize + (31 + 1) * 4) << "($fp)" << endl;//不压sp和fp
+	//跳转前处理$sp、$fp，为函数申请空间
+	mips_f << "sub " << "$sp,$fp," << REGS_OFFSET + funcsize << endl;
+	mips_f << "sub " << "$fp,$sp," << 4 * func_midvars[funcname] << endl;
+	//跳转
 	mips_f << "jal " << funcname << endl;
+	//将通用寄存器弹出
 	for (int i = 8; i < 16; i++) {//将$t0~$t7分配的寄存器弹栈
 		if (!rp.reg[i - 8])
 			mips_f << "lw $" << i << "," << (31 - i) * 4 << "($sp)" << endl;
@@ -242,9 +245,13 @@ void call_handler() {
 	}
 	if (!rp.reg[8])
 		mips_f << "lw $24," << (31 - 24) * 4 << "($sp)" << endl;
-	mips_f << "lw $" << 30 << "," << (31 - 30) * 4 << "($sp)" << endl;
-	mips_f << "lw $" << 31 << "," << (31 - 31) * 4 << "($sp)" << endl;
-	mips_f << "lw $sp" << "," << 8 << "($sp)" << endl;
+	//mips_f << "lw $fp," << (31 - 30) * 4 << "($sp)" << endl;
+	mips_f << "lw $ra," << (31 - 31) * 4 << "($sp)" << endl;
+
+	//直接计算返回后原$sp、$fp值
+	mips_f << "add $fp,$fp," << REGS_OFFSET + funcsize + 4 * func_midvars[funcname] << endl;
+	mips_f << "add $sp,$sp," << REGS_OFFSET + funcsize + 4 * func_midvars[GTAB.ele(ACTAB.glbpos)->name] << endl;
+
 	if (retvar != "") {
 		string ret_reg = rp.apply_reg(retvar, 0);
 		mips_f << "move " << ret_reg << ",$v0" << endl;
@@ -656,10 +663,20 @@ void function_handler(string name) {
 	mcptr++;
 }
 
+
+string transform(string a) {
+	for (int i = 0; i < a.size(); i++) {
+		if (a[i] == '\\') {
+			a.insert(i, 1, '\\');
+			i++;
+		}
+	}
+	return a;
+}
 void header() {
 	mips_f << ".data" << endl;
 	for (int i = 0; i < const_strings.size(); i++)
-		mips_f << "    $string" << i << ":" << " .asciiz" << " \"" << const_strings[i] << "\"" << endl;
+		mips_f << "    $string" << i << ":" << " .asciiz" << " \"" << transform(const_strings[i]) << "\"" << endl;
 	mips_f << ".text" << endl;
 	int mainsize = symtabs[GTAB.ele("main")->addr].filledsize;
 	mips_f << "    sub " << "$sp,$sp," << REGS_OFFSET + mainsize << endl;

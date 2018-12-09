@@ -89,7 +89,7 @@ void main() {
 	scanf(numbers_to_be_selected, amount);
 	if (amount + 1 > MAX){
 		printf("ERROR!\n");
-		return (0);
+		return;
 	}
 	initial(0, (amount + 1)*1);
 	if (recursive_cal(0, 1) == -1) {
