@@ -1,6 +1,7 @@
 #include "compiler.h"
 #include "midcode.h"
 #include "analyse.h"
+#include <stack>
 #include <algorithm> 
 
 
@@ -10,10 +11,10 @@ map<string, int> label2pos;
 map<int, int>pos2blk;
 
 bool is_entrance(int pos) {
-	#define ISBRANCH(x) (x == RET || x == EXIT || x == GOTO || x == BNZ || x == BZ)
+#define ISBRANCH(x) (x == RET || x == EXIT || x == GOTO || x == BNZ || x == BZ)
 	//if (pos == 0)
 	//	return true;反正不可能是0
-	if (midcodes[pos].op == SET) 
+	if (midcodes[pos].op == SET)
 		return true;
 	if (ISBRANCH(midcodes[pos - 1].op))
 		return true;
@@ -106,7 +107,7 @@ int flush_graph::gen_block(int pos, int preblk) {
 	}
 	else if (midcodes[i - 1].op == GOTO)
 		blocks[curblk].next1 = gen_block(label2pos[midcodes[i - 1].op1], curblk);
-	else if (midcodes[i - 1].op == RET || midcodes[i - 1].op == EXIT) 
+	else if (midcodes[i - 1].op == RET || midcodes[i - 1].op == EXIT)
 		blocks[curblk].next1 = gen_block(-1, curblk);
 	else blocks[curblk].next1 = gen_block(i, curblk);
 	return curblk;
@@ -162,13 +163,21 @@ void flush_graph::in_out_cal() {
 
 
 bool conflict_graph[TAB_MAX][TAB_MAX];
-void flush_graph::global_var_cal(){
-	/*
+stack<int> vertexs;
+int degrees[TAB_MAX];
+void remove_vertex(int number) {
+	degrees[number] = 0;
+	vertexs.push(number);
+}
+
+void flush_graph::global_var_cal() {
+
 	memset(conflict_graph, false, TAB_MAX*TAB_MAX);
 	//构建冲突图
 	for (int i = 0; i < blocknum; i++) {//遍历基本块
-		for (int j = 0; j < TAB_MAX - 1; j++) {//遍历变量
+		for (int j = 0; j < TAB_MAX; j++) {//遍历变量
 			if (blocks[i].in[j]) {
+				global_var.insert(funcname2tab(function).ele(j)->name);
 				for (int k = j + 1; k < TAB_MAX; k++) {
 					if (blocks[i].in[k]) {
 						conflict_graph[j][k] = true;
@@ -178,8 +187,30 @@ void flush_graph::global_var_cal(){
 			}
 		}
 	}
-	*/
-	
+	for (int i = 0; i < TAB_MAX; i++) {
+		string var_name = funcname2tab(function).ele(i)->name;
+		if (global_var.find(var_name) != global_var.end()) {
+			int degree = 0;
+			for (int j = 0; j < TAB_MAX; j++)
+				degree += conflict_graph[i][j];
+			degrees[i] = degree;
+		}
+	}
+	bool flag = false;
+	do {
+		flag = false;
+		for (int i = 0; i < TAB_MAX; i++) {//找到第一个连接边数目小于SREG_NUM的节点
+			if (degrees[i] < SREG_NUM) {
+				flag = true;
+				remove_vertex(i);
+			}
+		}
+	} while (flag);
+
+
+
+
+
 	for (int i = 0; i < blocknum; i++) {
 		for (int j = 0; j < TAB_MAX; j++) {
 			if (blocks[i].in[j]) {
@@ -188,7 +219,7 @@ void flush_graph::global_var_cal(){
 			}
 		}
 	}
-	
+
 }
 
 flush_graph graphs[TAB_MAX];
@@ -197,7 +228,7 @@ int graph_ptr = 0;
 void init_block() {
 	int blockptr = 0;
 	qtnry_num = qtnry_ptr;
-	
+
 	for (int i = 0; i < qtnry_num; i++) {
 		if (midcodes[i].op == SET)
 			label2pos[midcodes[i].op1] = i;

@@ -23,6 +23,7 @@
 
 #define GTAB symtabs[0]
 #define CTAB symtabs[tabptr]
+#define funcname2tab(x) symtabs[GTAB.ele(x)->addr]
 
 using namespace std;
 //全局常量
