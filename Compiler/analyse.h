@@ -1,5 +1,7 @@
 #pragma once
-#define BLOCKMAX 200
+#define BLOCKMAX 2000
+#define SREG_NUM 8
+
 #define NONBLK -1
 #define IS_FUN_LABEL(x) (x[0] != '$')
 #define ISMIDVAR(x) (x[0] == '#')
@@ -51,7 +53,7 @@ public:
 	int blocknum;
 	flush_graph() {
 		function = ""; blocknum = 0; gvarnum = 0; alloced_sreg = 0;
-		for (int i = 0; i < 8; i++) 
+		for (int i = 0; i < SREG_NUM; i++)
 			sreg2var[i] = "";
 	}
 	int gen_block(int, int);
@@ -61,18 +63,18 @@ public:
 	void def_use_cal(int blkno, int mcno);
 	void in_out_cal();
 	void global_var_cal();
-	string sreg2var[8];
+	string sreg2var[SREG_NUM];
 	int alloced_sreg;
 	void alloc_sreg(string name) {
 		for (int i = 0; i < alloced_sreg; i++) {
 			if (sreg2var[i] == name)
 				return;
 		}
-		if (alloced_sreg < 8)
+		if (alloced_sreg < SREG_NUM)
 			sreg2var[alloced_sreg++] = name;
 	}
 	int gvar2sreg(string gvar) {
-		for (int i = 0; i < 8; i++) {
+		for (int i = 0; i < SREG_NUM; i++) {
 			if (sreg2var[i] == gvar)
 				return i;
 		}

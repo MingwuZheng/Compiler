@@ -159,7 +159,27 @@ void flush_graph::in_out_cal() {
 	}
 }
 
+
+
+bool conflict_graph[TAB_MAX][TAB_MAX];
 void flush_graph::global_var_cal(){
+	/*
+	memset(conflict_graph, false, TAB_MAX*TAB_MAX);
+	//构建冲突图
+	for (int i = 0; i < blocknum; i++) {//遍历基本块
+		for (int j = 0; j < TAB_MAX - 1; j++) {//遍历变量
+			if (blocks[i].in[j]) {
+				for (int k = j + 1; k < TAB_MAX; k++) {
+					if (blocks[i].in[k]) {
+						conflict_graph[j][k] = true;
+						conflict_graph[k][j] = true;
+					}
+				}
+			}
+		}
+	}
+	*/
+	
 	for (int i = 0; i < blocknum; i++) {
 		for (int j = 0; j < TAB_MAX; j++) {
 			if (blocks[i].in[j]) {
@@ -168,6 +188,8 @@ void flush_graph::global_var_cal(){
 			}
 		}
 	}
+	
+
 }
 
 flush_graph graphs[TAB_MAX];
