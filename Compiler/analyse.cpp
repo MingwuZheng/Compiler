@@ -189,7 +189,6 @@ void flush_graph::global_var_cal(){
 		}
 	}
 	
-
 }
 
 flush_graph graphs[TAB_MAX];

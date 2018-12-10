@@ -19,6 +19,7 @@
 #define INT_MAX 4294967295
 #define TAB_MAX 100
 #define QTNRY_MAX 40000
+#define STRONG_TYPE 0
 
 #define GTAB symtabs[0]
 #define CTAB symtabs[tabptr]

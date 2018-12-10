@@ -126,14 +126,6 @@ public:
 			return TEMP;
 		}
 		int off = var2offset(name, &sp);
-		if (ISGLOBAL(name)) {
-			if (needlw) {
-				bool nul;
-				int off = var2offset(name, &nul);
-				mips_f << "lw " << TEMP << "," << off << "(" << GLOBAL << ")" << endl;
-			}
-			return TEMP;
-		}
 		if (ISSVAR(name)) {
 			if ((sreg = curgraph.gvar2sreg(name)) == -1 ) {
 				if (needlw)
@@ -141,6 +133,14 @@ public:
 				return TEMP;
 			}
 			else return SREG(sreg);
+		}
+		if (ACTAB.ele(name) == NULL && ISGLOBAL(name)) {//防止局部和全局变量同名的变量覆盖
+			if (needlw) {
+				bool nul;
+				int off = var2offset(name, &nul);
+				mips_f << "lw " << TEMP << "," << off << "(" << GLOBAL << ")" << endl;
+			}
+			return TEMP;
 		}
 		int r = var2reg(name);
 		if (r != -1) {
@@ -182,13 +182,13 @@ int var2offset(string var, bool *sp) {
 		}
 		else return  -4 * midvar[index];
 	}
-	if (ACTAB.ele(var) == NULL) {//标识符在全局符号表里
-		*sp = false;
-		return GTAB.ele(var)->addr;
-	}
-	else {//标识符在局部符号表里
+	if (ACTAB.ele(var) != NULL) {//标识符在局部符号表里
 		*sp = true;
 		return REGS_OFFSET + ACTAB.filledsize - ACTAB.ele(var)->addr - 4;
+	}
+	else {//标识符在全局符号表里
+		*sp = false;
+		return GTAB.ele(var)->addr;
 	}
 }
 

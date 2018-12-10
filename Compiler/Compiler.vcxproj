@@ -170,8 +170,10 @@
     <Text Include="16231281_test.txt" />
     <Text Include="16231281_test_new.txt" />
     <Text Include="16721145_test.txt" />
+    <Text Include="jsh.txt" />
     <Text Include="midcode.txt" />
     <Text Include="mjl.txt" />
+    <Text Include="sdy.txt" />
     <Text Include="test_char.txt" />
     <Text Include="test_recurse.txt" />
     <Text Include="test_recurse_switch.txt" />

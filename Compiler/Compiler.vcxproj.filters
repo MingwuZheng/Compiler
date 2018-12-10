@@ -106,6 +106,12 @@
     <Text Include="1606xjf.txt">
       <Filter>资源文件</Filter>
     </Text>
+    <Text Include="jsh.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="sdy.txt">
+      <Filter>资源文件</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="mips.asm">

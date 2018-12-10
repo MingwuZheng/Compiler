@@ -164,6 +164,10 @@ void constdec() {
 				insymbol();
 				readsym(IDENT, EXPECT_ID_ERROR);
 				readsym(BECOMESY, ILLEGAL_VARDEF_ERROR);
+				if (sy == PLUS || sy == MINUS) {
+					insymbol();
+					num = (sy == MINUS) ? -num : num;
+				}
 				if (UNMATCH(tp, sy))
 					error(TYPE_CONFLICT_ERROR);
 				CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);
@@ -339,14 +343,14 @@ string call(int pos) {//优化时注意，有返回值函数调用单列一句话可能会多出无意义中
 		bool temp;
 		int func_stab = GTAB.ele(pos)->addr;	
 		parastk[pstk] = expression(&temp);
-		if (temp != ((symtabs[func_stab]).ele(pstk++)->symtype == CHAR))
+		if (temp != ((symtabs[func_stab]).ele(pstk++)->symtype == CHAR) && STRONG_TYPE)
 			error(TYPE_CONFLICT_ERROR);
 		//emit(PUSH, expression(), name, "", nullptr);
 		paranum++;
 		while (sy == COMMA) {
 			insymbol();
 			parastk[pstk] = expression(&temp);
-			if (temp != ((symtabs[func_stab]).ele(pstk++)->symtype == CHAR))
+			if (temp != ((symtabs[func_stab]).ele(pstk++)->symtype == CHAR) && STRONG_TYPE)
 				error(TYPE_CONFLICT_ERROR);
 			paranum++;
 		}
@@ -404,7 +408,7 @@ void forstatement() {
 	loopvar = id;
 	readsym(BECOMESY, EXPECT_BECOME_ERROR);
 	initvar = expression(&temp);
-	if (temp)error(TYPE_CONFLICT_ERROR);
+	if (temp && STRONG_TYPE)error(TYPE_CONFLICT_ERROR);
 	emit(BECOME, initvar, "", loopvar, NULL);//初始化循环变量
 	readsym(SEMICOLON, EXPECT_SEMI_ERROR);
 	emit(SET, "", "", "", &loopbegin);//循环开始
@@ -771,7 +775,7 @@ string expression(bool* isch) {//＜表达式＞::= ［＋｜－］＜项＞{＜加法运算符＞＜
 string condition() {
 #define ADAPT if(isch_o1 && isch_o2) \
 				 {CH2ASC(o1);CH2ASC(o2);} \
-			  else if(isch_o1 || isch_o2) \
+			  else if(STRONG_TYPE && (isch_o1 || isch_o2)) \
 				 {error(TYPE_CONFLICT_ERROR);CH2ASC(o1);CH2ASC(o2);}
 	string o1, o2, result;
 	bool isch_o1, isch_o2;
@@ -820,7 +824,7 @@ string condition() {
 		break;
 	}
 	default: {
-		if (isch_o1) {
+		if (isch_o1 && STRONG_TYPE) {
 			error(TYPE_CONFLICT_ERROR);
 			CH2ASC(o1);
 		}
