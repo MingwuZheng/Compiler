@@ -80,17 +80,17 @@ public:
 		return -1;
 	}
 	int dequeue(string name) {
-		if (name == "") {//默认弹出队首
-			bool sp;
-			int off = var2offset(queue2var(0), &sp);
-			emit_mips(3, "sw", TREG(queue[0]), to_string(off), (sp ? "$sp" : GLOBAL));//踢出一个变量会导致之前取得的号码不再能用
-			reg[queue[0]] = true;
-			queue2var(0) = "";
-			for (int i = 0; i < varnum - 1; i++)
-				queue[i] = queue[i + 1];	
-			varnum--;
-			return varnum;
-		}
+		//if (name == "") {//默认弹出队首
+		bool sp;
+		int off = var2offset(queue2var(0), &sp);
+		emit_mips(3, "sw", TREG(queue[0]), to_string(off), (sp ? "$sp" : GLOBAL));//踢出一个变量会导致之前取得的号码不再能用
+		reg[queue[0]] = true;
+		queue2var(0) = "";
+		for (int i = 0; i < varnum - 1; i++)
+			queue[i] = queue[i + 1];
+		varnum--;
+		return varnum;
+		//}
 	}
 	int inqueue(string name) {
 		if (varnum < TREG_NUM) {
@@ -674,7 +674,7 @@ void content(string funcname) {
 }
 
 string transform(string a) {
-	for (int i = 0; i < a.size(); i++) {
+	for (int i = 0; i < (int)a.size(); i++) {
 		if (a[i] == '\\') {
 			a.insert(i, 1, '\\');
 			i++;
@@ -684,7 +684,7 @@ string transform(string a) {
 }
 void header() {
 	mips_f << ".data" << endl;
-	for (int i = 0; i < const_strings.size(); i++)
+	for (int i = 0; i < (int)const_strings.size(); i++)
 		mips_f << "    $string" << i << ":" << " .asciiz" << " \"" << transform(const_strings[i]) << "\"" << endl;
 	mips_f << ".text" << endl;
 	int mainsize = symtabs[GTAB.ele("main")->addr].filledsize;
@@ -703,36 +703,27 @@ void emit_mips(int paranum, string op, string op1, string op2, string op3) {
 
 void print_mipscode() {
 	vector<mips_code>::iterator iter = mipscodes.begin();
-	string out_temp;
 	while (iter != mipscodes.end()) {
-		if (iter->op == "syscall") {
-			out_temp = iter->op;
-			mips_f << out_temp << endl;
-		}
-		else if (iter->op == "sw" || iter->op == "lw") {
-			out_temp = iter->op + " " + iter->op1 + "," + iter->op2 + "(" + iter->op3 + ")";
-			mips_f << out_temp << endl;
-		}
+		if (iter->op == "syscall") 
+			mips_f << iter->op << endl;
+		else if (iter->op == "sw" || iter->op == "lw") 
+			mips_f << iter->op + " " + iter->op1 + "," + iter->op2 + "(" + iter->op3 + ")" << endl;
 		else {
 			switch (iter->paranum) {
 			case 0: {
-				out_temp = iter->op + ":";
-				mips_f << out_temp << endl;
+				mips_f << iter->op + ":" << endl;
 				break;
 			}
 			case 1: {
-				out_temp = iter->op + " " + iter->op1;
-				mips_f << out_temp << endl;
+				mips_f << iter->op + " " + iter->op1 << endl;
 				break;
 			}
 			case 2: {
-				out_temp = iter->op + " " + iter->op1 + "," + iter->op2;
-				mips_f << out_temp << endl;
+				mips_f << iter->op + " " + iter->op1 + "," + iter->op2 << endl;
 				break;
 			}
 			case 3: {
-				out_temp = iter->op + " " + iter->op1 + "," + iter->op2 + "," + iter->op3;
-				mips_f << out_temp << endl;
+				mips_f << iter->op + " " + iter->op1 + "," + iter->op2 + "," + iter->op3 << endl;
 				break;
 			}
 			default:break;
@@ -751,6 +742,6 @@ void mips_main() {
 		mcptr++;
 		function_handler(funcname);
 	}
-	mips_f.close();
 	print_mipscode();
+	mips_f.close();
 }

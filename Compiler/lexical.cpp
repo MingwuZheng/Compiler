@@ -95,7 +95,7 @@ READ:
 			k++;
 			nextch();
 		}
-		if (num > INT_MAX) {
+		if (num > INTEGER_MAX) {
 			int temp;
 			temp = (int)num;
 			num = temp;

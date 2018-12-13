@@ -17,7 +17,7 @@
 #define ISCHAR(x)		(ISADD(x) || ISMUL(x) || ISLETTER(x) || ISNUM(x))
 #define ISSTRCHAR(x)	(x == 32 || x == 33 || ((x >= 35) && (x <= 126)))
 
-#define INT_MAX 4294967295
+#define INTEGER_MAX 4294967295
 #define TAB_MAX 100
 #define QTNRY_MAX 40000
 #define STRONG_TYPE 0
