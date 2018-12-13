@@ -4,7 +4,6 @@
 #include <stack>
 #include <algorithm> 
 
-
 extern int qtnry_ptr;
 int qtnry_num;
 map<string, int> label2pos;
@@ -13,14 +12,13 @@ map<int, int>pos2blk;
 bool is_entrance(int pos) {
 #define ISBRANCH(x) (x == RET || x == EXIT || x == GOTO || x == BNZ || x == BZ)
 	//if (pos == 0)
-	//	return true;·´Õı²»¿ÉÄÜÊÇ0
+	//	return true;åæ­£ä¸å¯èƒ½æ˜¯0
 	if (midcodes[pos].op == SET)
 		return true;
 	if (ISBRANCH(midcodes[pos - 1].op))
 		return true;
 	return false;
 }
-
 
 void flush_graph::def_use_cal(int blkno, int mcno) {
 #define ISCALOP(x) ((x==ADD)||(x==SUB)||(x==MUL)||(x==DIV))
@@ -66,12 +64,12 @@ void flush_graph::def_use_cal(int blkno, int mcno) {
 
 int flush_graph::gen_block(int pos, int preblk) {
 	int i, curblk;
-	//Èç¹ûÒÑ¾­½¨Á¢ÆğÁË¿é
+	//å¦‚æœå·²ç»å»ºç«‹èµ·äº†å—
 	if (pos2blk.find(pos) != pos2blk.end()) {
 		blocks[pos2blk[pos]].addpre(preblk);
 		return pos2blk[pos];
 	}
-	//Èë¿Ú
+	//å…¥å£
 	if (preblk == NONBLK) {
 		blocks[0].entrance = pos;
 		blocks[0].exit = pos;
@@ -81,7 +79,7 @@ int flush_graph::gen_block(int pos, int preblk) {
 		gen_block(pos + 1, 0);
 		return 0;
 	}
-	//³ö¿Ú
+	//å‡ºå£
 	if (pos == -1) {
 		pos2blk[pos] = blocknum;
 		blocks[blocknum].entrance = -1;
@@ -94,7 +92,7 @@ int flush_graph::gen_block(int pos, int preblk) {
 	blocknum++;
 	blocks[curblk].entrance = pos;
 	blocks[curblk].addpre(preblk);
-	pos2blk[pos] = curblk;//posÒ»¶¨ÊÇentrance£¬»áµ¼ÖÂforÑ­»·ÎŞ·¨Ö´ĞĞ
+	pos2blk[pos] = curblk;//posä¸€å®šæ˜¯entranceï¼Œä¼šå¯¼è‡´forå¾ªç¯æ— æ³•æ‰§è¡Œ
 	def_use_cal(curblk, pos);
 	for (i = pos + 1; !is_entrance(i); i++) {
 		pos2blk[i] = curblk;
@@ -160,12 +158,9 @@ void flush_graph::in_out_cal() {
 	}
 }
 
-
-
 bool conflict_graph[TAB_MAX][TAB_MAX];
 bool available_index[TAB_MAX];
 bool vardic[TAB_MAX];
-//int colors = 0;
 stack<int> vertexs;
 int degrees[TAB_MAX];
 void remove_vertex(int number) {
@@ -180,16 +175,16 @@ void remove_vertex(int number) {
 
 void flush_graph::global_var_cal() {
 #define varname(x) funcname2tab(function).ele(x)->name
-	//³õÊ¼»¯
+	//åˆå§‹åŒ–
 	for (int i = 0; i < TAB_MAX; i++) {
 		for (int j = 0; j < TAB_MAX; j++)
 			conflict_graph[i][j] = false;
 	}
 	for (int j = 0; j < TAB_MAX; j++)
 		available_index[j] = false;
-	//¹¹½¨³åÍ»Í¼
-	for (int i = 0; i < blocknum; i++) {//±éÀú»ù±¾¿é
-		for (int j = 0; j < TAB_MAX; j++) {//±éÀú±äÁ¿
+	//æ„å»ºå†²çªå›¾
+	for (int i = 0; i < blocknum; i++) {//éå†åŸºæœ¬å—
+		for (int j = 0; j < TAB_MAX; j++) {//éå†å˜é‡
 			if (blocks[i].in[j]) {
 				global_var.insert(varname(j));
 				for (int k = j + 1; k < TAB_MAX; k++) {
@@ -201,14 +196,14 @@ void flush_graph::global_var_cal() {
 			}
 		}
 	}
-	//µÇ¼Ç´ı·ÖÅä¿éÈ«¾Ö±äÁ¿
+	//ç™»è®°å¾…åˆ†é…å—å…¨å±€å˜é‡
 	for (int i = 0; i < TAB_MAX; i++) {
 		if (global_var.find(varname(i)) != global_var.end()) {
 			available_index[i] = true;
 			vardic[i] = true;
 		}
 	}
-	//¼ÆËã¶ÈÊı
+	//è®¡ç®—åº¦æ•°
 	for (int i = 0; i < TAB_MAX; i++) {
 		if (vardic[i]) {
 			int degree = 0;
@@ -217,14 +212,14 @@ void flush_graph::global_var_cal() {
 			degrees[i] = degree;
 		}
 	}
-	//°´Ëã·¨ÒÆ×ß½Úµã
+	//æŒ‰ç®—æ³•ç§»èµ°èŠ‚ç‚¹
 	bool loop_continue = false;
 	do {
 		loop_continue = false;
 		bool flag = false;
 		do {
 			flag = false;
-			for (int i = 0; i < TAB_MAX; i++) {//ÕÒµ½µÚÒ»¸öÁ¬½Ó±ßÊıÄ¿Ğ¡ÓÚSREG_NUMµÄ½Úµã
+			for (int i = 0; i < TAB_MAX; i++) {//æ‰¾åˆ°ç¬¬ä¸€ä¸ªè¿æ¥è¾¹æ•°ç›®å°äºSREG_NUMçš„èŠ‚ç‚¹
 				if (available_index[i] && degrees[i] < SREG_NUM) {
 					flag = true;
 					remove_vertex(i);
@@ -245,11 +240,11 @@ void flush_graph::global_var_cal() {
 			}
 		}
 	} while (loop_continue);
-	//×ÅÉ«
+	//ç€è‰²
 	while (!vertexs.empty()) {
 		int varnum = vertexs.top();
 		for (int color = 0; color < 8; color++) {
-			//ÅĞ¶ÏÄÜ·ñ°´ÕÕcolor×ÅÉ«
+			//åˆ¤æ–­èƒ½å¦æŒ‰ç…§colorç€è‰²
 			bool colorable = true;
 			for (int j = 0; j < TAB_MAX; j++) {
 				if (vardic[j] && conflict_graph[varnum][j] && var2sreg.find(varname(j)) != var2sreg.end() && var2sreg[varname(j)] == color) {
@@ -265,7 +260,7 @@ void flush_graph::global_var_cal() {
 		}
 		vertexs.pop();
 	}
-	//°ÑÊ£Óà¼Ä´æÆ÷±ê¼ÇÎª²»·ÖÅä
+	//æŠŠå‰©ä½™å¯„å­˜å™¨æ ‡è®°ä¸ºä¸åˆ†é…
 	set<string>::iterator iter = global_var.begin();
 	while (iter != global_var.end()) {
 		if (var2sreg.find(*iter) == var2sreg.end())
@@ -273,8 +268,7 @@ void flush_graph::global_var_cal() {
 		iter++;
 	}
 
-
-	//ÀàËÆÒıÓÃ¼ÆÊıµÄ·ÖÅä·½°¸£¬°Ñ¿ç¿é±äÁ¿·ÖÅäÈ«¾Ö¼Ä´æÆ÷
+	//ç±»ä¼¼å¼•ç”¨è®¡æ•°çš„åˆ†é…æ–¹æ¡ˆï¼ŒæŠŠè·¨å—å˜é‡åˆ†é…å…¨å±€å¯„å­˜å™¨
 	//for (int i = 0; i < blocknum; i++) {
 	//	for (int j = 0; j < TAB_MAX; j++) {
 	//		if (blocks[i].in[j]) {

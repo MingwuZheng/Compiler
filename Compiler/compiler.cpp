@@ -13,17 +13,17 @@ bool ENABLE_EOF = false;
 int lc = 1;
 int cc = 1;
 char ch;
-long int num;//×ÖÃæÕûĞÍ³£Á¿
+long int num;//å­—é¢æ•´å‹å¸¸é‡
 int lp;
-char chr;//×ÖÃæ×Ö·û³£Á¿
+char chr;//å­—é¢å­—ç¬¦å¸¸é‡
 int tabptr = 1;
 string id;
 string str;
 symbol sy;
-map<char, symbol> sps;//µ¥×Ö
-map<string, symbol> ksy;//¹Ø¼ü×Ö·ûºÅÓ³Éä
-set<string> key;//¹Ø¼ü×Ö
-vector<string> const_strings;//³£Á¿×Ö·û´®
+map<char, symbol> sps;//å•å­—
+map<string, symbol> ksy;//å…³é”®å­—ç¬¦å·æ˜ å°„
+set<string> key;//å…³é”®å­—
+vector<string> const_strings;//å¸¸é‡å­—ç¬¦ä¸²
 
 void symTab::insert(string name, idType idtype, symType symtype, int var, int size, int addr) {
 	for (int i = 0; i < ptr;i++) {

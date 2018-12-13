@@ -1,444 +1,157 @@
-SET ff1  
+SET recursive_cal  
 ENTER   
-BECOME 98  _c1
-RET c  
+EQL cur_pointer amount #1
+BZ $LABEL1 #1 
+ARYL f 0 #2
+PRINT #2  
+BECOME 1  i
+SET $LABEL2  
+LES i amount #3
+BZ $LABEL3 #3 
+PRINTS 0  
+ARYL f i #4
+PRINT #4  
+ADD i 1 #5
+BECOME #5  i
+GOTO $LABEL2  
+SET $LABEL3  
+PRINTS 1  
+RET 0  
+GOTO $LABEL4  
+SET $LABEL1  
+LES cur_pointer amount #6
+BZ $LABEL5 #6 
+BECOME min  i
+SET $LABEL6  
+ADD cur_pointer numbers_to_be_selected #7
+SUB #7 amount #8
+ADD #8 1 #9
+LEQ i #9 #10
+BZ $LABEL7 #10 
+ARYS cur_pointer i f
+ADD cur_pointer 1 #11
+ADD #11 0 #12
+ADD i 1 #13
+ADD #13 0 #14
+PUSH #12 recursive_cal 
+PUSH #14 recursive_cal 
+CALL recursive_cal  #15
+NEG 1  #16
+EQL #15 #16 #17
+BZ $LABEL8 #17 
+NEG 1  #18
+RET #18  
+SET $LABEL8  
+SET $LABEL9  
+ADD i 1 #19
+BECOME #19  i
+GOTO $LABEL6  
+SET $LABEL7  
+RET 0  
+GOTO $LABEL10  
+SET $LABEL5  
+NEG 1  #20
+RET #20  
+SET $LABEL10  
+SET $LABEL4  
 EXIT   
-SET ff2  
+SET initial  
 ENTER   
-BECOME '-'  _c2
-ADD 1 2 #1
-ADD #1 3 #2
-RET #2  
-EXIT   
-SET ff3  
-ENTER   
-ADD a b #1
-ADD #1 c #2
-ADD #2 d #3
-ADD #3 e #4
-ADD #4 f #5
-PRINT #5  
+BECOME 0  i
+SET $LABEL11  
+ARYS i var f
+ADD i 1 #1
+BECOME #1  i
+LEQ i lenth #2
+BNZ $LABEL11 #2 
 RET   
 EXIT   
-SET ff4  
+SET echo_lower  
 ENTER   
-PRINTS 0  
+GEQ a 97 #1
+BZ $LABEL12 #1 
+LEQ a 122 #2
+BZ $LABEL13 #2 
+RET a  
+GOTO $LABEL14  
+SET $LABEL13  
+PRINTS 2  
+RET '0'  
+SET $LABEL14  
+GOTO $LABEL15  
+SET $LABEL12  
+PRINTS 2  
+RET '0'  
+SET $LABEL15  
 EXIT   
-SET factorial  
+SET test  
 ENTER   
-EQL a 1 #1
-BZ $LABEL1 #1 
-RET 1  
-GOTO $LABEL2  
-SET $LABEL1  
-SUB a 1 #2
-ADD #2 0 #3
-PUSH #3 factorial 
-CALL factorial  #4
-MUL #4 a #5
-BECOME #5  b
-RET b  
-SET $LABEL2  
-EXIT   
-SET ff5  
-ENTER   
-BECOME 4  _t1
-ADD _t1 122 #1
-ADD #1 _c1 #2
-PRINT #2  
+BECOME 'i'  test_letter_i
+BECOME 'j'  test_letter_j
+BECOME 'k'  test_letter_k
+BECOME 'l'  test_letter_l
+BECOME 109  test_letter_m
+BECOME 110  test_letter_n
+BECOME 111  test_letter_e
+BECOME 112  test_letter_s
+NEG 1  #1
+ARYS 0 #1 a0
+ARYL a0 0 #2
+MUL #2 -2 #3
+NEG #3  #4
+ADD 99 0 #5
+PUSH #5 echo_lower 
+CALL echo_lower  #6
+SUB 101 #6 #7
+MUL #7 1 #8
+DIV #8 1 #9
+ADD #4 #9 #10
+ARYS 1 #10 a0
+ARYL a0 1 #11
+NEQ #11 0 #12
+BZ $LABEL16 #12 
+PRINTS 2  
+SET $LABEL16  
+SET $LABEL17  
+ARYL a0 0 #13
+ADD #13 1 #14
+PRINT #14  
+ARYL a0 1 #15
+PRINT #15  
+PRINTC 116  
+PRINT test_letter_e  
+PRINT test_letter_s  
+PRINTC 116  
+PRINTS 1  
 EXIT   
 SET main  
 ENTER   
-SCAN in_1  
-EQL in_1 1 #1
-BZ $LABEL3 #1 
-SCAN t1  
-SCANC c2  
-SCANC c1  
-SCAN t2  
-MUL t1 c2 #2
-ADD c2 #2 #3
-DIV t1 c1 #4
-SUB #3 #4 #5
-PRINT #5  
-PRINTS 1  
-PRINTS 2  
+CALL test  #1
+SCAN numbers_to_be_selected  
+SCAN amount  
+ADD amount 1 #2
+GTR #2 1000 #3
+BZ $LABEL18 #3 
 PRINTS 3  
-PRINTC c2  
-ARYS 0 '+' single_chars
-ARYS 1 '-' single_chars
-ARYS 2 '*' single_chars
-ARYS 3 '/' single_chars
-ARYS 4 '0' single_chars
-ARYS 5 '9' single_chars
-ARYS 6 'a' single_chars
-ARYS 7 'z' single_chars
-ARYS 8 'A' single_chars
-ARYS 9 'Z' single_chars
-BECOME '+'  _c1
-BECOME 'a'  _c3
-ADD _c1 2 #6
-BECOME #6  t3
-NEG _c3  #7
-ADD #7 77 #8
-BECOME #8  t4
-NEG 1  #9
-ADD #9 45 #10
-ADD #10 1 #11
-BECOME #11  t5
-NEQ t3 t5 #12
-BZ $LABEL4 #12 
-PRINTS 4  
-SET $LABEL4  
-SET $LABEL5  
-EQL t3 t4 #13
-BZ $LABEL6 #13 
-PRINTS 5  
-SET $LABEL6  
-SET $LABEL7  
-LEQ t3 t4 #14
-BZ $LABEL8 #14 
-PRINTS 6  
-SET $LABEL8  
-SET $LABEL9  
-LES t3 t5 #15
-BZ $LABEL10 #15 
-PRINTS 7  
-SET $LABEL10  
-SET $LABEL11  
-GEQ t4 t5 #16
-BZ $LABEL12 #16 
-PRINTS 8  
-SET $LABEL12  
-SET $LABEL13  
-GTR t5 t3 #17
-BZ $LABEL14 #17 
-PRINTS 9  
-SET $LABEL14  
-SET $LABEL15  
-BECOME 12  t6
-BECOME 23  t7
-NEG 23  #18
-BECOME #18  t8
-ADD t8 t6 #19
-ADD #19 t7 #20
-NEQ #20 12 #21
-BZ $LABEL16 #21 
-PRINTS 10  
-SET $LABEL16  
-SET $LABEL17  
-GTR 3 5 #22
-BZ $LABEL18 #22 
-PRINTS 11  
+RET   
 SET $LABEL18  
 SET $LABEL19  
-BECOME 9  t9
-BECOME '3'  c3
-BECOME '4'  c4
-SUB c4 c3 #23
-ADD #23 t9 #24
-NEQ #24 10 #25
-BZ $LABEL20 #25 
-PRINTS 12  
+ADD 0 0 #4
+ADD amount 1 #5
+MUL #5 1 #6
+ADD #6 0 #7
+PUSH #4 initial 
+PUSH #7 initial 
+CALL initial  #8
+ADD 0 0 #9
+ADD 1 0 #10
+PUSH #9 recursive_cal 
+PUSH #10 recursive_cal 
+CALL recursive_cal  #11
+NEG 1  #12
+EQL #11 #12 #13
+BZ $LABEL20 #13 
+PRINTS 3  
 SET $LABEL20  
 SET $LABEL21  
-SET $LABEL3  
-SET $LABEL22  
-EQL in_1 2 #26
-BZ $LABEL23 #26 
-ARYS 0 2333 t_array1
-ARYS 0 '/' c_array1
-NEG 7  #27
-ADD #27 9 #28
-BECOME #28  t10
-BECOME '+'  c5
-BECOME c5  c6
-ARYL c_array1 0 #29
-BECOME #29  c7
-NEG 7  #30
-BECOME #30  t11
-BECOME t11  t12
-ARYL t_array1 0 #31
-BECOME #31  t13
-CALL ff2  #32
-BECOME #32  t14
-ADD 'y' 0 #33
-PUSH #33 ff1 
-CALL ff1  #34
-BECOME #34  c8
-ADD t10 c5 #35
-ADD #35 c6 #36
-ADD #36 c7 #37
-ADD #37 t11 #38
-ADD #38 t12 #39
-ADD #39 t13 #40
-ADD #40 t14 #41
-ADD #41 c8 #42
-BECOME #42  t14
-MUL t11 -7 #43
-MUL #43 t13 #44
-DIV #44 c8 #45
-DIV #45 t10 #46
-MUL #46 t12 #47
-PRINT #47  
-PRINTS 13  
-ADD 4 t14 #48
-PRINT #48  
-PRINTS 13  
-DIV 3 -2 #49
-NEG #49  #50
-PRINT #50  
-DIV 4 5 #51
-NEQ #51 0 #52
-BZ $LABEL24 #52 
-PRINTS 14  
-GOTO $LABEL25  
-SET $LABEL24  
-BECOME 1  t15
-SET $LABEL25  
-LES 3 4 #53
-BZ $LABEL26 #53 
-LES 4 4 #54
-BZ $LABEL27 #54 
-PRINTS 15  
-GOTO $LABEL28  
-SET $LABEL27  
-GEQ 4 4 #55
-BZ $LABEL29 #55 
-GTR t15 0 #56
-BZ $LABEL30 #56 
-LES t15 0 #57
-BZ $LABEL31 #57 
-PRINTS 16  
-GOTO $LABEL32  
-SET $LABEL31  
-PRINTS 17  
-SET $LABEL32  
-SET $LABEL30  
-SET $LABEL33  
-SET $LABEL29  
-SET $LABEL34  
-SET $LABEL28  
-GOTO $LABEL35  
-SET $LABEL26  
-PRINTS 18  
-SET $LABEL35  
-BECOME 1  t16
-BECOME 0  t18
-LEQ t16 4 #58
-BZ $LABEL36 #58 
-SET $LABEL37  
-BECOME 1  t17
-LES t17 t16 #59
-BZ $LABEL38 #59 
-SET $LABEL39  
-ADD t18 t17 #60
-BECOME #60  t18
-ADD t17 1 #61
-BECOME #61  t17
-LES t17 t16 #62
-BNZ $LABEL39 #62 
-SET $LABEL38  
-SET $LABEL40  
-ADD t16 1 #63
-BECOME #63  t16
-LEQ t16 4 #64
-BNZ $LABEL37 #64 
-SET $LABEL36  
-SET $LABEL41  
-BECOME 0  t19
-BECOME 2  t20
-SET $LABEL42  
-LEQ t20 5 #65
-BZ $LABEL43 #65 
-BECOME 1  t22
-BECOME 2  t21
-SET $LABEL44  
-LES t21 t20 #66
-BZ $LABEL45 #66 
-MUL t22 t21 #67
-BECOME #67  t22
-ADD t21 2 #68
-BECOME #68  t21
-GOTO $LABEL44  
-SET $LABEL45  
-ADD t19 t22 #69
-BECOME #69  t19
-ADD t20 1 #70
-BECOME #70  t20
-GOTO $LABEL42  
-SET $LABEL43  
-BECOME 100  t20
-SET $LABEL46  
-GEQ t20 97 #71
-BZ $LABEL47 #71 
-BECOME 1  t22
-BECOME 100  t21
-SET $LABEL48  
-GTR t21 t20 #72
-BZ $LABEL49 #72 
-MUL t22 t21 #73
-BECOME #73  t22
-SUB t21 2 #74
-BECOME #74  t21
-GOTO $LABEL48  
-SET $LABEL49  
-ADD t19 t22 #75
-BECOME #75  t19
-SUB t20 1 #76
-BECOME #76  t20
-GOTO $LABEL46  
-SET $LABEL47  
-NEG 0  #77
-GTR 1 #77 #78
-BZ $LABEL50 #78 
-PRINTS 17  
-SET $LABEL50  
-SET $LABEL51  
-SET $LABEL52  
-BECOME 0  t23
-SET $LABEL53  
-LES t23 100 #79
-BZ $LABEL54 #79 
-ADD t23 2 #80
-BECOME #80  t23
-GTR t23 60 #81
-BZ $LABEL55 #81 
-PRINTS 13  
-ADD t18 t19 #82
-ADD #82 t23 #83
-PRINT #83  
-RET   
-SET $LABEL55  
-SET $LABEL56  
-ADD t23 1 #84
-BECOME #84  t23
-GOTO $LABEL53  
-SET $LABEL54  
-NEQ 1 0 #85
-BNZ $LABEL52 #85 
-PRINTS 19  
-SET $LABEL23  
-SET $LABEL57  
-EQL in_1 3 #86
-BZ $LABEL58 #86 
-ADD 1 0 #87
-PUSH #87 factorial 
-CALL factorial  #88
-ADD 2 0 #89
-PUSH #89 factorial 
-CALL factorial  #90
-ADD #88 #90 #91
-ADD 5 0 #92
-PUSH #92 factorial 
-CALL factorial  #93
-ADD #91 #93 #94
-PRINT #94  
-BECOME 'a'  _c1
-ADD '+' 0 #95
-PUSH #95 ff1 
-CALL ff1  #96
-PRINTC _c1  
-BECOME 'b'  _c2
-CALL ff2  #97
-PRINTC _c2  
-ADD 1 0 #98
-ADD 2 0 #99
-ADD 'a' 0 #100
-ADD 3 0 #101
-ADD 'b' 0 #102
-ADD 'c' 0 #103
-PUSH #98 ff3 
-PUSH #99 ff3 
-PUSH #100 ff3 
-PUSH #101 ff3 
-PUSH #102 ff3 
-PUSH #103 ff3 
-CALL ff3  #104
-CALL ff4  #105
-BECOME '*'  _c1
-CALL ff5  #106
-BECOME 6666  _c4
-BECOME '8'  _t1
-ADD _c4 _t1 #107
-PRINT #107  
-ARYS 50 'h' c_array2
-ARYL c_array2 50 #108
-PRINTC #108  
-ADD 'g' 0 #109
-PUSH #109 ff1 
-CALL ff1  #110
-PRINTC #110  
-PRINT 114  
-BECOME 0  i
-SET $LABEL59  
-LES i 100 #111
-BZ $LABEL60 #111 
-ARYS i i t_array2
-ADD i 1 #112
-BECOME #112  i
-GOTO $LABEL59  
-SET $LABEL60  
-DIV 34 4 #113
-MUL #113 6 #114
-DIV 122 10 #115
-ADD #114 #115 #116
-ARYL t_array2 #116 #117
-DIV #117 23 #118
-MUL 22 i #119
-DIV #119 23 #120
-ARYL t_array2 1 #121
-MUL #121 1000 #122
-MUL #120 #122 #123
-DIV #123 1000 #124
-DIV 57 17 #125
-ADD #124 #125 #126
-ARYL t_array2 #126 #127
-DIV #127 30 #128
-ADD #118 #128 #129
-ARYL t_array2 #129 #130
-BECOME #130  i
-DIV 34 4 #131
-MUL #131 6 #132
-DIV 122 10 #133
-ADD #132 #133 #134
-ARYL t_array2 #134 #135
-DIV #135 23 #136
-MUL 22 i #137
-DIV #137 23 #138
-ARYL t_array2 1 #139
-MUL #139 1000 #140
-MUL #138 #140 #141
-DIV #141 1000 #142
-DIV 57 17 #143
-ADD #142 #143 #144
-ARYL t_array2 #144 #145
-DIV #145 30 #146
-ADD #136 #146 #147
-ARYL t_array2 #147 #148
-ADD #148 0 #149
-PUSH #149 factorial 
-CALL factorial  #150
-PRINT #150  
-SET $LABEL58  
-SET $LABEL61  
-RET   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
-EXIT   
 EXIT   

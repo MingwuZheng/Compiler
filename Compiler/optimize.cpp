@@ -1,5 +1,6 @@
 #include "compiler.h"
 #include "midcode.h"
+#include "mips.h"
 
 quaternary tempmcs[QTNRY_MAX];
 int tmcnum;
@@ -39,7 +40,8 @@ void delete_unnecessary_jump() {
 void block_front_optimize() {
 	delete_unnecessary_jump();
 
-	for (int i = 0; i < (tmcnum > qtnry_ptr ? tmcnum : qtnry_ptr); i++)
+	qtnry_ptr = tmcnum;
+	for (int i = 0; i < tmcnum; i++)
 		midcodes[i] = tempmcs[i];
 }
 
