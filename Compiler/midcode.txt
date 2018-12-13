@@ -1,440 +1,444 @@
-SET fibo  
+SET ff1  
 ENTER   
-EQL n 1 #1
+BECOME 98  _c1
+RET c  
+EXIT   
+SET ff2  
+ENTER   
+BECOME '-'  _c2
+ADD 1 2 #1
+ADD #1 3 #2
+RET #2  
+EXIT   
+SET ff3  
+ENTER   
+ADD a b #1
+ADD #1 c #2
+ADD #2 d #3
+ADD #3 e #4
+ADD #4 f #5
+PRINT #5  
+RET   
+EXIT   
+SET ff4  
+ENTER   
+PRINTS 0  
+EXIT   
+SET factorial  
+ENTER   
+EQL a 1 #1
 BZ $LABEL1 #1 
 RET 1  
 GOTO $LABEL2  
 SET $LABEL1  
-EQL n 2 #2
-BZ $LABEL3 #2 
-RET 1  
-GOTO $LABEL4  
-SET $LABEL3  
-SUB n 1 #3
-ADD #3 0 #4
-PUSH #4 fibo 
-CALL fibo  #5
-SUB n 2 #6
-ADD #6 0 #7
-PUSH #7 fibo 
-CALL fibo  #8
-ADD #5 #8 #9
-RET #9  
-SET $LABEL4  
+SUB a 1 #2
+ADD #2 0 #3
+PUSH #3 factorial 
+CALL factorial  #4
+MUL #4 a #5
+BECOME #5  b
+RET b  
 SET $LABEL2  
 EXIT   
-SET test_base  
+SET ff5  
 ENTER   
-NEG 11  #1
-BECOME #1  A
-EQL 1 1 #2
-BZ $LABEL5 #2 
-GTR 1 0 #3
-BZ $LABEL6 #3 
-NEQ 1 0 #4
-BZ $LABEL7 #4 
-PRINTS 0  
-PRINT A  
-GOTO $LABEL8  
-SET $LABEL7  
-SET $LABEL8  
-GOTO $LABEL9  
-SET $LABEL6  
-SET $LABEL9  
-GOTO $LABEL10  
-SET $LABEL5  
-SET $LABEL10  
-NEG -11  #5
-SUB #5 11 #6
-ADD #6 -11 #7
-ADD 5 0 #8
-PUSH #8 fibo 
-CALL fibo  #9
-ADD #7 #9 #10
-MUL 1 -2 #11
-ADD #10 #11 #12
-DIV 9 3 #13
-SUB #12 #13 #14
-BECOME #14  A
-PRINTS 1  
-PRINT A  
-GTR input1 input2 #15
-BZ $LABEL11 #15 
-PRINTS 2  
-RET   
-GOTO $LABEL12  
-SET $LABEL11  
-LES input1 input2 #16
-BZ $LABEL13 #16 
-PRINTS 3  
-RET   
-GOTO $LABEL14  
-SET $LABEL13  
-EQL input1 input2 #17
-BZ $LABEL15 #17 
-PRINTS 4  
-RET   
-GOTO $LABEL16  
-SET $LABEL15  
-SET $LABEL16  
-SET $LABEL14  
-SET $LABEL12  
+BECOME 4  _t1
+ADD _t1 122 #1
+ADD #1 _c1 #2
+PRINT #2  
 EXIT   
-SET get_gcd  
+SET main  
 ENTER   
-GTR x y #1
-BZ $LABEL17 #1 
-BECOME x  temp
-BECOME y  x
-BECOME temp  y
-GOTO $LABEL18  
+SCAN in_1  
+EQL in_1 1 #1
+BZ $LABEL3 #1 
+SCAN t1  
+SCANC c2  
+SCANC c1  
+SCAN t2  
+MUL t1 c2 #2
+ADD c2 #2 #3
+DIV t1 c1 #4
+SUB #3 #4 #5
+PRINT #5  
+PRINTS 1  
+PRINTS 2  
+PRINTS 3  
+PRINTC c2  
+ARYS 0 '+' single_chars
+ARYS 1 '-' single_chars
+ARYS 2 '*' single_chars
+ARYS 3 '/' single_chars
+ARYS 4 '0' single_chars
+ARYS 5 '9' single_chars
+ARYS 6 'a' single_chars
+ARYS 7 'z' single_chars
+ARYS 8 'A' single_chars
+ARYS 9 'Z' single_chars
+BECOME '+'  _c1
+BECOME 'a'  _c3
+ADD _c1 2 #6
+BECOME #6  t3
+NEG _c3  #7
+ADD #7 77 #8
+BECOME #8  t4
+NEG 1  #9
+ADD #9 45 #10
+ADD #10 1 #11
+BECOME #11  t5
+NEQ t3 t5 #12
+BZ $LABEL4 #12 
+PRINTS 4  
+SET $LABEL4  
+SET $LABEL5  
+EQL t3 t4 #13
+BZ $LABEL6 #13 
+PRINTS 5  
+SET $LABEL6  
+SET $LABEL7  
+LEQ t3 t4 #14
+BZ $LABEL8 #14 
+PRINTS 6  
+SET $LABEL8  
+SET $LABEL9  
+LES t3 t5 #15
+BZ $LABEL10 #15 
+PRINTS 7  
+SET $LABEL10  
+SET $LABEL11  
+GEQ t4 t5 #16
+BZ $LABEL12 #16 
+PRINTS 8  
+SET $LABEL12  
+SET $LABEL13  
+GTR t5 t3 #17
+BZ $LABEL14 #17 
+PRINTS 9  
+SET $LABEL14  
+SET $LABEL15  
+BECOME 12  t6
+BECOME 23  t7
+NEG 23  #18
+BECOME #18  t8
+ADD t8 t6 #19
+ADD #19 t7 #20
+NEQ #20 12 #21
+BZ $LABEL16 #21 
+PRINTS 10  
+SET $LABEL16  
 SET $LABEL17  
+GTR 3 5 #22
+BZ $LABEL18 #22 
+PRINTS 11  
 SET $LABEL18  
-DIV y x #2
-BECOME #2  z
-MUL z x #3
-BECOME #3  z
-SUB y z #4
-EQL #4 0 #5
-BZ $LABEL19 #5 
-RET x  
-GOTO $LABEL20  
 SET $LABEL19  
+BECOME 9  t9
+BECOME '3'  c3
+BECOME '4'  c4
+SUB c4 c3 #23
+ADD #23 t9 #24
+NEQ #24 10 #25
+BZ $LABEL20 #25 
+PRINTS 12  
 SET $LABEL20  
-DIV x 2 #6
-BECOME #6  i
 SET $LABEL21  
-GTR i 1 #7
-BZ $LABEL22 #7 
-DIV x i #8
-BECOME #8  z
-MUL z i #9
-BECOME #9  z
-SUB x z #10
-EQL #10 0 #11
-BZ $LABEL23 #11 
-DIV y i #12
-BECOME #12  z
-MUL z i #13
-BECOME #13  z
-SUB y z #14
-EQL #14 0 #15
-BZ $LABEL24 #15 
-RET i  
+SET $LABEL3  
+SET $LABEL22  
+EQL in_1 2 #26
+BZ $LABEL23 #26 
+ARYS 0 2333 t_array1
+ARYS 0 '/' c_array1
+NEG 7  #27
+ADD #27 9 #28
+BECOME #28  t10
+BECOME '+'  c5
+BECOME c5  c6
+ARYL c_array1 0 #29
+BECOME #29  c7
+NEG 7  #30
+BECOME #30  t11
+BECOME t11  t12
+ARYL t_array1 0 #31
+BECOME #31  t13
+CALL ff2  #32
+BECOME #32  t14
+ADD 'y' 0 #33
+PUSH #33 ff1 
+CALL ff1  #34
+BECOME #34  c8
+ADD t10 c5 #35
+ADD #35 c6 #36
+ADD #36 c7 #37
+ADD #37 t11 #38
+ADD #38 t12 #39
+ADD #39 t13 #40
+ADD #40 t14 #41
+ADD #41 c8 #42
+BECOME #42  t14
+MUL t11 -7 #43
+MUL #43 t13 #44
+DIV #44 c8 #45
+DIV #45 t10 #46
+MUL #46 t12 #47
+PRINT #47  
+PRINTS 13  
+ADD 4 t14 #48
+PRINT #48  
+PRINTS 13  
+DIV 3 -2 #49
+NEG #49  #50
+PRINT #50  
+DIV 4 5 #51
+NEQ #51 0 #52
+BZ $LABEL24 #52 
+PRINTS 14  
 GOTO $LABEL25  
 SET $LABEL24  
+BECOME 1  t15
 SET $LABEL25  
-GOTO $LABEL26  
-SET $LABEL23  
-SET $LABEL26  
-SUB i 1 #16
-BECOME #16  i
-GOTO $LABEL21  
-SET $LABEL22  
-RET 1  
-EXIT   
-SET fourparam  
-ENTER   
-BECOME -22  temp
-ADD a b #1
-BECOME #1  a
-ADD a b #2
-BECOME #2  b
-MUL a b #3
-ADD #3 a #4
-BECOME #4  a
-ADD c a #5
-BECOME #5  a
-ADD d a #6
-BECOME #6  a
-ADD temp a #7
-BECOME #7  a
-PRINTS 5  
-PRINT a  
-RET d  
-EXIT   
-SET main  
-ENTER   
-BECOME 0  i
-BECOME 5  len
-BECOME 0  i
-SET $LABEL27  
-LES i len #1
-BZ $LABEL28 #1 
-ARYS i i a_var_int_arr
-ADD i 1 #2
-BECOME #2  i
-GOTO $LABEL27  
-SET $LABEL28  
-BECOME 0  i
-SET $LABEL29  
-ARYS i 'a' a_var_char_arr
-ADD i 1 #3
-BECOME #3  i
-LES i len #4
-BNZ $LABEL29 #4 
-PRINTS 6  
-SCAN a  
-SCAN A  
-ADD a 0 #5
-ADD A 0 #6
-PUSH #5 test_base 
-PUSH #6 test_base 
-CALL test_base  #7
-ADD a 0 #8
-ADD A 0 #9
-PUSH #8 get_gcd 
-PUSH #9 get_gcd 
-CALL get_gcd  #10
-BECOME #10  a_var_int
-PRINTS 7  
-PRINT a_var_int  
-SCANC c  
-SCANC C  
-ADD a 0 #11
-ADD A 0 #12
-ADD c 0 #13
-ADD C 0 #14
-PUSH #11 fourparam 
-PUSH #12 fourparam 
-PUSH #13 fourparam 
-PUSH #14 fourparam 
-CALL fourparam  #15
-BECOME #15  C
-PRINTS 8  
-PRINTC C  
-PRINTS 9  
-PRINTC 65  
-PRINTS 10  
-MUL 1 2 #16
-ADD 1 #16 #17
-ADD #17 1 #18
-ARYL a_var_char_arr #18 #19
-PRINTC #19  
-RET   
-EXIT   
-
-PRINT a  
-PRINTS 5  
-PRINT b  
-PRINTS 6  
-PRINT c  
-PRINTS 7  
-PRINT d  
-PRINTS 8  
-PRINT e  
-PRINTS 9  
-PRINT f  
-PRINTS 10  
-PRINT g  
-BECOME 'x'  x
-BECOME 'y'  y
-PRINTS 1  
-SUB c d #8
-ARYL number4 90 #9
-ADD #8 #9 #10
-DIV #10 12 #11
-ADD #11 32 #12
-SUB y 120 #13
-MUL x #13 #14
-SUB #14 b #15
-SUB #12 #15 #16
-BECOME #16  letter_only
-PRINTS 11  
-PRINT letter_only  
-ADD b c #17
-ADD #17 c #18
-ARYL array 0 #19
-ADD #19 0 #20
-PUSH #20 function1 
-CALL function1  #21
-ADD #18 #21 #22
-BECOME #22  letter_only
-PRINTS 12  
-PRINT letter_only  
-ARYL number4 90 #23
-ARYL number4 99 #24
-ADD #23 #24 #25
-MUL #25 a #26
-ADD 5 0 #27
-PUSH #27 function1 
-CALL function1  #28
-MUL #28 b #29
-ADD #26 #29 #30
-SUB x 97 #31
-ADD #31 -32 #32
-SUB #32 -43 #33
-MUL #30 #33 #34
-BECOME #34  result_1
-ARYL str7 118 #35
-SUB #35 97 #36
-MUL #36 32 #37
-ADD #37 a #38
-ADD #38 c #39
-DIV d 43 #40
-SUB #39 #40 #41
-BECOME #41  g
-PRINTS 13  
-PRINT g  
-PRINTS 1  
-MUL g g #42
-MUL #42 g #43
-DIV #43 g #44
-DIV #44 g #45
-DIV #45 g #46
-NEG #46  #47
-SUB g 576 #48
-ADD #48 0 #49
-PUSH #49 function1 
-CALL function1  #50
-ADD #47 #50 #51
-ARYS 12 #51 number4
-ADD e f #52
-SUB e f #53
-MUL #52 #53 #54
-DIV e f #55
-DIV #54 #55 #56
-ARYL number4 98 #57
-ADD #56 #57 #58
-CALL function_cal  #59
-ADD #58 #59 #60
-BECOME #60  result_2
-ADD e f #61
-SUB e f #62
-MUL #61 #62 #63
-DIV e f #64
-DIV #63 #64 #65
-ADD 6 0 #66
-PUSH #66 function1 
-CALL function1  #67
-ADD #65 #67 #68
-ARYL number4 12 #69
-ADD #68 #69 #70
-BECOME #70  result_3
-PRINTS 1  
-PRINTS 14  
-PRINT result_2  
-PRINTS 1  
+LES 3 4 #53
+BZ $LABEL26 #53 
+LES 4 4 #54
+BZ $LABEL27 #54 
 PRINTS 15  
-PRINT result_3  
-PRINTS 1  
-CALL function_cal  #71
-ADD #71 10 #72
-BECOME #72  result_4
-PRINTS 1  
+GOTO $LABEL28  
+SET $LABEL27  
+GEQ 4 4 #55
+BZ $LABEL29 #55 
+GTR t15 0 #56
+BZ $LABEL30 #56 
+LES t15 0 #57
+BZ $LABEL31 #57 
 PRINTS 16  
-PRINT result_1  
-PRINTS 1  
+GOTO $LABEL32  
+SET $LABEL31  
 PRINTS 17  
-PRINT result_4  
-PRINTS 1  
-EXIT   
-SET main  
-ENTER   
-ADD 12 13 #1
-BECOME #1  out_num
-SCAN in_num  
-SCANC in_str  
-SCANC out_str  
-BECOME 0  i
-SET $LABEL23  
-LES i in_num #2
-BZ $LABEL24 #2 
+SET $LABEL32  
+SET $LABEL30  
+SET $LABEL33  
+SET $LABEL29  
+SET $LABEL34  
+SET $LABEL28  
+GOTO $LABEL35  
+SET $LABEL26  
 PRINTS 18  
-PRINT i  
+SET $LABEL35  
+BECOME 1  t16
+BECOME 0  t18
+LEQ t16 4 #58
+BZ $LABEL36 #58 
+SET $LABEL37  
+BECOME 1  t17
+LES t17 t16 #59
+BZ $LABEL38 #59 
+SET $LABEL39  
+ADD t18 t17 #60
+BECOME #60  t18
+ADD t17 1 #61
+BECOME #61  t17
+LES t17 t16 #62
+BNZ $LABEL39 #62 
+SET $LABEL38  
+SET $LABEL40  
+ADD t16 1 #63
+BECOME #63  t16
+LEQ t16 4 #64
+BNZ $LABEL37 #64 
+SET $LABEL36  
+SET $LABEL41  
+BECOME 0  t19
+BECOME 2  t20
+SET $LABEL42  
+LEQ t20 5 #65
+BZ $LABEL43 #65 
+BECOME 1  t22
+BECOME 2  t21
+SET $LABEL44  
+LES t21 t20 #66
+BZ $LABEL45 #66 
+MUL t22 t21 #67
+BECOME #67  t22
+ADD t21 2 #68
+BECOME #68  t21
+GOTO $LABEL44  
+SET $LABEL45  
+ADD t19 t22 #69
+BECOME #69  t19
+ADD t20 1 #70
+BECOME #70  t20
+GOTO $LABEL42  
+SET $LABEL43  
+BECOME 100  t20
+SET $LABEL46  
+GEQ t20 97 #71
+BZ $LABEL47 #71 
+BECOME 1  t22
+BECOME 100  t21
+SET $LABEL48  
+GTR t21 t20 #72
+BZ $LABEL49 #72 
+MUL t22 t21 #73
+BECOME #73  t22
+SUB t21 2 #74
+BECOME #74  t21
+GOTO $LABEL48  
+SET $LABEL49  
+ADD t19 t22 #75
+BECOME #75  t19
+SUB t20 1 #76
+BECOME #76  t20
+GOTO $LABEL46  
+SET $LABEL47  
+NEG 0  #77
+GTR 1 #77 #78
+BZ $LABEL50 #78 
+PRINTS 17  
+SET $LABEL50  
+SET $LABEL51  
+SET $LABEL52  
+BECOME 0  t23
+SET $LABEL53  
+LES t23 100 #79
+BZ $LABEL54 #79 
+ADD t23 2 #80
+BECOME #80  t23
+GTR t23 60 #81
+BZ $LABEL55 #81 
+PRINTS 13  
+ADD t18 t19 #82
+ADD #82 t23 #83
+PRINT #83  
+RET   
+SET $LABEL55  
+SET $LABEL56  
+ADD t23 1 #84
+BECOME #84  t23
+GOTO $LABEL53  
+SET $LABEL54  
+NEQ 1 0 #85
+BNZ $LABEL52 #85 
 PRINTS 19  
-ADD i 0 #3
-PUSH #3 function1 
-CALL function1  #4
-PRINT #4  
-PRINTS 1  
-ADD i 1 #5
-BECOME #5  i
-GOTO $LABEL23  
-SET $LABEL24  
-ADD 6 0 #6
-PUSH #6 function1 
-CALL function1  #7
-ADD #7 0 #8
-PUSH #8 function1 
-CALL function1  #9
-SUB #9 19 #10
-ADD #10 0 #11
-PUSH #11 function1 
-CALL function1  #12
-BECOME #12  out_num
-PRINTS 20  
-PRINT out_num  
-PRINTS 1  
-CALL function3  #13
-CALL function_cal  #14
-ADD #14 10 #15
-BECOME #15  out_num
-PRINTS 21  
-PRINT out_num  
-PRINTS 1  
-CALL function_cal  #16
-ADD out_num #16 #17
-BECOME #17  out_num
-PRINTS 22  
-PRINT out_num  
-PRINTS 1  
-CALL Complex_Compute  #18
-RET   
-EXIT   
- #20
-PUSH 233 test_diff_domain 
-CALL test_diff_domain  #21
-CALL test_expr  #22
-CALL test_all_cond  #23
-CALL test_scanf  #24
-PUSH 'a' echo_char 
-CALL echo_char  #25
-PUSH 1 test_lots_paras 
-PUSH 2 test_lots_paras 
-PUSH 'c' test_lots_paras 
-PUSH 'd' test_lots_paras 
-PUSH 5 test_lots_paras 
-CALL test_lots_paras  #26
-PRINT #26  
-CALL really_void  #27
-CALL really_void2  #28
-CALL really_void3  #29
-ARYS 0 'A' chs
-ARYS 1 'B' chs
-ARYS 2 'C' chs
-ARYS 3 'D' chs
-ARYS 4 'E' chs
-PRINTS 26  
-PUSH 0 permutation 
-PUSH 5 permutation 
-CALL permutation  #30
-RET   
-EXIT   
-i
-DIV 34 4 #119
-MUL #119 6 #120
-DIV 122 10 #121
-ADD #120 #121 #122
-ARYL t_array2 #122 #123
-DIV #123 23 #124
-MUL 22 i #125
-DIV #125 23 #126
-ARYL t_array2 1 #127
-MUL #127 1000 #128
-MUL #126 #128 #129
-DIV #129 1000 #130
-DIV 57 17 #131
-ADD #130 #131 #132
-ARYL t_array2 #132 #133
-DIV #133 30 #134
-ADD #124 #134 #135
-ARYL t_array2 #135 #136
-PUSH #136 factorial 
-CALL factorial  #137
-PRINT #137  
-GOTO $LABEL61  
+SET $LABEL23  
+SET $LABEL57  
+EQL in_1 3 #86
+BZ $LABEL58 #86 
+ADD 1 0 #87
+PUSH #87 factorial 
+CALL factorial  #88
+ADD 2 0 #89
+PUSH #89 factorial 
+CALL factorial  #90
+ADD #88 #90 #91
+ADD 5 0 #92
+PUSH #92 factorial 
+CALL factorial  #93
+ADD #91 #93 #94
+PRINT #94  
+BECOME 'a'  _c1
+ADD '+' 0 #95
+PUSH #95 ff1 
+CALL ff1  #96
+PRINTC _c1  
+BECOME 'b'  _c2
+CALL ff2  #97
+PRINTC _c2  
+ADD 1 0 #98
+ADD 2 0 #99
+ADD 'a' 0 #100
+ADD 3 0 #101
+ADD 'b' 0 #102
+ADD 'c' 0 #103
+PUSH #98 ff3 
+PUSH #99 ff3 
+PUSH #100 ff3 
+PUSH #101 ff3 
+PUSH #102 ff3 
+PUSH #103 ff3 
+CALL ff3  #104
+CALL ff4  #105
+BECOME '*'  _c1
+CALL ff5  #106
+BECOME 6666  _c4
+BECOME '8'  _t1
+ADD _c4 _t1 #107
+PRINT #107  
+ARYS 50 'h' c_array2
+ARYL c_array2 50 #108
+PRINTC #108  
+ADD 'g' 0 #109
+PUSH #109 ff1 
+CALL ff1  #110
+PRINTC #110  
+PRINT 114  
+BECOME 0  i
+SET $LABEL59  
+LES i 100 #111
+BZ $LABEL60 #111 
+ARYS i i t_array2
+ADD i 1 #112
+BECOME #112  i
+GOTO $LABEL59  
+SET $LABEL60  
+DIV 34 4 #113
+MUL #113 6 #114
+DIV 122 10 #115
+ADD #114 #115 #116
+ARYL t_array2 #116 #117
+DIV #117 23 #118
+MUL 22 i #119
+DIV #119 23 #120
+ARYL t_array2 1 #121
+MUL #121 1000 #122
+MUL #120 #122 #123
+DIV #123 1000 #124
+DIV 57 17 #125
+ADD #124 #125 #126
+ARYL t_array2 #126 #127
+DIV #127 30 #128
+ADD #118 #128 #129
+ARYL t_array2 #129 #130
+BECOME #130  i
+DIV 34 4 #131
+MUL #131 6 #132
+DIV 122 10 #133
+ADD #132 #133 #134
+ARYL t_array2 #134 #135
+DIV #135 23 #136
+MUL 22 i #137
+DIV #137 23 #138
+ARYL t_array2 1 #139
+MUL #139 1000 #140
+MUL #138 #140 #141
+DIV #141 1000 #142
+DIV 57 17 #143
+ADD #142 #143 #144
+ARYL t_array2 #144 #145
+DIV #145 30 #146
+ADD #136 #146 #147
+ARYL t_array2 #147 #148
+ADD #148 0 #149
+PUSH #149 factorial 
+CALL factorial  #150
+PRINT #150  
 SET $LABEL58  
 SET $LABEL61  
 RET   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
+EXIT   
 EXIT   

@@ -178,20 +178,6 @@ void remove_vertex(int number) {
 	vertexs.push(number);
 }
 
-
-bool flush_graph::color(int number) {
-	bool 
-
-	for (int j = 0; j < TAB_MAX; j++) {
-		if (conflict_graph[number][j]) {
-
-		}
-	}
-
-
-}
-
-
 void flush_graph::global_var_cal() {
 #define varname(x) funcname2tab(function).ele(x)->name
 	//初始化
@@ -259,19 +245,44 @@ void flush_graph::global_var_cal() {
 			}
 		}
 	} while (loop_continue);
-
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-	
-
-	//////////////
-	for (int i = 0; i < blocknum; i++) {
-		for (int j = 0; j < TAB_MAX; j++) {
-			if (blocks[i].in[j]) {
-				global_var.insert(symtabs[GTAB.ele(function)->addr].ele(j)->name);
-				alloc_sreg(symtabs[GTAB.ele(function)->addr].ele(j)->name);
+	//着色
+	while (!vertexs.empty()) {
+		int varnum = vertexs.top();
+		for (int color = 0; color < 8; color++) {
+			//判断能否按照color着色
+			bool colorable = true;
+			for (int j = 0; j < TAB_MAX; j++) {
+				if (vardic[j] && conflict_graph[varnum][j] && var2sreg.find(varname(j)) != var2sreg.end() && var2sreg[varname(j)] == color) {
+					colorable = false;
+					break;
+				}
 			}
+			if (colorable) {
+				var2sreg[varname(varnum)] = color;
+				break;
+			}
+			else continue;
 		}
+		vertexs.pop();
 	}
+	//把剩余寄存器标记为不分配
+	set<string>::iterator iter = global_var.begin();
+	while (iter != global_var.end()) {
+		if (var2sreg.find(*iter) == var2sreg.end())
+			var2sreg[*iter] = -1;
+		iter++;
+	}
+
+
+	//类似引用计数的分配方案，把跨块变量分配全局寄存器
+	//for (int i = 0; i < blocknum; i++) {
+	//	for (int j = 0; j < TAB_MAX; j++) {
+	//		if (blocks[i].in[j]) {
+	//			global_var.insert(symtabs[GTAB.ele(function)->addr].ele(j)->name);
+	//			alloc_sreg(symtabs[GTAB.ele(function)->addr].ele(j)->name);
+	//		}
+	//	}
+	//}
 
 }
 

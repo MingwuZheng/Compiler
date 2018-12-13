@@ -221,7 +221,7 @@ void call_handler() {
 			mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
 	}
 	for (int i = 16; i < 24; i++) {//½«$s0~$s7·ÖÅäµÄ¼Ä´æÆ÷Ñ¹Õ»
-		if(curgraph.sreg2var[i-16] != "")
+		if (curgraph.alloced(i - 16))
 			mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
 	}
 	if (!rp.reg[8])
@@ -240,7 +240,7 @@ void call_handler() {
 			mips_f << "lw $" << i << "," << (31 - i) * 4 << "($sp)" << endl;
 	}
 	for (int i = 16; i < 24; i++) {//½«$s0~$s7·ÖÅäµÄ¼Ä´æÆ÷µ¯Õ»
-		if (curgraph.sreg2var[i - 16] != "")
+		if (curgraph.alloced(i - 16))
 			mips_f << "lw $" << i << "," << (31 - i) * 4 << "($sp)" << endl;
 	}
 	if (!rp.reg[8])
@@ -634,7 +634,7 @@ void content(string funcname) {
 	mcptr++;
 }
 
-void function_handler(string name) {
+ void function_handler(string name) {
 	//init
 	cur_func = GTAB.ele(name)->addr;
 	rp.flush();

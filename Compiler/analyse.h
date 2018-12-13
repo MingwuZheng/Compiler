@@ -52,9 +52,7 @@ public:
 	//block ENDBLOCK;
 	int blocknum;
 	flush_graph() {
-		function = ""; blocknum = 0; gvarnum = 0; alloced_sreg = 0;
-		for (int i = 0; i < SREG_NUM; i++)
-			sreg2var[i] = "";
+		function = ""; blocknum = 0; gvarnum = 0;
 	}
 	int gen_block(int, int);
 
@@ -63,12 +61,20 @@ public:
 	void def_use_cal(int blkno, int mcno);
 	void in_out_cal();
 	void global_var_cal();
-	bool color(int);
-	string sreg2var[SREG_NUM];
+	//string sreg2var[SREG_NUM];
 	map<string, int>var2sreg;//只包含块全局变量
-	int alloced_sreg;
-	void alloc_sreg(string name, int sregnum) {
+	//int alloced_sreg;
+	/*void alloc_sreg(string name, int sregnum) {
 		var2sreg[name] = sregnum;
+	}*/
+	bool alloced(int sregnum) {
+		map<string, int>::iterator iter = var2sreg.begin();
+		while (iter != var2sreg.end()) {
+			if (iter->second == sregnum)
+				return true;
+			iter++;
+		}
+		return false;
 	}
 	int gvar2sreg(string gvar) {
 		return var2sreg[gvar];
