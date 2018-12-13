@@ -163,15 +163,15 @@ reg_pool rp;
 
 class mips_code
 {
-public:
+public:	
 	int paranum;
 	string op;
 	string op1, op2, op3;
-	mips_code() {
-		paranum = 0;
-		op = ""; op1 = ""; op2 = ""; op3 = "";
+	mips_code(int paranum, string op, string op1, string op2, string op3) {
+		this->paranum = paranum; this->op = op; this->op1 = op1; this->op2 = op2; this->op3 = op3;
 	}
 };
+
 
 vector<mips_code>mipscodes;
 
@@ -696,40 +696,43 @@ void header() {
 
 
 void emit_mips(int paranum, string op, string op1, string op2, string op3) {
-	mips_code mp;
-	mp.op = op;
-	mp.op1 = op1;
-	mp.op2 = op2;
-	mp.op3 = op3;
-	mp.paranum = paranum;
-	mipscodes.push_back(mp);
+	mips_code *mp;
+	mp = new mips_code(paranum, op, op1, op2, op3);	
+	mipscodes.push_back(*mp);
 }
 
 void print_mipscode() {
 	vector<mips_code>::iterator iter = mipscodes.begin();
+	string out_temp;
 	while (iter != mipscodes.end()) {
 		if (iter->op == "syscall") {
-			cout << iter->op << endl;
+			out_temp = iter->op;
+			mips_f << out_temp << endl;
 		}
 		else if (iter->op == "sw" || iter->op == "lw") {
-			cout << iter->op << " " << iter->op1 << "," + iter->op2 + "(" + iter->op3 + ")" << endl;
+			out_temp = iter->op + " " + iter->op1 + "," + iter->op2 + "(" + iter->op3 + ")";
+			mips_f << out_temp << endl;
 		}
 		else {
 			switch (iter->paranum) {
 			case 0: {
-				cout << iter->op << ":" << endl;
+				out_temp = iter->op + ":";
+				mips_f << out_temp << endl;
 				break;
 			}
 			case 1: {
-				cout << iter->op << " " + iter->op1 << endl;
+				out_temp = iter->op + " " + iter->op1;
+				mips_f << out_temp << endl;
 				break;
 			}
 			case 2: {
-				cout << iter->op << " " + iter->op1 + "," + iter->op2 << endl;
+				out_temp = iter->op + " " + iter->op1 + "," + iter->op2;
+				mips_f << out_temp << endl;
 				break;
 			}
 			case 3: {
-				cout << iter->op << " " + iter->op1 + "," + iter->op2 + "," + iter->op3 << endl;
+				out_temp = iter->op + " " + iter->op1 + "," + iter->op2 + "," + iter->op3;
+				mips_f << out_temp << endl;
 				break;
 			}
 			default:break;

@@ -8,6 +8,7 @@
 #include<map>
 #include<iomanip>
 #include<vector>
+#include <iterator>
 
 #define ISNUM(x)		((x >= '0') && (x <= '9'))
 #define ISLETTER(x)		(((x >= 'a') && (x <= 'z')) || ((x >= 'A') && (x <= 'Z')) || (x == '_'))
