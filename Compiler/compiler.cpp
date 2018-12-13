@@ -66,7 +66,7 @@ symTab symtabs[TAB_MAX];
 int main() {
 
 
-	/*
+	
 	char f_name[100] = { 0 };
 	cin >> f_name;
 	input_f.open(f_name, ios::in);
@@ -74,8 +74,8 @@ int main() {
 		cout << "Not a valid filename!" << endl;
 		return 0;
 	}
-	*/
 	
+	/*
 	char f_name[100] = "sdy.txt";
 	input_f.open(f_name, ios::in);
 	if (input_f.is_open() == false) {
@@ -83,7 +83,7 @@ int main() {
 		return 0;
 	}
 	
-
+	*/
 
 
 	init();

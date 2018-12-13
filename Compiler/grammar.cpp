@@ -341,15 +341,20 @@ string call(int pos) {//优化时注意，有返回值函数调用单列一句话可能会多出无意义中
 	}
 	else {
 		bool temp;
+		string stkmid;
 		int func_stab = GTAB.ele(pos)->addr;	
-		parastk[pstk] = expression(&temp);
+		emit(ADD, expression(&temp), "0", "", &stkmid);
+		parastk[pstk] = stkmid;
+		//parastk[pstk] = expression(&temp);
 		if (temp != ((symtabs[func_stab]).ele(pstk++)->symtype == CHAR) && STRONG_TYPE)
 			error(TYPE_CONFLICT_ERROR);
 		//emit(PUSH, expression(), name, "", nullptr);
 		paranum++;
 		while (sy == COMMA) {
 			insymbol();
-			parastk[pstk] = expression(&temp);
+			emit(ADD, expression(&temp), "0", "", &stkmid);
+			parastk[pstk] = stkmid;
+			//parastk[pstk] = expression(&temp);
 			if (temp != ((symtabs[func_stab]).ele(pstk++)->symtype == CHAR) && STRONG_TYPE)
 				error(TYPE_CONFLICT_ERROR);
 			paranum++;

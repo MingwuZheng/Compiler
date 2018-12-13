@@ -2,7 +2,7 @@
 #include "midcode.h"
 #include "analyse.h"
 #define TREG_NUM 9 //$t9用于缓冲
-#define MIDVAR_MAX 40000
+#define MIDVAR_MAX 4000
 #define REGS_OFFSET 32*4//栈底默认存32个寄存器
 #define STK_BOTTOM "$fp"//栈底寄存器 $v1 编号3\$fp
 #define GLOBAL "$gp"//先认为是0开始存全局变量

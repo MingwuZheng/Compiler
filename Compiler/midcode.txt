@@ -1,393 +1,388 @@
-SET foo1  
-ENTER   
-ADD a b #1
-RET #1  
-EXIT   
-SET add  
-ENTER   
-ADD a b #1
-RET #1  
-EXIT   
-SET addchar  
-ENTER   
-ADD a b #1
-RET #1  
-EXIT   
-SET addone  
-ENTER   
-ADD a 1 #1
-RET #1  
-EXIT   
-SET addint  
-ENTER   
-ADD a 1 #1
-RET #1  
-EXIT   
-SET foo2  
-ENTER   
-GTR c 99 #1
-BZ $LABEL1 #1 
-RET '/'  
-GOTO $LABEL2  
-SET $LABEL1  
-RET '*'  
-SET $LABEL2  
-EXIT   
-SET test_string_int  
-ENTER   
-BECOME 1  a
-PRINT a  
-BECOME 0  a
-PRINT a  
-BECOME 0  a
-PRINT a  
-NEG 0  #1
-BECOME #1  a
-PRINT a  
-BECOME 12  a
-PRINT a  
-NEG 12  #2
-BECOME #2  a
-PRINT a  
-PRINTS 0  
-RET   
-EXIT   
-SET fib  
+SET fibo  
 ENTER   
 EQL n 1 #1
-BZ $LABEL3 #1 
+BZ $LABEL1 #1 
+RET 1  
+GOTO $LABEL2  
+SET $LABEL1  
+EQL n 2 #2
+BZ $LABEL3 #2 
 RET 1  
 GOTO $LABEL4  
 SET $LABEL3  
-EQL n 2 #2
-BZ $LABEL5 #2 
-RET 1  
-GOTO $LABEL6  
-SET $LABEL5  
-SET $LABEL6  
-SET $LABEL4  
 SUB n 1 #3
-PUSH #3 fib 
-CALL fib  #4
-SUB n 2 #5
-PUSH #5 fib 
-CALL fib  #6
-ADD #4 #6 #7
-RET #7  
+ADD #3 0 #4
+PUSH #4 fibo 
+CALL fibo  #5
+SUB n 2 #6
+ADD #6 0 #7
+PUSH #7 fibo 
+CALL fibo  #8
+ADD #5 #8 #9
+RET #9  
+SET $LABEL4  
+SET $LABEL2  
 EXIT   
-SET test_lots_paras  
+SET test_base  
 ENTER   
-ADD a b #1
-ADD #1 c #2
-SUB #2 d #3
-ADD #3 e #4
-RET #4  
-EXIT   
-SET test_all_cond  
-ENTER   
-BECOME 1  a
-BECOME 2  b
-BECOME 2  c
-BECOME 'A'  d
-PRINTS 1  
-EQL b c #1
-BZ $LABEL7 #1 
-PRINTS 2  
+NEG 11  #1
+BECOME #1  A
+EQL 1 1 #2
+BZ $LABEL5 #2 
+GTR 1 0 #3
+BZ $LABEL6 #3 
+NEQ 1 0 #4
+BZ $LABEL7 #4 
+PRINTS 0  
+PRINT A  
 GOTO $LABEL8  
 SET $LABEL7  
 SET $LABEL8  
-LES a b #2
-BZ $LABEL9 #2 
-PRINTS 3  
-GOTO $LABEL10  
+GOTO $LABEL9  
+SET $LABEL6  
 SET $LABEL9  
+GOTO $LABEL10  
+SET $LABEL5  
 SET $LABEL10  
-GTR c a #3
-BZ $LABEL11 #3 
-PRINTS 4  
+NEG -11  #5
+SUB #5 11 #6
+ADD #6 -11 #7
+ADD 5 0 #8
+PUSH #8 fibo 
+CALL fibo  #9
+ADD #7 #9 #10
+MUL 1 -2 #11
+ADD #10 #11 #12
+DIV 9 3 #13
+SUB #12 #13 #14
+BECOME #14  A
+PRINTS 1  
+PRINT A  
+GTR input1 input2 #15
+BZ $LABEL11 #15 
+PRINTS 2  
+RET   
 GOTO $LABEL12  
 SET $LABEL11  
-SET $LABEL12  
-NEQ d 0 #4
-BZ $LABEL13 #4 
-PRINTS 5  
+LES input1 input2 #16
+BZ $LABEL13 #16 
+PRINTS 3  
+RET   
 GOTO $LABEL14  
 SET $LABEL13  
-SET $LABEL14  
-EQL a 1 #5
-BZ $LABEL15 #5 
-PRINTS 6  
+EQL input1 input2 #17
+BZ $LABEL15 #17 
+PRINTS 4  
+RET   
 GOTO $LABEL16  
 SET $LABEL15  
 SET $LABEL16  
-NEQ a 1 #6
-BZ $LABEL17 #6 
-PRINTS 6  
+SET $LABEL14  
+SET $LABEL12  
+EXIT   
+SET get_gcd  
+ENTER   
+GTR x y #1
+BZ $LABEL17 #1 
+BECOME x  temp
+BECOME y  x
+BECOME temp  y
 GOTO $LABEL18  
 SET $LABEL17  
 SET $LABEL18  
-LEQ a c #7
-BZ $LABEL19 #7 
-PRINTS 7  
+DIV y x #2
+BECOME #2  z
+MUL z x #3
+BECOME #3  z
+SUB y z #4
+EQL #4 0 #5
+BZ $LABEL19 #5 
+RET x  
 GOTO $LABEL20  
 SET $LABEL19  
 SET $LABEL20  
-GEQ a c #8
-BZ $LABEL21 #8 
-PRINTS 8  
-GOTO $LABEL22  
+DIV x 2 #6
+BECOME #6  i
 SET $LABEL21  
-SET $LABEL22  
-GTR d 66 #9
-BZ $LABEL23 #9 
-PRINTS 8  
-GOTO $LABEL24  
-SET $LABEL23  
+GTR i 1 #7
+BZ $LABEL22 #7 
+DIV x i #8
+BECOME #8  z
+MUL z i #9
+BECOME #9  z
+SUB x z #10
+EQL #10 0 #11
+BZ $LABEL23 #11 
+DIV y i #12
+BECOME #12  z
+MUL z i #13
+BECOME #13  z
+SUB y z #14
+EQL #14 0 #15
+BZ $LABEL24 #15 
+RET i  
+GOTO $LABEL25  
 SET $LABEL24  
-RET   
-EXIT   
-SET test_diff_domain  
-ENTER   
-PRINTC 98  
-BECOME 222  G_v_int_a1
-PRINT G_v_int_a1  
-PRINTS 9  
-PRINT 1  
-PRINTC 102  
-PRINTC 98  
-PRINTC 98  
-PRINT 2  
-PRINT 3  
-ARYS 2 'H' g_v_char_arr
-ARYL g_v_char_arr 2 #1
-PRINTC #1  
-ARYS 6 155 g_v_int_arr2
-ARYL g_v_int_arr2 6 #2
-PRINT #2  
-PRINTS 10  
-PRINT para_change  
-MUL para_change 2 #3
-BECOME #3  para_change
-PRINTS 11  
-PRINT para_change  
-BECOME 'Y'  g_v_char_b
-PRINTC g_v_char_b  
-EXIT   
-SET test_expr  
-ENTER   
-PRINTS 12  
-NEG -12  #1
-SUB #1 -12 #2
-SUB #2 -12 #3
-SUB #3 12 #4
-ADD #4 -12 #5
-SUB #5 -12 #6
-SUB #6 -12 #7
-SUB #7 -12 #8
-SUB #8 -12 #9
-BECOME #9  res_of_expr
-PRINTS 13  
-PRINT res_of_expr  
-MUL 10 -5 #10
-BECOME #10  res_of_expr
-PRINTS 14  
-PRINT res_of_expr  
-DIV 10 4 #11
-BECOME #11  res_of_expr
-PRINTS 15  
-PRINT res_of_expr  
-PUSH 12 fib 
-CALL fib  #12
-PUSH 14 fib 
-CALL fib  #13
-SUB #12 #13 #14
-BECOME #14  res_of_expr
-PRINTS 16  
-PRINT res_of_expr  
-ADD 99 12 #15
-BECOME #15  res_of_expr
-PRINTS 17  
-PRINT res_of_expr  
-MUL 99 12 #16
-DIV #16 1 #17
-BECOME #17  res_of_expr
-PRINTS 18  
-PRINT res_of_expr  
-ADD 12 1 #18
-SUB 1 #18 #19
-BECOME #19  res_of_expr
-PRINTS 19  
-PRINT res_of_expr  
-ARYS 1 15 arr
-ARYL arr 1 #20
-MUL #20 98 #21
-PUSH 3 fib 
-CALL fib  #22
-ADD #21 #22 #23
-BECOME #23  res_of_expr
-PRINTS 20  
-PRINT res_of_expr  
-BECOME 5  G_v_int_a1
-ARYS 6 12 tag
-BECOME 'h'  g_v_char_h
-PUSH g_v_char_h addone 
-CALL addone  #24
-PUSH 5 fib 
-CALL fib  #25
-PUSH 1 add 
-PUSH #25 add 
-CALL add  #26
-DIV #26 G_v_int_a1 #27
-ADD #24 #27 #28
-ARYL tag 6 #29
-SUB #28 #29 #30
-BECOME #30  res_of_expr
-PRINTS 21  
-PRINT res_of_expr  
-RET   
-EXIT   
-SET test_scanf  
-ENTER   
-PRINTS 22  
-SCAN a  
-PRINT a  
-PRINTS 23  
-SCAN a  
-SCAN b  
-PRINT a  
-PRINT b  
-RET   
-EXIT   
-SET echo_char  
-ENTER   
-PRINTC a  
-RET a  
-EXIT   
-SET really_void  
-ENTER   
-EXIT   
-SET really_void2  
-ENTER   
-EXIT   
-SET really_void3  
-ENTER   
-EXIT   
-SET permutation  
-ENTER   
-SUB n 1 #1
-LES m #1 #2
-BZ $LABEL25 #2 
-ADD m 1 #3
-PUSH #3 permutation 
-PUSH n permutation 
-CALL permutation  #4
-ADD m 1 #5
-BECOME #5  i
-SET $LABEL26  
-LES i n #6
-BZ $LABEL27 #6 
-ARYL chs m #7
-BECOME #7  t
-ARYL chs i #8
-ARYS m #8 chs
-ARYS i t chs
-ADD m 1 #9
-PUSH #9 permutation 
-PUSH n permutation 
-CALL permutation  #10
-ARYL chs m #11
-BECOME #11  t
-ARYL chs i #12
-ARYS m #12 chs
-ARYS i t chs
-ADD i 1 #13
-BECOME #13  i
-GOTO $LABEL26  
-SET $LABEL27  
-GOTO $LABEL28  
 SET $LABEL25  
-BECOME 0  i
-SET $LABEL29  
-ARYL chs i #14
-PUSH #14 echo_char 
-CALL echo_char  #15
-BECOME #15  r
-ARYL chs i #16
-NEQ r #16 #17
-BZ $LABEL30 #17 
-PRINTS 6  
-GOTO $LABEL31  
-SET $LABEL30  
-SET $LABEL31  
-ADD i 1 #18
-BECOME #18  i
-LES i 5 #19
-BNZ $LABEL29 #19 
-PRINTS 24  
-SET $LABEL28  
+GOTO $LABEL26  
+SET $LABEL23  
+SET $LABEL26  
+SUB i 1 #16
+BECOME #16  i
+GOTO $LABEL21  
+SET $LABEL22  
+RET 1  
+EXIT   
+SET fourparam  
+ENTER   
+BECOME -22  temp
+ADD a b #1
+BECOME #1  a
+ADD a b #2
+BECOME #2  b
+MUL a b #3
+ADD #3 a #4
+BECOME #4  a
+ADD c a #5
+BECOME #5  a
+ADD d a #6
+BECOME #6  a
+ADD temp a #7
+BECOME #7  a
+PRINTS 5  
+PRINT a  
+RET d  
 EXIT   
 SET main  
 ENTER   
 BECOME 0  i
-SET $LABEL32  
-LES i 10 #1
-BZ $LABEL33 #1 
+BECOME 5  len
+BECOME 0  i
+SET $LABEL27  
+LES i len #1
+BZ $LABEL28 #1 
+ARYS i i a_var_int_arr
 ADD i 1 #2
-PUSH #2 fib 
-CALL fib  #3
-ARYS i #3 arr
-ADD i 1 #4
-BECOME #4  i
-GOTO $LABEL32  
-SET $LABEL33  
-PRINTS 25  
-SCAN user_input1  
-SCAN user_input2  
-SUB user_input1 1 #5
-BECOME #5  i
-SET $LABEL34  
-PRINTS 24  
-ARYL arr i #6
-PRINT #6  
-ADD i 1 #7
-BECOME #7  i
-LES i user_input2 #8
-BNZ $LABEL34 #8 
-SUB user_input2 1 #9
-BECOME #9  i
-SET $LABEL35  
-SUB user_input1 1 #10
-GEQ i #10 #11
-BZ $LABEL36 #11 
-PRINTS 24  
-ARYL arr i #12
-PRINT #12  
-SUB i 1 #13
-BECOME #13  i
-GOTO $LABEL35  
-SET $LABEL36  
-PUSH 1 foo1 
-PUSH 'b' foo1 
-CALL foo1  #14
-PRINT #14  
-PUSH 1 add 
-PUSH 2 add 
-CALL add  #15
-PRINT #15  
-PUSH 'a' addchar 
-PUSH 'b' addchar 
-CALL addchar  #16
-PRINT #16  
-PUSH 'F' addone 
-CALL addone  #17
-PRINT #17  
-PUSH 16 addint 
-CALL addint  #18
-PRINT #18  
-PUSH 'c' foo2 
-CALL foo2  #19
+BECOME #2  i
+GOTO $LABEL27  
+SET $LABEL28  
+BECOME 0  i
+SET $LABEL29  
+ARYS i 'a' a_var_char_arr
+ADD i 1 #3
+BECOME #3  i
+LES i len #4
+BNZ $LABEL29 #4 
+PRINTS 6  
+SCAN a  
+SCAN A  
+ADD a 0 #5
+ADD A 0 #6
+PUSH #5 test_base 
+PUSH #6 test_base 
+CALL test_base  #7
+ADD a 0 #8
+ADD A 0 #9
+PUSH #8 get_gcd 
+PUSH #9 get_gcd 
+CALL get_gcd  #10
+BECOME #10  a_var_int
+PRINTS 7  
+PRINT a_var_int  
+SCANC c  
+SCANC C  
+ADD a 0 #11
+ADD A 0 #12
+ADD c 0 #13
+ADD C 0 #14
+PUSH #11 fourparam 
+PUSH #12 fourparam 
+PUSH #13 fourparam 
+PUSH #14 fourparam 
+CALL fourparam  #15
+BECOME #15  C
+PRINTS 8  
+PRINTC C  
+PRINTS 9  
+PRINTC 65  
+PRINTS 10  
+MUL 1 2 #16
+ADD 1 #16 #17
+ADD #17 1 #18
+ARYL a_var_char_arr #18 #19
 PRINTC #19  
-CALL test_string_int  #20
+RET   
+EXIT   
+
+PRINT a  
+PRINTS 5  
+PRINT b  
+PRINTS 6  
+PRINT c  
+PRINTS 7  
+PRINT d  
+PRINTS 8  
+PRINT e  
+PRINTS 9  
+PRINT f  
+PRINTS 10  
+PRINT g  
+BECOME 'x'  x
+BECOME 'y'  y
+PRINTS 1  
+SUB c d #8
+ARYL number4 90 #9
+ADD #8 #9 #10
+DIV #10 12 #11
+ADD #11 32 #12
+SUB y 120 #13
+MUL x #13 #14
+SUB #14 b #15
+SUB #12 #15 #16
+BECOME #16  letter_only
+PRINTS 11  
+PRINT letter_only  
+ADD b c #17
+ADD #17 c #18
+ARYL array 0 #19
+ADD #19 0 #20
+PUSH #20 function1 
+CALL function1  #21
+ADD #18 #21 #22
+BECOME #22  letter_only
+PRINTS 12  
+PRINT letter_only  
+ARYL number4 90 #23
+ARYL number4 99 #24
+ADD #23 #24 #25
+MUL #25 a #26
+ADD 5 0 #27
+PUSH #27 function1 
+CALL function1  #28
+MUL #28 b #29
+ADD #26 #29 #30
+SUB x 97 #31
+ADD #31 -32 #32
+SUB #32 -43 #33
+MUL #30 #33 #34
+BECOME #34  result_1
+ARYL str7 118 #35
+SUB #35 97 #36
+MUL #36 32 #37
+ADD #37 a #38
+ADD #38 c #39
+DIV d 43 #40
+SUB #39 #40 #41
+BECOME #41  g
+PRINTS 13  
+PRINT g  
+PRINTS 1  
+MUL g g #42
+MUL #42 g #43
+DIV #43 g #44
+DIV #44 g #45
+DIV #45 g #46
+NEG #46  #47
+SUB g 576 #48
+ADD #48 0 #49
+PUSH #49 function1 
+CALL function1  #50
+ADD #47 #50 #51
+ARYS 12 #51 number4
+ADD e f #52
+SUB e f #53
+MUL #52 #53 #54
+DIV e f #55
+DIV #54 #55 #56
+ARYL number4 98 #57
+ADD #56 #57 #58
+CALL function_cal  #59
+ADD #58 #59 #60
+BECOME #60  result_2
+ADD e f #61
+SUB e f #62
+MUL #61 #62 #63
+DIV e f #64
+DIV #63 #64 #65
+ADD 6 0 #66
+PUSH #66 function1 
+CALL function1  #67
+ADD #65 #67 #68
+ARYL number4 12 #69
+ADD #68 #69 #70
+BECOME #70  result_3
+PRINTS 1  
+PRINTS 14  
+PRINT result_2  
+PRINTS 1  
+PRINTS 15  
+PRINT result_3  
+PRINTS 1  
+CALL function_cal  #71
+ADD #71 10 #72
+BECOME #72  result_4
+PRINTS 1  
+PRINTS 16  
+PRINT result_1  
+PRINTS 1  
+PRINTS 17  
+PRINT result_4  
+PRINTS 1  
+EXIT   
+SET main  
+ENTER   
+ADD 12 13 #1
+BECOME #1  out_num
+SCAN in_num  
+SCANC in_str  
+SCANC out_str  
+BECOME 0  i
+SET $LABEL23  
+LES i in_num #2
+BZ $LABEL24 #2 
+PRINTS 18  
+PRINT i  
+PRINTS 19  
+ADD i 0 #3
+PUSH #3 function1 
+CALL function1  #4
+PRINT #4  
+PRINTS 1  
+ADD i 1 #5
+BECOME #5  i
+GOTO $LABEL23  
+SET $LABEL24  
+ADD 6 0 #6
+PUSH #6 function1 
+CALL function1  #7
+ADD #7 0 #8
+PUSH #8 function1 
+CALL function1  #9
+SUB #9 19 #10
+ADD #10 0 #11
+PUSH #11 function1 
+CALL function1  #12
+BECOME #12  out_num
+PRINTS 20  
+PRINT out_num  
+PRINTS 1  
+CALL function3  #13
+CALL function_cal  #14
+ADD #14 10 #15
+BECOME #15  out_num
+PRINTS 21  
+PRINT out_num  
+PRINTS 1  
+CALL function_cal  #16
+ADD out_num #16 #17
+BECOME #17  out_num
+PRINTS 22  
+PRINT out_num  
+PRINTS 1  
+CALL Complex_Compute  #18
+RET   
+EXIT   
+ #20
 PUSH 233 test_diff_domain 
 CALL test_diff_domain  #21
 CALL test_expr  #22

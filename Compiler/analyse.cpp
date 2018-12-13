@@ -47,10 +47,10 @@ void flush_graph::def_use_cal(int blkno, int mcno) {
 		SETDEFUSE(op1, use);
 		SETDEFUSE(op2, use);
 	}
-	else if (oper == RET || oper == SCAN || oper == SCANC) {
+	else if (oper == SCAN || oper == SCANC) {
 		SETDEFUSE(op1, def);
 	}
-	else if (oper == PRINT) {
+	else if (oper == PRINT || oper == RET) {
 		SETDEFUSE(op1, use);
 	}
 	else if (oper == ARYL) {
@@ -171,7 +171,7 @@ void remove_vertex(int number) {
 }
 
 void flush_graph::global_var_cal() {
-
+	/*
 	memset(conflict_graph, false, TAB_MAX*TAB_MAX);
 	//构建冲突图
 	for (int i = 0; i < blocknum; i++) {//遍历基本块
@@ -208,7 +208,7 @@ void flush_graph::global_var_cal() {
 	} while (flag);
 
 
-
+	*/
 
 
 	for (int i = 0; i < blocknum; i++) {
