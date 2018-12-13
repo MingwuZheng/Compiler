@@ -90,8 +90,9 @@ int main() {
 	init_midcode();
 	lexical_init();
 	program();
+	init_midcode_optimize();
+	block_front_optimize();
 	print_midcode();
-	midcode_optimize();
 	analyse_main();
 	mips_main();
 	return 0;

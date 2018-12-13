@@ -163,21 +163,49 @@ void flush_graph::in_out_cal() {
 
 
 bool conflict_graph[TAB_MAX][TAB_MAX];
+bool available_index[TAB_MAX];
+bool vardic[TAB_MAX];
+//int colors = 0;
 stack<int> vertexs;
 int degrees[TAB_MAX];
 void remove_vertex(int number) {
 	degrees[number] = 0;
+	for (int j = 0; j < TAB_MAX; j++) {
+		if (conflict_graph[number][j])
+			degrees[j]--;
+	}
+	available_index[number] = false;
 	vertexs.push(number);
 }
 
+
+bool flush_graph::color(int number) {
+	bool 
+
+	for (int j = 0; j < TAB_MAX; j++) {
+		if (conflict_graph[number][j]) {
+
+		}
+	}
+
+
+}
+
+
 void flush_graph::global_var_cal() {
-	
-	memset(conflict_graph, false, TAB_MAX*TAB_MAX);
+#define varname(x) funcname2tab(function).ele(x)->name
+	//初始化
+	for (int i = 0; i < TAB_MAX; i++) {
+		for (int j = 0; j < TAB_MAX; j++)
+			conflict_graph[i][j] = false;
+	}
+	for (int j = 0; j < TAB_MAX; j++)
+		available_index[j] = false;
 	//构建冲突图
 	for (int i = 0; i < blocknum; i++) {//遍历基本块
 		for (int j = 0; j < TAB_MAX; j++) {//遍历变量
 			if (blocks[i].in[j]) {
-				global_var.insert(funcname2tab(function).ele(j)->name);
+				global_var.insert(varname(j));
 				for (int k = j + 1; k < TAB_MAX; k++) {
 					if (blocks[i].in[k]) {
 						conflict_graph[j][k] = true;
@@ -187,30 +215,55 @@ void flush_graph::global_var_cal() {
 			}
 		}
 	}
+	//登记待分配块全局变量
 	for (int i = 0; i < TAB_MAX; i++) {
-		string var_name = funcname2tab(function).ele(i)->name;
-		if (global_var.find(var_name) != global_var.end()) {
+		if (global_var.find(varname(i)) != global_var.end()) {
+			available_index[i] = true;
+			vardic[i] = true;
+		}
+	}
+	//计算度数
+	for (int i = 0; i < TAB_MAX; i++) {
+		if (vardic[i]) {
 			int degree = 0;
 			for (int j = 0; j < TAB_MAX; j++)
 				degree += conflict_graph[i][j];
 			degrees[i] = degree;
 		}
 	}
-	bool flag = false;
+	//按算法移走节点
+	bool loop_continue = false;
 	do {
-		flag = false;
-		for (int i = 0; i < TAB_MAX; i++) {//找到第一个连接边数目小于SREG_NUM的节点
-			if (degrees[i] < SREG_NUM) {
-				flag = true;
-				remove_vertex(i);
+		loop_continue = false;
+		bool flag = false;
+		do {
+			flag = false;
+			for (int i = 0; i < TAB_MAX; i++) {//找到第一个连接边数目小于SREG_NUM的节点
+				if (available_index[i] && degrees[i] < SREG_NUM) {
+					flag = true;
+					remove_vertex(i);
+				}
+			}
+		} while (flag);
+		for (int i = 0; i < TAB_MAX; i++) {
+			if (available_index[i]) {
+				loop_continue = true;
+				var2sreg[varname(i)] = -1;
+				degrees[i] = 0;
+				for (int j = 0; j < TAB_MAX; j++) {
+					if (conflict_graph[i][j])
+						degrees[j]--;
+				}
+				available_index[i] = false;
+				break;
 			}
 		}
-	} while (flag);
+	} while (loop_continue);
 
-
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 	
 
-
+	//////////////
 	for (int i = 0; i < blocknum; i++) {
 		for (int j = 0; j < TAB_MAX; j++) {
 			if (blocks[i].in[j]) {

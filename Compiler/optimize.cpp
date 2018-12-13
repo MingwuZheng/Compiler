@@ -36,14 +36,20 @@ void delete_unnecessary_jump() {
 	}
 }
 
-void midcode_optimize() {
-	tmcnum = qtnry_ptr;
-	for (int i = 0; i < tmcnum; i++)
-		tempmcs[i] = midcodes[i];
+void block_front_optimize() {
 	delete_unnecessary_jump();
-
 
 	for (int i = 0; i < (tmcnum > qtnry_ptr ? tmcnum : qtnry_ptr); i++)
 		midcodes[i] = tempmcs[i];
+}
+
+void init_midcode_optimize() {
+	tmcnum = qtnry_ptr;
+	for (int i = 0; i < tmcnum; i++)
+		tempmcs[i] = midcodes[i];
+	
+
+
+	
 	return;
 }

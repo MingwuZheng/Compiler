@@ -63,22 +63,15 @@ public:
 	void def_use_cal(int blkno, int mcno);
 	void in_out_cal();
 	void global_var_cal();
+	bool color(int);
 	string sreg2var[SREG_NUM];
+	map<string, int>var2sreg;//只包含块全局变量
 	int alloced_sreg;
-	void alloc_sreg(string name) {
-		for (int i = 0; i < alloced_sreg; i++) {
-			if (sreg2var[i] == name)
-				return;
-		}
-		if (alloced_sreg < SREG_NUM)
-			sreg2var[alloced_sreg++] = name;
+	void alloc_sreg(string name, int sregnum) {
+		var2sreg[name] = sregnum;
 	}
 	int gvar2sreg(string gvar) {
-		for (int i = 0; i < SREG_NUM; i++) {
-			if (sreg2var[i] == gvar)
-				return i;
-		}
-		return - 1;
+		return var2sreg[gvar];
 	}
 };
 
