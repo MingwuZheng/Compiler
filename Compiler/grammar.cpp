@@ -227,7 +227,6 @@ int paralist() {
 		insymbol();
 		readsym(IDENT, EXPECT_ID_ERROR);
 		pnum++;
-		//先不在全部符号表里插参数了/////
 		CTAB.insert(id, PARA, TP(tp), 0, 4, CTAB.filledsize);
 	}
 	else error(ILLEGAL_PARALIST_ERROR);

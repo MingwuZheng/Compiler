@@ -29,6 +29,12 @@ void flush_graph::def_use_cal(int blkno, int mcno) {
 			blocks[blkno].vars.insert(midcodes[mcno].##part##);\
 			blocks[blkno].##des##[var2idx(midcodes[mcno].##part##)] = true;}\
 		}while(0)
+	//将参数插入vars并置为def
+	for (int i = 0; i < GTAB.ele(function)->var; i++) {
+		blocks[blkno].vars.insert(funcname2tab(function).ele(i)->name);
+		blocks[blkno].def[i] = true;
+	}
+
 
 	qtnry_operator oper;
 	oper = midcodes[mcno].op;
@@ -156,6 +162,9 @@ void flush_graph::in_out_cal() {
 			}
 		}
 	}
+
+
+
 }
 
 bool conflict_graph[TAB_MAX][TAB_MAX];
@@ -175,6 +184,7 @@ void remove_vertex(int number) {
 
 void flush_graph::global_var_cal() {
 #define varname(x) funcname2tab(function).ele(x)->name
+	
 	//初始化
 	for (int i = 0; i < TAB_MAX; i++) {
 		for (int j = 0; j < TAB_MAX; j++)
@@ -267,7 +277,7 @@ void flush_graph::global_var_cal() {
 			var2sreg[*iter] = -1;
 		iter++;
 	}
-
+	
 	//类似引用计数的分配方案，把跨块变量分配全局寄存器
 	//for (int i = 0; i < blocknum; i++) {
 	//	for (int j = 0; j < TAB_MAX; j++) {

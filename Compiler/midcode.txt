@@ -1,157 +1,162 @@
-SET recursive_cal  
+SET judge1  
 ENTER   
-EQL cur_pointer amount #1
+GEQ a b #1
 BZ $LABEL1 #1 
-ARYL f 0 #2
-PRINT #2  
-BECOME 1  i
+GTR c d #2
+BZ $LABEL2 #2 
+RET 1  
 SET $LABEL2  
-LES i amount #3
-BZ $LABEL3 #3 
-PRINTS 0  
-ARYL f i #4
-PRINT #4  
-ADD i 1 #5
-BECOME #5  i
-GOTO $LABEL2  
 SET $LABEL3  
-PRINTS 1  
-RET 0  
-GOTO $LABEL4  
 SET $LABEL1  
-LES cur_pointer amount #6
-BZ $LABEL5 #6 
-BECOME min  i
-SET $LABEL6  
-ADD cur_pointer numbers_to_be_selected #7
-SUB #7 amount #8
-ADD #8 1 #9
-LEQ i #9 #10
-BZ $LABEL7 #10 
-ARYS cur_pointer i f
-ADD cur_pointer 1 #11
-ADD #11 0 #12
-ADD i 1 #13
-ADD #13 0 #14
-PUSH #12 recursive_cal 
-PUSH #14 recursive_cal 
-CALL recursive_cal  #15
-NEG 1  #16
-EQL #15 #16 #17
-BZ $LABEL8 #17 
-NEG 1  #18
-RET #18  
-SET $LABEL8  
-SET $LABEL9  
-ADD i 1 #19
-BECOME #19  i
-GOTO $LABEL6  
-SET $LABEL7  
-RET 0  
-GOTO $LABEL10  
-SET $LABEL5  
-NEG 1  #20
-RET #20  
-SET $LABEL10  
 SET $LABEL4  
+RET 0  
 EXIT   
-SET initial  
+SET judge2  
 ENTER   
-BECOME 0  i
-SET $LABEL11  
-ARYS i var f
-ADD i 1 #1
-BECOME #1  i
-LEQ i lenth #2
-BNZ $LABEL11 #2 
-RET   
+LEQ a b #1
+BZ $LABEL5 #1 
+GTR c d #2
+BZ $LABEL6 #2 
+RET 1  
+SET $LABEL6  
+SET $LABEL7  
+SET $LABEL5  
+SET $LABEL8  
+RET 0  
 EXIT   
-SET echo_lower  
+SET pivot  
 ENTER   
-GEQ a 97 #1
-BZ $LABEL12 #1 
-LEQ a 122 #2
-BZ $LABEL13 #2 
-RET a  
-GOTO $LABEL14  
-SET $LABEL13  
-PRINTS 2  
-RET '0'  
-SET $LABEL14  
-GOTO $LABEL15  
+ARYL a begin #1
+BECOME #1  r
+BECOME begin  i
+BECOME end  j
+NEQ i j #2
+BZ $LABEL9 #2 
+SET $LABEL10  
+ARYL a j #3
+ADD #3 0 #4
+ADD r 0 #5
+ADD j 0 #6
+ADD i 0 #7
+PUSH #4 judge1 
+PUSH #5 judge1 
+PUSH #6 judge1 
+PUSH #7 judge1 
+CALL judge1  #8
+NEQ #8 0 #9
+BZ $LABEL11 #9 
 SET $LABEL12  
-PRINTS 2  
-RET '0'  
+SUB j 1 #10
+BECOME #10  j
+ARYL a j #11
+ADD #11 0 #12
+ADD r 0 #13
+ADD j 0 #14
+ADD i 0 #15
+PUSH #12 judge1 
+PUSH #13 judge1 
+PUSH #14 judge1 
+PUSH #15 judge1 
+CALL judge1  #16
+NEQ #16 0 #17
+BNZ $LABEL12 #17 
+SET $LABEL11  
+SET $LABEL13  
+ARYL a i #18
+ADD #18 0 #19
+ADD r 0 #20
+ADD j 0 #21
+ADD i 0 #22
+PUSH #19 judge2 
+PUSH #20 judge2 
+PUSH #21 judge2 
+PUSH #22 judge2 
+CALL judge2  #23
+NEQ #23 0 #24
+BZ $LABEL14 #24 
 SET $LABEL15  
-EXIT   
-SET test  
-ENTER   
-BECOME 'i'  test_letter_i
-BECOME 'j'  test_letter_j
-BECOME 'k'  test_letter_k
-BECOME 'l'  test_letter_l
-BECOME 109  test_letter_m
-BECOME 110  test_letter_n
-BECOME 111  test_letter_e
-BECOME 112  test_letter_s
-NEG 1  #1
-ARYS 0 #1 a0
-ARYL a0 0 #2
-MUL #2 -2 #3
-NEG #3  #4
-ADD 99 0 #5
-PUSH #5 echo_lower 
-CALL echo_lower  #6
-SUB 101 #6 #7
-MUL #7 1 #8
-DIV #8 1 #9
-ADD #4 #9 #10
-ARYS 1 #10 a0
-ARYL a0 1 #11
-NEQ #11 0 #12
-BZ $LABEL16 #12 
-PRINTS 2  
+ADD i 1 #25
+BECOME #25  i
+ARYL a i #26
+ADD #26 0 #27
+ADD r 0 #28
+ADD j 0 #29
+ADD i 0 #30
+PUSH #27 judge2 
+PUSH #28 judge2 
+PUSH #29 judge2 
+PUSH #30 judge2 
+CALL judge2  #31
+NEQ #31 0 #32
+BNZ $LABEL15 #32 
+SET $LABEL14  
 SET $LABEL16  
+ARYL a i #33
+BECOME #33  t
+ARYL a j #34
+ARYS i #34 a
+ARYS j t a
+NEQ i j #35
+BNZ $LABEL10 #35 
+SET $LABEL9  
 SET $LABEL17  
-ARYL a0 0 #13
-ADD #13 1 #14
-PRINT #14  
-ARYL a0 1 #15
-PRINT #15  
-PRINTC 116  
-PRINT test_letter_e  
-PRINT test_letter_s  
-PRINTC 116  
-PRINTS 1  
+ARYL a i #36
+ARYS begin #36 a
+ARYS i r a
+RET i  
+EXIT   
+SET quickSort  
+ENTER   
+LES begin end #1
+BZ $LABEL18 #1 
+ADD begin 0 #2
+ADD end 0 #3
+PUSH #2 pivot 
+PUSH #3 pivot 
+CALL pivot  #4
+BECOME #4  mid
+ADD begin 0 #5
+SUB mid 1 #6
+ADD #6 0 #7
+PUSH #5 quickSort 
+PUSH #7 quickSort 
+CALL quickSort  #8
+ADD mid 1 #9
+ADD #9 0 #10
+ADD end 0 #11
+PUSH #10 quickSort 
+PUSH #11 quickSort 
+CALL quickSort  #12
+SET $LABEL18  
+SET $LABEL19  
+RET   
 EXIT   
 SET main  
 ENTER   
-CALL test  #1
-SCAN numbers_to_be_selected  
-SCAN amount  
-ADD amount 1 #2
-GTR #2 1000 #3
-BZ $LABEL18 #3 
-PRINTS 3  
-RET   
-SET $LABEL18  
-SET $LABEL19  
-ADD 0 0 #4
-ADD amount 1 #5
-MUL #5 1 #6
-ADD #6 0 #7
-PUSH #4 initial 
-PUSH #7 initial 
-CALL initial  #8
-ADD 0 0 #9
-ADD 1 0 #10
-PUSH #9 recursive_cal 
-PUSH #10 recursive_cal 
-CALL recursive_cal  #11
-NEG 1  #12
-EQL #11 #12 #13
-BZ $LABEL20 #13 
-PRINTS 3  
+BECOME 0  i
 SET $LABEL20  
+LES i 5 #1
+BZ $LABEL21 #1 
+SCAN temp  
+ARYS i temp a
+ADD i 1 #2
+BECOME #2  i
+GOTO $LABEL20  
 SET $LABEL21  
+ADD 0 0 #3
+ADD 4 0 #4
+PUSH #3 quickSort 
+PUSH #4 quickSort 
+CALL quickSort  #5
+BECOME 0  i
+SET $LABEL22  
+LES i 5 #6
+BZ $LABEL23 #6 
+ARYL a i #7
+PRINT #7  
+ADD i 1 #8
+BECOME #8  i
+GOTO $LABEL22  
+SET $LABEL23  
+RET   
 EXIT   
