@@ -22,6 +22,7 @@
 #define curmc midcodes[mcptr]
 #define curgraph graphs[cur_func - 1]
 
+extern int graph_ptr;
 fstream mips_f;
 int cur_func;//记得更新
 int midvar[MIDVAR_MAX];
@@ -127,6 +128,10 @@ public:
 			return TEMP;
 		}
 		int off = var2offset(name, &sp);
+		for (int i = 0; i < MAX_REG_PARA(ACTAB.glbpos); i++) {
+			if (name == ACTAB.ele(i)->name)
+				return "$a" + to_string(i + 1);
+		}
 		if (ISSVAR(name)) {
 			if ((sreg = curgraph.gvar2sreg(name)) == -1 ) {
 				if (needlw)
@@ -220,16 +225,9 @@ int var2offset(string var, bool *sp) {
 void call_handler() {
 	string funcname = (midcodes[mcptr].op == CALL) ? midcodes[mcptr].op1 : midcodes[mcptr].op2;
 	int funcsize = symtabs[GTAB.ele(funcname)->addr].filledsize;
-	int paranum = 0;
-	//mips_f << endl;
-	while (midcodes[mcptr].op != CALL) {
-		paranum++;
-		string para = midcodes[mcptr].op1;
-		string reg = rp.apply_reg(para, 1);
-		emit_mips(3, "sw", reg, to_string(-4 * paranum), "$fp");//存参数
-		mcptr++;
-	}
-	string retvar = midcodes[mcptr].result;
+	
+	for (int i = 5; i < 5 + MAX_REG_PARA(ACTAB.glbpos); i++)//将$a1~$a3分配的寄存器压栈
+		emit_mips(3, "sw", "$" + to_string(i), to_string(-(funcsize + (i + 1) * 4)), "$fp");
 	for (int i = 8; i < 16; i++) {//将$t0~$t7分配的寄存器压栈
 		if (!rp.reg[i - 8])
 			emit_mips(3, "sw", "$" + to_string(i), to_string(-(funcsize + (i + 1) * 4)), "$fp");
@@ -240,15 +238,38 @@ void call_handler() {
 	}
 	if (!rp.reg[8])
 		emit_mips(3, "sw", "$24", to_string(-(funcsize + (24 + 1) * 4)), "$fp");
-	//for (int i = 29; i < 32; i++) //压$sp,$fp,$ra
-		//mips_f << "sw $" << i << "," << -(funcsize + (i + 1) * 4) << "($fp)" << endl;
 	emit_mips(3, "sw", "$ra", to_string(-(funcsize + (31 + 1) * 4)), "$fp");//不压sp和fp
+	//传参,注意！这里一定是事先算好的中间变量进行的压栈，不会出现f(a+1,a+2)调用时a是母函数参数，从而$a1=$a1+1,$a2=$a1+2
+	int paranum = 0;
+	while (midcodes[mcptr].op != CALL) {
+		paranum++;
+		string reg = rp.apply_reg(midcodes[mcptr].op1, 1);
+		if (paranum <= 3) 
+			emit_mips(2, "move", "$a" + to_string(paranum), reg, "");
+		else {
+			//计算要调用函数的流图下标
+			string paraname = funcname2tab(funcname).ele(paranum - 1)->name;
+			for (int i = 0; i < graph_ptr; i++) {
+				if (graphs[i].function == funcname) {
+					if (graphs[i].var2sreg.find(paraname) != graphs[i].var2sreg.end() && graphs[i].var2sreg[paraname] != -1)
+						emit_mips(2, "move", SREG(graphs[i].var2sreg[paraname]), reg, "");
+					else emit_mips(3, "sw", reg, to_string(-4 * paranum), "$fp");//存参数
+					break;
+				}
+			}
+		}
+		mcptr++;
+	}
+	string retvar = midcodes[mcptr].result;
 	//跳转前处理$sp、$fp，为函数申请空间
 	emit_mips(3, "sub", "$sp", "$fp", to_string(REGS_OFFSET + funcsize));
 	emit_mips(3, "sub", "$fp", "$sp", to_string(4 * func_midvars[funcname]));
 	//跳转
 	emit_mips(1, "jal", funcname, "", "");
 	//将通用寄存器弹出
+	for (int i = 5; i < 5 + MAX_REG_PARA(ACTAB.glbpos); i++) {//将$a1~$a3分配的寄存器弹栈
+		emit_mips(3, "lw", "$" + to_string(i), to_string((31 - i) * 4), "$sp");
+	}
 	for (int i = 8; i < 16; i++) {//将$t0~$t7分配的寄存器弹栈
 		if (!rp.reg[i - 8])
 			emit_mips(3, "lw", "$" + to_string(i), to_string((31 - i) * 4), "$sp");
@@ -605,11 +626,11 @@ void content(string funcname) {
 	case ARYL: {
 		bool sp;
 		int off = var2offset(curmc.op1, &sp);
-		string des = rp.apply_reg(curmc.result, 0);
-		emit_mips(3, "add", TEMP_, (sp ? "$sp" : GLOBAL), to_string(off));
+		string des = rp.apply_reg(curmc.result, 0);		
 		if (ISLNUM(curmc.op2))
-			emit_mips(3, "lw", des, to_string(4 * stoi(curmc.op2)), TEMP_);
+			emit_mips(3, "lw", des, to_string(4 * stoi(curmc.op2) + off), (sp ? "$sp" : GLOBAL));
 		else {
+			emit_mips(3, "add", TEMP_, (sp ? "$sp" : GLOBAL), to_string(off));
 			string idx = rp.apply_reg(curmc.op2, 1);
 			emit_mips(3, "sll", TEMP, idx, "2");
 			emit_mips(3, "add", TEMP, TEMP_, TEMP);
@@ -632,7 +653,7 @@ void content(string funcname) {
 			break;
 		}
 		string idx = rp.apply_reg(curmc.op1, 1);
-		emit_mips(3, "sll", TEMP, idx, ",2");
+		emit_mips(3, "sll", TEMP, idx, "2");
 		emit_mips(3, "add", TEMP_, TEMP_, TEMP);
 		string src = rp.apply_reg(curmc.op2, 1);//申请的寄存器理论上有可能因为被出队导致寄存器号无效，但是这里只申请了三个
 		emit_mips(3, "sw", src, "0", TEMP_);
@@ -652,6 +673,7 @@ void content(string funcname) {
 	midnum = 0;
 	//
 	mcptr++;
+	/*
 	for (int i = 0; i < GTAB.ele(name)->var; i++) {//为分配了全局寄存器的参数赋初值
 		int para_sreg;
 		if (ISSVAR(ACTAB.ele(i)->name) && (para_sreg=curgraph.gvar2sreg(ACTAB.ele(i)->name)) != -1) {
@@ -660,6 +682,7 @@ void content(string funcname) {
 			emit_mips(3, "lw", SREG(para_sreg), to_string(off), "$sp");
 		}
 	}
+	*/
 	while (midcodes[mcptr].op != EXIT) {
 		for (int i = 0; i < curgraph.blocknum; i++) {//如果是一个基本块的开始，清空寄存器池
 			if (mcptr == curgraph.blocks[i].entrance)

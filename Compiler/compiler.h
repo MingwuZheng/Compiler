@@ -25,6 +25,7 @@
 #define GTAB symtabs[0]
 #define CTAB symtabs[tabptr]
 #define funcname2tab(x) symtabs[GTAB.ele(x)->addr]
+#define MAX_REG_PARA(function) ((GTAB.ele(function)->var) < 3 ? GTAB.ele(function)->var : 3)
 
 using namespace std;
 //全局常量

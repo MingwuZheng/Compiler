@@ -30,12 +30,12 @@ void flush_graph::def_use_cal(int blkno, int mcno) {
 			blocks[blkno].##des##[var2idx(midcodes[mcno].##part##)] = true;}\
 		}while(0)
 	//将参数插入vars并置为def
-	for (int i = 0; i < GTAB.ele(function)->var; i++) {
-		blocks[blkno].vars.insert(funcname2tab(function).ele(i)->name);
-		blocks[blkno].def[i] = true;
+	if (blkno == 1) {
+		for (int i = 0; i < GTAB.ele(function)->var; i++) {
+			blocks[blkno].vars.insert(funcname2tab(function).ele(i)->name);
+			blocks[blkno].def[i] = true;
+		}
 	}
-
-
 	qtnry_operator oper;
 	oper = midcodes[mcno].op;
 	if (ISCALOP(oper)) {
@@ -162,8 +162,14 @@ void flush_graph::in_out_cal() {
 			}
 		}
 	}
-
-
+	//将分配了$a1~$a3寄存器的函数参数踢出in、out集合，不参与s寄存器分配
+	for (int b = 0; b < blocknum; b++) {
+		for (int i = 0; i < MAX_REG_PARA(function); i++) {
+			blocks[b].in[i] = false;
+			blocks[b].out[i] = false;
+		}
+	}
+		
 
 }
 
@@ -193,12 +199,27 @@ void flush_graph::global_var_cal() {
 	for (int j = 0; j < TAB_MAX; j++)
 		available_index[j] = false;
 	//构建冲突图
+	/*默认in集合内冲突
 	for (int i = 0; i < blocknum; i++) {//遍历基本块
 		for (int j = 0; j < TAB_MAX; j++) {//遍历变量
 			if (blocks[i].in[j]) {
 				global_var.insert(varname(j));
 				for (int k = j + 1; k < TAB_MAX; k++) {
 					if (blocks[i].in[k]) {
+						conflict_graph[j][k] = true;
+						conflict_graph[k][j] = true;
+					}
+				}
+			}
+		}
+	}
+	*/
+	for (int i = 0; i < blocknum; i++) {//遍历基本块
+		for (int j = 0; j < TAB_MAX; j++) {//遍历变量
+			if (blocks[i].def[j]) {
+				global_var.insert(varname(j));
+				for (int k = 0; k < TAB_MAX; k++) {
+					if (blocks[i].in[k] && k != j) {
 						conflict_graph[j][k] = true;
 						conflict_graph[k][j] = true;
 					}

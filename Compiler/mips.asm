@@ -1,400 +1,27 @@
 .data
+    $string0: .asciiz " "
+    $string1: .asciiz "\\n"
+    $string2: .asciiz "ERROR!"
 .text
     sub $sp,$sp,136
     move $fp,$sp
-    sub $fp,$fp,32
+    sub $fp,$fp,36
     j main
-judge1:
-lw $t0,140($sp)
-lw $t1,136($sp)
-blt $t0,$t1,$LABEL1
-lw $t0,132($sp)
-lw $t1,128($sp)
-ble $t0,$t1,$LABEL2
-li $t9,1
-move $v0,$t9
-jr $ra
-$LABEL2:
-$LABEL3:
-$LABEL1:
-$LABEL4:
-li $t9,0
-move $v0,$t9
-jr $ra
-jr $ra
-judge2:
-lw $t0,140($sp)
-lw $t1,136($sp)
-bgt $t0,$t1,$LABEL5
-lw $t0,132($sp)
-lw $t1,128($sp)
-ble $t0,$t1,$LABEL6
-li $t9,1
-move $v0,$t9
-jr $ra
-$LABEL6:
-$LABEL7:
-$LABEL5:
-$LABEL8:
-li $t9,0
-move $v0,$t9
-jr $ra
-jr $ra
-pivot:
-add $v1,$gp,0
-lw $t1,148($sp)
-sll $t9,$t1,2
-add $t9,$v1,$t9
-lw $t0,0($t9)
-move  $s0,$t0
-move  $s2,$t1
-lw $t2,144($sp)
-move  $s1,$t2
-beq $s2,$s1,$LABEL9
-$LABEL10:
-add $v1,$gp,0
-sll $t9,$s1,2
-add $t9,$v1,$t9
-lw $t0,0($t9)
-addi $t1,$t0,0
-addi $t2,$s0,0
-addi $t3,$s1,0
-addi $t4,$s2,0
-sw $t1,-4($fp)
-sw $t2,-8($fp)
-sw $t3,-12($fp)
-sw $t4,-16($fp)
-sw $8,-52($fp)
-sw $9,-56($fp)
-sw $10,-60($fp)
-sw $11,-64($fp)
-sw $12,-68($fp)
-sw $16,-84($fp)
-sw $17,-88($fp)
-sw $18,-92($fp)
-sw $ra,-144($fp)
-sub $sp,$fp,144
-sub $fp,$sp,8
-jal judge1
-lw $8,92($sp)
-lw $9,88($sp)
-lw $10,84($sp)
-lw $11,80($sp)
-lw $12,76($sp)
-lw $16,60($sp)
-lw $17,56($sp)
-lw $18,52($sp)
-lw $ra,0($sp)
-add $fp,$fp,152
-add $sp,$sp,288
-move $t5,$v0
-li $t9,0
-beq $t5,$t9,$LABEL11
-$LABEL12:
-li $t9,1
-sub $t0,$s1,$t9
-move  $s1,$t0
-add $v1,$gp,0
-sll $t9,$s1,2
-add $t9,$v1,$t9
-lw $t1,0($t9)
-addi $t2,$t1,0
-addi $t3,$s0,0
-addi $t4,$s1,0
-addi $t5,$s2,0
-sw $t2,-4($fp)
-sw $t3,-8($fp)
-sw $t4,-12($fp)
-sw $t5,-16($fp)
-sw $8,-52($fp)
-sw $9,-56($fp)
-sw $10,-60($fp)
-sw $11,-64($fp)
-sw $12,-68($fp)
-sw $13,-72($fp)
-sw $16,-84($fp)
-sw $17,-88($fp)
-sw $18,-92($fp)
-sw $ra,-144($fp)
-sub $sp,$fp,144
-sub $fp,$sp,8
-jal judge1
-lw $8,92($sp)
-lw $9,88($sp)
-lw $10,84($sp)
-lw $11,80($sp)
-lw $12,76($sp)
-lw $13,72($sp)
-lw $16,60($sp)
-lw $17,56($sp)
-lw $18,52($sp)
-lw $ra,0($sp)
-add $fp,$fp,152
-add $sp,$sp,288
-move $t6,$v0
-li $t9,0
-bne $t6,$t9,$LABEL12
-$LABEL11:
-$LABEL13:
-add $v1,$gp,0
-sll $t9,$s2,2
-add $t9,$v1,$t9
-lw $t0,0($t9)
-addi $t1,$t0,0
-addi $t2,$s0,0
-addi $t3,$s1,0
-addi $t4,$s2,0
-sw $t1,-4($fp)
-sw $t2,-8($fp)
-sw $t3,-12($fp)
-sw $t4,-16($fp)
-sw $8,-52($fp)
-sw $9,-56($fp)
-sw $10,-60($fp)
-sw $11,-64($fp)
-sw $12,-68($fp)
-sw $16,-84($fp)
-sw $17,-88($fp)
-sw $18,-92($fp)
-sw $ra,-144($fp)
-sub $sp,$fp,144
-sub $fp,$sp,8
-jal judge2
-lw $8,92($sp)
-lw $9,88($sp)
-lw $10,84($sp)
-lw $11,80($sp)
-lw $12,76($sp)
-lw $16,60($sp)
-lw $17,56($sp)
-lw $18,52($sp)
-lw $ra,0($sp)
-add $fp,$fp,152
-add $sp,$sp,288
-move $t5,$v0
-li $t9,0
-beq $t5,$t9,$LABEL14
-$LABEL15:
-addi $t0,$s2,1
-move  $s2,$t0
-add $v1,$gp,0
-sll $t9,$s2,2
-add $t9,$v1,$t9
-lw $t1,0($t9)
-addi $t2,$t1,0
-addi $t3,$s0,0
-addi $t4,$s1,0
-addi $t5,$s2,0
-sw $t2,-4($fp)
-sw $t3,-8($fp)
-sw $t4,-12($fp)
-sw $t5,-16($fp)
-sw $8,-52($fp)
-sw $9,-56($fp)
-sw $10,-60($fp)
-sw $11,-64($fp)
-sw $12,-68($fp)
-sw $13,-72($fp)
-sw $16,-84($fp)
-sw $17,-88($fp)
-sw $18,-92($fp)
-sw $ra,-144($fp)
-sub $sp,$fp,144
-sub $fp,$sp,8
-jal judge2
-lw $8,92($sp)
-lw $9,88($sp)
-lw $10,84($sp)
-lw $11,80($sp)
-lw $12,76($sp)
-lw $13,72($sp)
-lw $16,60($sp)
-lw $17,56($sp)
-lw $18,52($sp)
-lw $ra,0($sp)
-add $fp,$fp,152
-add $sp,$sp,288
-move $t6,$v0
-li $t9,0
-bne $t6,$t9,$LABEL15
-$LABEL14:
-$LABEL16:
-add $v1,$gp,0
-sll $t9,$s2,2
-add $t9,$v1,$t9
-lw $t0,0($t9)
-move  $t1,$t0
-add $v1,$gp,0
-sll $t9,$s1,2
-add $t9,$v1,$t9
-lw $t2,0($t9)
-add $v1,$gp,0
-sll $t9,$s2,,2
-add $v1,$v1,$t9
-sw $t2,0($v1)
-add $v1,$gp,0
-sll $t9,$s1,,2
-add $v1,$v1,$t9
-sw $t1,0($v1)
-bne $s2,$s1,$LABEL10
-$LABEL9:
-$LABEL17:
-add $v1,$gp,0
-sll $t9,$s2,2
-add $t9,$v1,$t9
-lw $t0,0($t9)
-add $v1,$gp,0
-lw $t1,148($sp)
-sll $t9,$t1,,2
-add $v1,$v1,$t9
-sw $t0,0($v1)
-add $v1,$gp,0
-sll $t9,$s2,,2
-add $v1,$v1,$t9
-sw $s0,0($v1)
-move $v0,$s2
-jr $ra
-jr $ra
-quickSort:
-lw $t0,136($sp)
-lw $t1,132($sp)
-bge $t0,$t1,$LABEL18
-lw $t1,136($sp)
-addi $t0,$t1,0
-lw $t3,132($sp)
-addi $t2,$t3,0
-sw $t0,-4($fp)
-sw $t2,-8($fp)
-sw $8,-60($fp)
-sw $9,-64($fp)
-sw $10,-68($fp)
-sw $11,-72($fp)
-sw $ra,-152($fp)
-sub $sp,$fp,152
-sub $fp,$sp,144
-jal pivot
-lw $8,92($sp)
-lw $9,88($sp)
-lw $10,84($sp)
-lw $11,80($sp)
-lw $ra,0($sp)
-add $fp,$fp,296
-add $sp,$sp,200
-move $t4,$v0
-move  $t5,$t4
-addi $t6,$t1,0
-li $t9,1
-sub $t7,$t5,$t9
-addi $t8,$t7,0
-sw $t6,-4($fp)
-sw $t8,-8($fp)
-sw $8,-48($fp)
-sw $9,-52($fp)
-sw $10,-56($fp)
-sw $11,-60($fp)
-sw $12,-64($fp)
-sw $13,-68($fp)
-sw $14,-72($fp)
-sw $15,-76($fp)
-sw $24,-112($fp)
-sw $ra,-140($fp)
-sub $sp,$fp,140
-sub $fp,$sp,48
-jal quickSort
-lw $8,92($sp)
-lw $9,88($sp)
-lw $10,84($sp)
-lw $11,80($sp)
-lw $12,76($sp)
-lw $13,72($sp)
-lw $14,68($sp)
-lw $15,64($sp)
-lw $24,28($sp)
-lw $ra,0($sp)
-add $fp,$fp,188
-add $sp,$sp,188
-sw $t3,132($sp)
-move $t3,$v0
-sw $t0,-4($sp)
-addi $t0,$t5,1
-sw $t2,-8($sp)
-addi $t2,$t0,0
-sw $t4,-12($sp)
-sw $t1,136($sp)
-lw $t1,132($sp)
-addi $t4,$t1,0
-sw $t2,-4($fp)
-sw $t4,-8($fp)
-sw $8,-48($fp)
-sw $9,-52($fp)
-sw $10,-56($fp)
-sw $11,-60($fp)
-sw $12,-64($fp)
-sw $13,-68($fp)
-sw $14,-72($fp)
-sw $15,-76($fp)
-sw $24,-112($fp)
-sw $ra,-140($fp)
-sub $sp,$fp,140
-sub $fp,$sp,48
-jal quickSort
-lw $8,92($sp)
-lw $9,88($sp)
-lw $10,84($sp)
-lw $11,80($sp)
-lw $12,76($sp)
-lw $13,72($sp)
-lw $14,68($sp)
-lw $15,64($sp)
-lw $24,28($sp)
-lw $ra,0($sp)
-add $fp,$fp,188
-add $sp,$sp,188
-sw $t7,-20($sp)
-move $t7,$v0
-$LABEL18:
-$LABEL19:
-jr $ra
-jr $ra
-main:
-li $s0,0
-$LABEL20:
-li $t9,5
-bge $s0,$t9,$LABEL21
-li $v0,5
+recursive_cal:
+lw $t9,8($gp)
+bne $a1,$t9,$LABEL1
+lw $t0,12($gp)
+li $v0,1
+move $a0,$t0
 syscall
-move $t0,,$v0
-add $v1,$gp,0
-sll $t9,$s0,,2
-add $v1,$v1,$t9
-sw $t0,0($v1)
-addi $t1,$s0,1
-move  $s0,$t1
-j $LABEL20
-$LABEL21:
-li $t0,0
-li $t1,4
-sw $t0,-4($fp)
-sw $t1,-8($fp)
-sw $8,-48($fp)
-sw $9,-52($fp)
-sw $16,-80($fp)
-sw $ra,-140($fp)
-sub $sp,$fp,140
-sub $fp,$sp,48
-jal quickSort
-lw $8,92($sp)
-lw $9,88($sp)
-lw $16,60($sp)
-lw $ra,0($sp)
-add $fp,$fp,188
-add $sp,$sp,172
-move $t2,$v0
-li $s0,0
-$LABEL22:
-li $t9,5
-bge $s0,$t9,$LABEL23
-add $v1,$gp,0
+li $s0,1
+$LABEL2:
+lw $t9,8($gp)
+bge $s0,$t9,$LABEL3
+li $v0,4
+la $a0,$string0
+syscall
+add $v1,$gp,12
 sll $t9,$s0,2
 add $t9,$v1,$t9
 lw $t0,0($t9)
@@ -403,9 +30,134 @@ move $a0,$t0
 syscall
 addi $t1,$s0,1
 move  $s0,$t1
-j $LABEL22
-$LABEL23:
+j $LABEL2
+$LABEL3:
+li $v0,4
+la $a0,$string1
+syscall
+jr $ra
+$LABEL1:
+$LABEL4:
+move  $s0,$a2
+$LABEL5:
+lw $t9,4($gp)
+add $t0,$a1,$t9
+lw $t9,8($gp)
+sub $t1,$t0,$t9
+addi $t2,$t1,1
+bgt $s0,$t2,$LABEL6
+add $v1,$gp,12
+sll $t9,$a1,2
+add $v1,$v1,$t9
+sw $s0,0($v1)
+addi $t0,$a1,1
+addi $t1,$t0,0
+addi $t2,$s0,1
+addi $t3,$t2,0
+sw $5,-36($fp)
+sw $6,-40($fp)
+sw $8,-48($fp)
+sw $9,-52($fp)
+sw $10,-56($fp)
+sw $11,-60($fp)
+sw $16,-80($fp)
+sw $ra,-140($fp)
+move $a1,$t1
+move $a2,$t3
+sub $sp,$fp,140
+sub $fp,$sp,60
+jal recursive_cal
+lw $5,104($sp)
+lw $6,100($sp)
+lw $8,92($sp)
+lw $9,88($sp)
+lw $10,84($sp)
+lw $11,80($sp)
+lw $16,60($sp)
+lw $ra,0($sp)
+add $fp,$fp,200
+add $sp,$sp,200
+move $t4,$v0
+addi $t5,$s0,1
+move  $s0,$t5
+j $LABEL5
+$LABEL6:
+jr $ra
+initial:
+li $s0,0
+$LABEL7:
+add $v1,$gp,12
+sll $t9,$s0,2
+add $v1,$v1,$t9
+sw $a1,0($v1)
+addi $t0,$s0,1
+move  $s0,$t0
+ble $s0,$a2,$LABEL7
+jr $ra
+jr $ra
+main:
+li $v0,5
+syscall
+move $t9,,$v0
+sw $t9,4($gp)
+li $v0,5
+syscall
+move $t9,,$v0
+sw $t9,8($gp)
+lw $t9,8($gp)
+addi $t0,$t9,1
+li $t9,1000
+ble $t0,$t9,$LABEL8
+li $v0,4
+la $a0,$string2
+syscall
 li $v0,10
 syscall
+$LABEL8:
+$LABEL9:
+li $t0,0
+lw $t9,8($gp)
+addi $t1,$t9,1
+addi $t2,$t1,0
+sw $8,-48($fp)
+sw $9,-52($fp)
+sw $10,-56($fp)
+sw $ra,-140($fp)
+move $a1,$t0
+move $a2,$t2
+sub $sp,$fp,140
+sub $fp,$sp,8
+jal initial
+lw $8,92($sp)
+lw $9,88($sp)
+lw $10,84($sp)
+lw $ra,0($sp)
+add $fp,$fp,148
+add $sp,$sp,176
+move $t3,$v0
+li $t4,0
+li $t5,1
+sw $8,-48($fp)
+sw $9,-52($fp)
+sw $10,-56($fp)
+sw $11,-60($fp)
+sw $12,-64($fp)
+sw $13,-68($fp)
+sw $ra,-140($fp)
+move $a1,$t4
+move $a2,$t5
+sub $sp,$fp,140
+sub $fp,$sp,60
+jal recursive_cal
+lw $8,92($sp)
+lw $9,88($sp)
+lw $10,84($sp)
+lw $11,80($sp)
+lw $12,76($sp)
+lw $13,72($sp)
+lw $ra,0($sp)
+add $fp,$fp,200
+add $sp,$sp,176
+move $t6,$v0
 li $v0,10
 syscall
