@@ -169,8 +169,6 @@ void flush_graph::in_out_cal() {
 			blocks[b].out[i] = false;
 		}
 	}
-		
-
 }
 
 bool conflict_graph[TAB_MAX][TAB_MAX];
@@ -190,7 +188,6 @@ void remove_vertex(int number) {
 
 void flush_graph::global_var_cal() {
 #define varname(x) funcname2tab(function).ele(x)->name
-	
 	//初始化
 	for (int i = 0; i < TAB_MAX; i++) {
 		for (int j = 0; j < TAB_MAX; j++)
@@ -199,7 +196,7 @@ void flush_graph::global_var_cal() {
 	for (int j = 0; j < TAB_MAX; j++)
 		available_index[j] = false;
 	//构建冲突图
-	/*默认in集合内冲突
+	//默认in集合内冲突
 	for (int i = 0; i < blocknum; i++) {//遍历基本块
 		for (int j = 0; j < TAB_MAX; j++) {//遍历变量
 			if (blocks[i].in[j]) {
@@ -213,10 +210,10 @@ void flush_graph::global_var_cal() {
 			}
 		}
 	}
-	*/
+	//def内每个变量和in集合冲突
 	for (int i = 0; i < blocknum; i++) {//遍历基本块
 		for (int j = 0; j < TAB_MAX; j++) {//遍历变量
-			if (blocks[i].def[j]) {
+			if (blocks[i].def[j] && j >= MAX_REG_PARA(function)) {
 				global_var.insert(varname(j));
 				for (int k = 0; k < TAB_MAX; k++) {
 					if (blocks[i].in[k] && k != j) {

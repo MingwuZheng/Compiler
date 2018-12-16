@@ -1,75 +1,27 @@
-SET recursive_cal  
+SET function  
 ENTER   
-EQL cur_pointer amount #1
+BECOME a  x
+BECOME b  y
+GTR 2 1 #1
 BZ $LABEL1 #1 
-ARYL f 0 #2
-PRINT #2  
-BECOME 1  i
-SET $LABEL2  
-LES i amount #3
-BZ $LABEL3 #3 
-PRINTS 0  
-ARYL f i #4
-PRINT #4  
-ADD i 1 #5
-BECOME #5  i
+BECOME x  t1
+RET   
 GOTO $LABEL2  
-SET $LABEL3  
-PRINTS 1  
-RET   
 SET $LABEL1  
-SET $LABEL4  
-BECOME min  i
-SET $LABEL5  
-ADD cur_pointer numbers_to_be_selected #6
-SUB #6 amount #7
-ADD #7 1 #8
-LEQ i #8 #9
-BZ $LABEL6 #9 
-ARYS cur_pointer i f
-ADD cur_pointer 1 #10
-ADD #10 0 #11
-ADD i 1 #12
-ADD #12 0 #13
-PUSH #11 recursive_cal 
-PUSH #13 recursive_cal 
-CALL recursive_cal  #14
-ADD i 1 #15
-BECOME #15  i
-GOTO $LABEL5  
-SET $LABEL6  
-EXIT   
-SET initial  
-ENTER   
-BECOME 0  i
-SET $LABEL7  
-ARYS i var f
-ADD i 1 #1
-BECOME #1  i
-LEQ i lenth #2
-BNZ $LABEL7 #2 
-RET   
+BECOME b  t2
+SET $LABEL2  
 EXIT   
 SET main  
 ENTER   
-SCAN numbers_to_be_selected  
-SCAN amount  
-ADD amount 1 #1
-GTR #1 1000 #2
-BZ $LABEL8 #2 
-PRINTS 2  
-RET   
-SET $LABEL8  
-SET $LABEL9  
+ADD 0 0 #1
+ADD 0 0 #2
 ADD 0 0 #3
-ADD amount 1 #4
-ADD #4 0 #5
-PUSH #3 initial 
-PUSH #5 initial 
-CALL initial  #6
-ADD 0 0 #7
-ADD 1 0 #8
-PUSH #7 recursive_cal 
-PUSH #8 recursive_cal 
-CALL recursive_cal  #9
+ADD 1 0 #4
+ADD 0 0 #5
+PUSH #1 function 
+PUSH #2 function 
+PUSH #3 function 
+PUSH #4 function 
+PUSH #5 function 
+CALL function  #6
 EXIT   
