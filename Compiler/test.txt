@@ -1,15 +1,8 @@
-void function(int n1, int n2, int n3, int a, int b){
-	int t1,t2,x,y;
-	x=a;
-	y=b;
-	if(2>1){
-		t1=x;
-		return;
-	}
-	else{
-		t2=b;
-	}
+int x;
+int add(){
+	x=x+1;
+	return (x);
 }
 void main(){
-	function(0,0,0,1,0);
+	printf(x+add());
 }

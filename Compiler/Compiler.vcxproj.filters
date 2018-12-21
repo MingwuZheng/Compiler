@@ -118,6 +118,12 @@
     <Text Include="sdy_qsort.txt">
       <Filter>资源文件</Filter>
     </Text>
+    <Text Include="error.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="pth.txt">
+      <Filter>资源文件</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="mips.asm">

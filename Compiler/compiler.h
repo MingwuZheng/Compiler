@@ -10,17 +10,16 @@
 #include<vector>
 #include <iterator>
 
-#define ISNUM(x)		((x >= '0') && (x <= '9'))
-#define ISLETTER(x)		(((x >= 'a') && (x <= 'z')) || ((x >= 'A') && (x <= 'Z')) || (x == '_'))
-#define ISADD(x)		((x == '+') || (x == '-'))
-#define ISMUL(x)		((x == '*') || (x == '/'))
-#define ISCHAR(x)		(ISADD(x) || ISMUL(x) || ISLETTER(x) || ISNUM(x))
-#define ISSTRCHAR(x)	(x == 32 || x == 33 || ((x >= 35) && (x <= 126)))
+
+#define ISLNUM(x) (((x[0] >= '0') && (x[0] <= '9')) || x[0] == '+' || x[0] == '-')
+#define ISLCHAR(x) (x[0] == '\'')
+#define ISLITERAL(x) (ISLNUM(x) || ISLCHAR(x))
 
 #define INTEGER_MAX 4294967295
 #define TAB_MAX 100
 #define QTNRY_MAX 40000
-#define STRONG_TYPE 0
+#define MIDVAR_MAX 4000
+#define STRONG_TYPE 1
 
 #define GTAB symtabs[0]
 #define CTAB symtabs[tabptr]
@@ -92,16 +91,7 @@ public:
 // 全局变量
 extern bool ENABLE_EOF;
 extern fstream input_f;
-extern int lc;
-extern int cc;
-extern char ch;
-extern long int num;
-extern int lp;
-extern char chr;
-extern int tabptr;
-extern string id;
-extern string str;
-extern symbol sy;
+
 extern map<char, symbol> sps;//单字
 extern map<string, symbol> ksy;//关键字符号映射
 extern set<string> key;//关键字

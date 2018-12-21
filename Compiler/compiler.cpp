@@ -10,16 +10,7 @@
 
 fstream input_f;
 bool ENABLE_EOF = false;
-int lc = 1;
-int cc = 1;
-char ch;
-long int num;//字面整型常量
-int lp;
-char chr;//字面字符常量
-int tabptr = 1;
-string id;
-string str;
-symbol sy;
+
 map<char, symbol> sps;//单字
 map<string, symbol> ksy;//关键字符号映射
 set<string> key;//关键字
@@ -65,8 +56,7 @@ symTab symtabs[TAB_MAX];
 
 int main() {
 
-
-	
+	/*
 	char f_name[100] = { 0 };
 	cin >> f_name;
 	input_f.open(f_name, ios::in);
@@ -74,26 +64,29 @@ int main() {
 		cout << "Not a valid filename!" << endl;
 		return 0;
 	}
-	
-	/*
-	char f_name[100] = "sdy.txt";
+	*/
+	char f_name[100] = "test.txt";
 	input_f.open(f_name, ios::in);
 	if (input_f.is_open() == false) {
 		cout << "Not a valid filename!" << endl;
 		return 0;
 	}
 	
-	*/
-
+	
 
 	init();
 	init_midcode();
 	lexical_init();
 	program();
-	init_midcode_optimize();
+	if (ERROR_HAPPENED) {
+		cout << endl << "Program terminates without code generation." << endl;
+		return 0;
+	}
+	//init_midcode_optimize();
 	block_front_optimize();
 	print_midcode();
 	analyse_main();
+	//block_behind_optimize();
 	mips_main();
 	return 0;
 

@@ -1,27 +1,15 @@
-SET function  
+SET add  
 ENTER   
-BECOME a  x
-BECOME b  y
-GTR 2 1 #1
-BZ $LABEL1 #1 
-BECOME x  t1
-RET   
-GOTO $LABEL2  
-SET $LABEL1  
-BECOME b  t2
-SET $LABEL2  
+BECOME x  #1
+ADD #1 1 #2
+BECOME #2  x
+BECOME x  #3
+RET #3  
 EXIT   
 SET main  
 ENTER   
-ADD 0 0 #1
-ADD 0 0 #2
-ADD 0 0 #3
-ADD 1 0 #4
-ADD 0 0 #5
-PUSH #1 function 
-PUSH #2 function 
-PUSH #3 function 
-PUSH #4 function 
-PUSH #5 function 
-CALL function  #6
+BECOME x  #1
+CALL add  #2
+ADD #1 #2 #3
+PRINT #3  
 EXIT   

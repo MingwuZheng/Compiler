@@ -4,7 +4,6 @@
 #include <stack>
 #include <algorithm> 
 
-extern int qtnry_ptr;
 int qtnry_num;
 map<string, int> label2pos;
 map<int, int>pos2blk;
@@ -214,9 +213,22 @@ void flush_graph::global_var_cal() {
 	for (int i = 0; i < blocknum; i++) {//遍历基本块
 		for (int j = 0; j < TAB_MAX; j++) {//遍历变量
 			if (blocks[i].def[j] && j >= MAX_REG_PARA(function)) {
-				global_var.insert(varname(j));
+				//global_var.insert(varname(j));
 				for (int k = 0; k < TAB_MAX; k++) {
 					if (blocks[i].in[k] && k != j) {
+						conflict_graph[j][k] = true;
+						conflict_graph[k][j] = true;
+					}
+				}
+			}
+		}
+	}
+	//def内每个变量冲突
+	for (int i = 0; i < blocknum; i++) {//遍历基本块
+		for (int j = 0; j < TAB_MAX; j++) {//遍历变量
+			if (blocks[i].def[j] && j >= MAX_REG_PARA(function)) {
+				for (int k = 0; k < TAB_MAX; k++) {
+					if (blocks[i].def[k] && k >= MAX_REG_PARA(function)) {
 						conflict_graph[j][k] = true;
 						conflict_graph[k][j] = true;
 					}

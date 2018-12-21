@@ -1,6 +1,8 @@
 #include "compiler.h"
 #include "midcode.h"
 #include "mips.h"
+#include "analyse.h"
+
 
 quaternary tempmcs[QTNRY_MAX];
 int tmcnum;
@@ -17,7 +19,6 @@ void insert_mc(int pos, quaternary* mc) {
 	tempmcs[pos] = *mc;
 	tmcnum++;
 }
-
 
 void delete_unnecessary_jump() {
 	for (int i = 0; i < tmcnum; i++) {
@@ -38,20 +39,35 @@ void delete_unnecessary_jump() {
 }
 
 void block_front_optimize() {
+	tmcnum = qtnry_ptr;
+	for (int i = 0; i < tmcnum; i++)
+		tempmcs[i] = midcodes[i];
+	//here are methods
 	delete_unnecessary_jump();
 
+	//
 	qtnry_ptr = tmcnum;
 	for (int i = 0; i < tmcnum; i++)
 		midcodes[i] = tempmcs[i];
 }
 
-void init_midcode_optimize() {
-	tmcnum = qtnry_ptr;
-	for (int i = 0; i < tmcnum; i++)
-		tempmcs[i] = midcodes[i];
-	
+int filled_mc = 0;
+void dag_optimize(int graph_,int block_) {
+#define cur_blk graphs[graph_].blocks[block_]
 
 
-	
-	return;
+
+
+}
+
+void block_behind_optimize() {
+
+	for (int i = 0; i < graph_ptr; i++) {
+		for (int j = 0; j < graphs[graph_ptr].blocknum; j++)
+			dag_optimize(i, j);
+	}
+
+	qtnry_ptr = filled_mc;
+	for (int i = 0; i < filled_mc; i++)
+		midcodes[i] = tempmcs[i];
 }

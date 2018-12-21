@@ -1,0 +1,22 @@
+const a;
+const char *='a';
+int a;
+int x(){
+    int a[2],c[12;
+    char asd;
+    a[1=asdasdsad;
+    asd'a';
+    asd='a;
+    as d='a';
+	if(('c'));
+	if('v'>'a');
+	if(3>'a');
+}
+int min{
+	return ('c');
+
+}
+void main(){
+    printf(dsfdsfdfer);
+	x(a);
+

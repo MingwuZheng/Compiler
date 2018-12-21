@@ -21,7 +21,7 @@ string genlabel() {
 }
 
 bool needtemp(qtnry_operator op) {
-	if (op == ADD || op == SUB || op == MUL || op == DIV || op == NEG || \
+	if (op == ADD || op == SUB || op == MUL || op == DIV || op == NEG || op ==  BECOME ||\
 		op == EQL || op == GTR || op == LES || op == CALL || op == ARYL || op == NEQ || op == GEQ || op == LEQ)
 		return true;
 	return false;

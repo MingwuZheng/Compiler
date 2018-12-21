@@ -4,7 +4,6 @@
 #include "mips.h"
 
 #define TREG_NUM 9 //$t9用于缓冲
-#define MIDVAR_MAX 4000
 #define REGS_OFFSET 32*4//栈底默认存32个寄存器
 #define STK_BOTTOM "$fp"//栈底寄存器 $v1 编号3\$fp
 #define GLOBAL "$gp"//先认为是0开始存全局变量
@@ -13,8 +12,6 @@
 #define TREG(x) ("$t" + to_string(x))
 #define SREG(x) ("$s" + to_string(x))
 
-#define ISLNUM(x) (((x[0] >= '0') && (x[0] <= '9')) || x[0] == '+' || x[0] == '-')
-#define ISLCHAR(x) (x[0] == '\'')
 #define ISSVAR(x) (graphs[cur_func - 1].global_var.find(x) != graphs[cur_func - 1].global_var.end())
 #define IS_UNALLOC_SVAR(x) (ISSVAR(x) && curgraph.gvar2sreg(x) == -1)
 
@@ -265,7 +262,7 @@ void call_handler() {
 	emit_mips(3, "sub", "$sp", "$fp", to_string(REGS_OFFSET + funcsize));
 	emit_mips(3, "sub", "$fp", "$sp", to_string(4 * func_midvars[funcname]));
 	//跳转
-	emit_mips(1, "jal", funcname, "", "");
+	emit_mips(1, "jal", (funcname == "main") ? "main" : "func_" + funcname, "", "");
 	//将通用寄存器弹出
 	for (int i = 5; i < 5 + MAX_REG_PARA(ACTAB.glbpos); i++) {//将$a1~$a3分配的寄存器弹栈
 		emit_mips(3, "lw", "$" + to_string(i), to_string((31 - i) * 4), "$sp");
@@ -282,8 +279,8 @@ void call_handler() {
 		emit_mips(3, "lw", "$24", to_string((31 - 24) * 4), "$sp");
 	emit_mips(3, "lw", "$ra", "0", "$sp");
 	//直接计算返回后原$sp、$fp值
-	emit_mips(3, "add", "$fp", "$fp", to_string(REGS_OFFSET + funcsize + 4 * func_midvars[funcname]));
-	emit_mips(3, "add", "$sp", "$sp", to_string(REGS_OFFSET + funcsize + 4 * func_midvars[GTAB.ele(ACTAB.glbpos)->name]));
+	emit_mips(3, "addi", "$fp", "$fp", to_string(REGS_OFFSET + funcsize + 4 * func_midvars[funcname]));
+	emit_mips(3, "addi", "$sp", "$sp", to_string(REGS_OFFSET + funcsize + 4 * func_midvars[GTAB.ele(ACTAB.glbpos)->name]));
 
 	if (retvar != "") {
 		string ret_reg = rp.apply_reg(retvar, 0);
@@ -394,7 +391,7 @@ void content(string funcname) {
 	case NEG: {
 		string res_reg = rp.apply_reg(curmc.result, 0);
 		if (ISLNUM(curmc.op1))
-			emit_mips(2, "li", res_reg, "-" + curmc.op1, "");
+			emit_mips(2, "li", res_reg, to_string(-stoi(curmc.op1)), "");
 		else {
 			string op1_reg = rp.apply_reg(curmc.op1, 1);
 			emit_mips(3, "sub", res_reg, "$0", op1_reg);
@@ -630,7 +627,7 @@ void content(string funcname) {
 		if (ISLNUM(curmc.op2))
 			emit_mips(3, "lw", des, to_string(4 * stoi(curmc.op2) + off), (sp ? "$sp" : GLOBAL));
 		else {
-			emit_mips(3, "add", TEMP_, (sp ? "$sp" : GLOBAL), to_string(off));
+			emit_mips(3, "addi", TEMP_, (sp ? "$sp" : GLOBAL), to_string(off));
 			string idx = rp.apply_reg(curmc.op2, 1);
 			emit_mips(3, "sll", TEMP, idx, "2");
 			emit_mips(3, "add", TEMP, TEMP_, TEMP);
@@ -646,7 +643,7 @@ void content(string funcname) {
 	case ARYS: {
 		bool sp;
 		int off = var2offset(curmc.result, &sp);
-		emit_mips(3, "add", TEMP_, (sp ? "$sp" : GLOBAL), to_string(off));
+		emit_mips(3, "addi", TEMP_, (sp ? "$sp" : GLOBAL), to_string(off));
 		if (ISLNUM(curmc.op1)) {
 			string src = rp.apply_reg(curmc.op2, 1);
 			emit_mips(3, "sw", src, to_string(4 * stoi(curmc.op1)), TEMP_);
@@ -761,7 +758,7 @@ void mips_main() {
 	header();
 	while (mcptr < qtnry_ptr && curmc.op == SET) {
 		string funcname= curmc.op1;
-		emit_mips(0, funcname, "", "", "");
+		emit_mips(0, (funcname == "main") ? "main" : "func_" + funcname, "", "", "");
 		mcptr++;
 		function_handler(funcname);
 	}

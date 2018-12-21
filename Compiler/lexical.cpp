@@ -15,6 +15,24 @@
 #define SINGLE 9
 #define UNDEFSY 10
 
+#define ISNUM(x)		((x >= '0') && (x <= '9'))
+#define ISLETTER(x)		(((x >= 'a') && (x <= 'z')) || ((x >= 'A') && (x <= 'Z')) || (x == '_'))
+#define ISADD(x)		((x == '+') || (x == '-'))
+#define ISMUL(x)		((x == '*') || (x == '/'))
+#define ISCHAR(x)		(ISADD(x) || ISMUL(x) || ISLETTER(x) || ISNUM(x))
+#define ISSTRCHAR(x)	(x == 32 || x == 33 || ((x >= 35) && (x <= 126)))
+
+int lc = 1;
+int cc = 1;
+char ch;
+long int num;//字面整型常量
+int lp;
+char chr;//字面字符常量
+int tabptr = 1;
+string id;
+string str;
+symbol sy;
+
 void nextch() {
 	if (!input_f.eof()) {
 		ch = input_f.get();
@@ -29,6 +47,13 @@ void nextch() {
 		cout << "END OF FILE READED." << endl;
 	}
 }
+
+void nextline() {
+	while (ch != '\n')
+		nextch();
+	nextch();
+}
+
 
 int chClassify() {
 	if (ISLETTER(ch))
@@ -58,6 +83,7 @@ int chClassify() {
 }
 
 void insymbol() {
+	
 READ:
 	while (ch == ' ' || ch == '\t' || ch == '\n')
 		nextch();
@@ -204,6 +230,8 @@ READ:
 	case -1: {
 		sy = END_OF_FILE;
 		nextch();
+		if (!ENABLE_EOF)
+			error(UNEXPECTED_EOF_ERROR);
 		break;
 	}
 	default:

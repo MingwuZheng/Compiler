@@ -1,8 +1,11 @@
 #include "compiler.h"
+#include "lexical.h"
+
 #define ETC 0
 #define FATAL (errorcode == 30|| \
 			   errorcode == 36|| \
 			   errorcode == ETC)
+bool ERROR_HAPPENED = false;
 void error(int errorcode) {
 	map<int, string> errorTab;
 	{
@@ -44,7 +47,10 @@ void error(int errorcode) {
 		errorTab[35] = "EXPECT_BECOME_ERROR";
 		errorTab[36] = "UNEXPECTED_EOF_ERROR";
 	}
+	ERROR_HAPPENED = true;
 	cout << errorTab[errorcode] << " in line " << lc << ",column " << cc << endl;
-	if (FATAL)
+	if (FATAL) {
+		cout << endl << "Program terminates without code generation." << endl;
 		exit(0);
+	}
 }

@@ -82,5 +82,6 @@ public:
 };
 
 extern flush_graph graphs[];
+extern int graph_ptr;
 void init_block();
 void analyse_main();

@@ -170,9 +170,11 @@
     <Text Include="16231281_test.txt" />
     <Text Include="16231281_test_new.txt" />
     <Text Include="16721145_test.txt" />
+    <Text Include="error.txt" />
     <Text Include="jsh.txt" />
     <Text Include="midcode.txt" />
     <Text Include="mjl.txt" />
+    <Text Include="pth.txt" />
     <Text Include="sdy.txt" />
     <Text Include="sdy_qsort.txt" />
     <Text Include="test.txt" />

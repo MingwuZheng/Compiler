@@ -4,26 +4,39 @@
 #include "grammar.h"
 #include "midcode.h"
 
+
+
+#define SEMI_FOLLOW(x) ((x)==IDENT||(x)==RBR||(x)==LBR||(x)==CHARSY||(x)==INTSY||(x)==VOIDSY||(x)==RETURN||\
+						(x)==SCANSY||(x)==PRINTSY||(x)==CONSTSY||(x)==FORSY||(x)==DOSY||(x)==IFSY||(x)==ELSESY||(x)==SEMICOLON)
+
 #define ISVALTYPE(x) (x == INTSY || x == CHARSY)
 #define ISFUNCTYPE(x) (x == INTSY || x == CHARSY || x == VOIDSY)
 #define TP(x) ((x == INTSY) ? INT : ((x == VOIDSY) ? VOID : CHAR))
 #define UNMATCH(x,y) ((x == INTSY && y == CHARCON)||(x == CHARSY && y == INTCON))
 
-#define ISCHAR(x) (x[0] == '\'')
 #define CH2ASC(x) x = ((x[0] == '\'')?to_string((int)(x[1])):x)
 
+bool RETURNED = false;
+
+int literal2int(string literal_con) {
+	if (ISLNUM(literal_con))
+		return stoi(literal_con);
+	else return (int)literal_con[1];
+}
 
 void readsym(symbol expect, int errormsg) {
-	if (sy == END_OF_FILE) {
-		if (!ENABLE_EOF) {
-			error(UNEXPECTED_EOF_ERROR);
+	if (sy != expect) {
+		if (expect == SEMICOLON) {
+			if (SEMI_FOLLOW(sy))
+				error(errormsg);
+			else {
+				nextline();
+				insymbol();
+			}
 		}
+		else error(errormsg);
 	}
-	if (sy != expect)
-		error(errormsg);
-	else {
-		insymbol();
-	}
+	else insymbol();
 }
 
 void program() {
@@ -86,6 +99,9 @@ void program() {
 		compoundstatement();
 		emit(EXIT, "", "", "", NULL);
 		readsym(RBR, EXPECT_RBR_ERROR);
+		if (TP(tp) != VOID && !RETURNED)
+			error(EXPECT_RETURN_ERROR);
+		RETURNED = false;
 		tabptr++;//½øÈëÏÂÒ»¸öº¯ÊýÇ°ÎªÆä·ÖÅä¿Õ¼ä
 				 //GTAB.insert(temp, FUNCTION, TP(tp), paranum, symtabs[tabptr].filledsize + paranum * 4, tabptr);
 	}
@@ -106,6 +122,9 @@ void program() {
 			compoundstatement();
 			emit(EXIT, "", "", "", NULL);
 			readsym(RBR, EXPECT_RBR_ERROR);
+			if (TP(tp) != VOID && !RETURNED)
+				error(EXPECT_RETURN_ERROR);
+			RETURNED = false;
 			tabptr++;
 		}
 		else {
@@ -147,8 +166,25 @@ void constdec() {
 	string name;
 	while (sy == CONSTSY) {
 		insymbol();
-		if (ISVALTYPE(sy)) {
-			tp = sy;
+		if (!ISVALTYPE(sy)) {
+			error(EXPECT_TYPE_ERROR);
+			nextline();
+			insymbol();
+			continue;
+		}
+		tp = sy;
+		insymbol();
+		readsym(IDENT, EXPECT_ID_ERROR);
+		readsym(BECOMESY, ILLEGAL_VARDEF_ERROR);
+		if (sy == PLUS || sy == MINUS) {
+			insymbol();
+			num = (sy == MINUS) ? -num : num;
+		}
+		if (UNMATCH(tp, sy))
+			error(TYPE_CONFLICT_ERROR);
+		CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);//Èç¹ûÔÚº¯ÊýÄÚ³£Á¿¶¨Òå£¬Æ«ÒÆÒª¼õÈ¥²ÎÊý¿Õ¼ä
+		insymbol();
+		while (sy == COMMA) {//rapidly read same-type const
 			insymbol();
 			readsym(IDENT, EXPECT_ID_ERROR);
 			readsym(BECOMESY, ILLEGAL_VARDEF_ERROR);
@@ -158,24 +194,10 @@ void constdec() {
 			}
 			if (UNMATCH(tp, sy))
 				error(TYPE_CONFLICT_ERROR);
-			CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);//Èç¹ûÔÚº¯ÊýÄÚ³£Á¿¶¨Òå£¬Æ«ÒÆÒª¼õÈ¥²ÎÊý¿Õ¼ä
+			CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);
 			insymbol();
-			while (sy == COMMA) {//rapidly read same-type const
-				insymbol();
-				readsym(IDENT, EXPECT_ID_ERROR);
-				readsym(BECOMESY, ILLEGAL_VARDEF_ERROR);
-				if (sy == PLUS || sy == MINUS) {
-					insymbol();
-					num = (sy == MINUS) ? -num : num;
-				}
-				if (UNMATCH(tp, sy))
-					error(TYPE_CONFLICT_ERROR);
-				CTAB.insert(id, CONST, TP(tp), (tp == CHARSY) ? chr : num, 4, CTAB.filledsize);
-				insymbol();
-			}
-			readsym(SEMICOLON, EXPECT_SEMI_ERROR);//normal exit
 		}
-		else error(EXPECT_TYPE_ERROR);
+		readsym(SEMICOLON, EXPECT_SEMI_ERROR);//normal exit
 	}
 }
 
@@ -191,6 +213,7 @@ void vardec() {
 				CTAB.insert(id, ARRAY, TP(tp), num, num * 4, CTAB.filledsize);
 			}
 			else error(ILLEGAL_ARRLEN_ERROR);
+			if (sy == MINUS) insymbol();
 			insymbol();
 			readsym(RBK, EXPECT_RBK_ERROR);
 		}//µ¥¸öÊý×éÉùÃ÷½áÊø
@@ -206,12 +229,11 @@ void vardec() {
 					CTAB.insert(id, ARRAY, TP(tp), num, num * 4, CTAB.filledsize);
 				}
 				else error(ILLEGAL_ARRLEN_ERROR);
+				if (sy == MINUS) insymbol();
 				insymbol();
 				readsym(RBK, EXPECT_RBK_ERROR);
 			}//µ¥¸öÊý×éÉùÃ÷½áÊø
-			else {//µ¥¸ö±êÊ¶·û
-				CTAB.insert(id, VAR, TP(tp), 0, 4, CTAB.filledsize);
-			}
+			else CTAB.insert(id, VAR, TP(tp), 0, 4, CTAB.filledsize); //µ¥¸ö±êÊ¶·û
 		}
 		readsym(SEMICOLON, EXPECT_SEMI_ERROR);
 	}
@@ -290,10 +312,10 @@ void statement() {
 	}
 	case RETURN: {
 		insymbol();
-		if (sy == LPT) {
+		if (sy != SEMICOLON) {
 			if (GTAB.ele(CTAB.glbpos)->symtype == VOID)
 				error(TYPE_CONFLICT_ERROR);
-			insymbol();
+			readsym(LPT, EXPECT_LPT_ERROR);
 			bool isch;
 			string expr= expression(&isch);
 			if (isch && GTAB.ele(CTAB.glbpos)->symtype != CHAR)
@@ -303,6 +325,7 @@ void statement() {
 		}
 		else emit(RET, "", "", "", NULL);
 		readsym(SEMICOLON, EXPECT_SEMI_ERROR);
+		RETURNED = true;
 		break;
 	}
 	case PRINTSY: {
@@ -317,9 +340,8 @@ void statement() {
 	}
 	default: {
 		error(ILLEGAL_STATE_ERROR);
-		while (sy != SEMICOLON) {
+		while (sy != SEMICOLON)
 			insymbol();
-		}
 		statement();
 		break;
 	}
@@ -367,8 +389,6 @@ string call(int pos) {//ÓÅ»¯Ê±×¢Òâ£¬ÓÐ·µ»ØÖµº¯Êýµ÷ÓÃµ¥ÁÐÒ»¾ä»°¿ÉÄÜ»á¶à³öÎÞÒâÒåÖÐ
 	emit(CALL, name, "", "", &returnvar);
 	return returnvar;
 }
-
-
 
 void ifstatement() {
 	string ifbranch;
@@ -544,6 +564,11 @@ void assignment() {//Ö»ÓÐÒ»´Î¼ÆËãµÄ±í´ïÊ½¸³Öµ£¨i=i+1£©»áÉú³É²»±ØÒªµÄÖÐ¼ä±äÁ¿£¬Òª
 				readsym(LBK, EXPECT_LBK_ERROR);
 				aryindex = expression(&temp);
 				if (temp)error(TYPE_CONFLICT_ERROR);
+				if (ISLNUM(aryindex)) {
+					int index_var = literal2int(aryindex);
+					if (!(index_var >= 0 && index_var < GTAB.ele(index)->var))
+						error(ILLEGAL_ARRLEN_ERROR);
+				}
 				readsym(RBK, EXPECT_RBK_ERROR);
 				readsym(BECOMESY, EXPECT_BECOME_ERROR);
 				expvar = expression(&temp);
@@ -570,6 +595,11 @@ void assignment() {//Ö»ÓÐÒ»´Î¼ÆËãµÄ±í´ïÊ½¸³Öµ£¨i=i+1£©»áÉú³É²»±ØÒªµÄÖÐ¼ä±äÁ¿£¬Òª
 			readsym(LBK, EXPECT_LBK_ERROR);
 			aryindex = expression(&temp);
 			if (temp)error(TYPE_CONFLICT_ERROR);
+			if (ISLNUM(aryindex)) {
+				int index_var = literal2int(aryindex);
+				if (!(index_var >= 0 && index_var < CTAB.ele(index)->var))
+					error(ILLEGAL_ARRLEN_ERROR);
+			}
 			readsym(RBK, EXPECT_RBK_ERROR);
 			readsym(BECOMESY, EXPECT_BECOME_ERROR);
 			expvar = expression(&temp);
@@ -621,8 +651,11 @@ string factor(bool *isch) {//£¼Òò×Ó£¾::= £¼±êÊ¶·û£¾£ü£¼±êÊ¶·û£¾'['£¼±í´ïÊ½£¾']'£
 		}
 		else {
 			if (CTAB.ele(id) == NULL) {
-				if (GTAB.ele(id) == NULL)
+				if (GTAB.ele(id) == NULL) {
 					error(UNDEFINED_ID_ERROR);
+					insymbol();
+					return id;
+				}
 				else {//±êÊ¶·ûÔÚÈ«¾Ö·ûºÅ±íÀï
 					if (GTAB.ele(id)->symtype == CHAR)
 						*isch = true;
@@ -634,6 +667,11 @@ string factor(bool *isch) {//£¼Òò×Ó£¾::= £¼±êÊ¶·û£¾£ü£¼±êÊ¶·û£¾'['£¼±í´ïÊ½£¾']'£
 							bool temp;
 							string expr = expression(&temp);
 							if (temp)error(TYPE_CONFLICT_ERROR);
+							if (ISLNUM(expr)) {
+								int index_var = literal2int(expr);
+								if (!(index_var >= 0 && index_var < GTAB.ele(index)->var))
+									error(ILLEGAL_ARRLEN_ERROR);
+							}
 							emit(ARYL, GTAB.ele(index)->name, expr, "", &result);
 							if (sy = RBK)
 								insymbol();
@@ -647,9 +685,10 @@ string factor(bool *isch) {//£¼Òò×Ó£¾::= £¼±êÊ¶·û£¾£ü£¼±êÊ¶·û£¾'['£¼±í´ïÊ½£¾']'£
 							insymbol();
 							return to_string(GTAB.ele(index)->var);//³£Á¿Ìæ»»
 						}
-						else {//È«¾Ö±äÁ¿
+						else {//È«¾Ö±äÁ¿,ÕâÀïÎªÁËÊµÏÖx+add()ÕâÖÖÒ»ÖÂÐÔÒªÇóµÄzz²Ù×÷£¬Ö»ÄÜ°ÑÈ«¾Ö±äÁ¿ÓÃÖÐ¼ä±äÁ¿ÏÈ´æ×Å
+							emit(BECOME, id, "", "", &result);
 							insymbol();
-							return id;
+							return result;
 						}
 					}
 				}
@@ -665,6 +704,11 @@ string factor(bool *isch) {//£¼Òò×Ó£¾::= £¼±êÊ¶·û£¾£ü£¼±êÊ¶·û£¾'['£¼±í´ïÊ½£¾']'£
 						bool temp;
 						string expr = expression(&temp);
 						if (temp)error(TYPE_CONFLICT_ERROR);
+						if (ISLNUM(expr)) {
+							int index_var = literal2int(expr);
+							if (!(index_var >= 0 && index_var < CTAB.ele(index)->var))
+								error(ILLEGAL_ARRLEN_ERROR);
+						}
 						emit(ARYL, CTAB.ele(index)->name, expr, "", &result);
 						if (sy = RBK)
 							insymbol();
@@ -723,6 +767,8 @@ string factor(bool *isch) {//£¼Òò×Ó£¾::= £¼±êÊ¶·û£¾£ü£¼±êÊ¶·û£¾'['£¼±í´ïÊ½£¾']'£
 		break;
 	}
 	}
+	error(ILLEGAL_FACTOR_ERROR);
+	return "";
 }
 
 string term(bool *isch) {//£¼Ïî£¾::= £¼Òò×Ó£¾{£¼³Ë·¨ÔËËã·û£¾£¼Òò×Ó£¾}
@@ -738,7 +784,11 @@ string term(bool *isch) {//£¼Ïî£¾::= £¼Òò×Ó£¾{£¼³Ë·¨ÔËËã·û£¾£¼Òò×Ó£¾}
 		string tmp = factor(&temp);
 		CH2ASC(mid);
 		CH2ASC(tmp);
-		emit((t == MULSY) ? MUL : DIV, mid, tmp, "", &mid);
+		if (ISLITERAL(mid) && ISLITERAL(tmp)) {
+			int a = literal2int(mid), b = literal2int(tmp);
+			mid = to_string((t == MULSY) ? a * b : a / b);
+		}
+		else emit((t == MULSY) ? MUL : DIV, mid, tmp, "", &mid);
 	}
 	return mid;
 }
@@ -762,7 +812,9 @@ string expression(bool* isch) {//£¼±í´ïÊ½£¾::= £Û£«£ü£­£Ý£¼Ïî£¾{£¼¼Ó·¨ÔËËã·û£¾£¼
 	if (neg == -1) {
 		CH2ASC(mid);
 		*isch = false;
-		emit(NEG, mid, "", "", &mid);
+		if (ISLITERAL(mid))
+			mid = to_string(-literal2int(mid));
+		else emit(NEG, mid, "", "", &mid);
 	}
 	while (sy == PLUS || sy == MINUS) {
 		*isch = false;
@@ -771,16 +823,25 @@ string expression(bool* isch) {//£¼±í´ïÊ½£¾::= £Û£«£ü£­£Ý£¼Ïî£¾{£¼¼Ó·¨ÔËËã·û£¾£¼
 		string tmp = term(&temp);
 		CH2ASC(mid);
 		CH2ASC(tmp);
-		emit((addop == PLUS) ? ADD : SUB, mid, tmp, "", &mid);
+		if (ISLITERAL(mid) && ISLITERAL(tmp)) {
+			int a = literal2int(mid), b = literal2int(tmp);
+			mid = to_string((addop ==  PLUS) ? a + b : a - b);
+		}
+		else emit((addop == PLUS) ? ADD : SUB, mid, tmp, "", &mid);
 	}
 	return mid;
 }
 
 string condition() {
-#define ADAPT if(isch_o1 && isch_o2) \
+	/*
+#define ADAPT do{if(isch_o1 && isch_o2) \
 				 {CH2ASC(o1);CH2ASC(o2);} \
-			  else if(STRONG_TYPE && (isch_o1 || isch_o2)) \
-				 {error(TYPE_CONFLICT_ERROR);CH2ASC(o1);CH2ASC(o2);}
+				 else if(STRONG_TYPE && (isch_o1 || isch_o2)) \
+				 {error(TYPE_CONFLICT_ERROR);CH2ASC(o1);CH2ASC(o2);}}while(0)
+*/
+#define ADAPT do{if(STRONG_TYPE && (isch_o1 || isch_o2)) \
+				 {error(TYPE_CONFLICT_ERROR);CH2ASC(o1);CH2ASC(o2);}}while(0)
+
 	string o1, o2, result;
 	bool isch_o1, isch_o2;
 	o1 = expression(&isch_o1);
@@ -788,50 +849,48 @@ string condition() {
 	case EQLSY: {
 		insymbol();
 		o2 = expression(&isch_o2);
-		ADAPT
+		ADAPT;
 		emit(EQL, o1, o2, "", &result);
 		break;
 	}
 	case NEQSY: {
 		insymbol();
 		o2 = expression(&isch_o2);
-		ADAPT
+		ADAPT;
 		emit(NEQ, o1, o2, "", &result);
 		break;
 	}
 	case GTRSY: {
 		insymbol();
 		o2 = expression(&isch_o2);
-		ADAPT
+		ADAPT;
 		emit(GTR, o1, o2, "", &result);
 		break;
 	}
 	case GEQSY: {
 		insymbol();
 		o2 = expression(&isch_o2);
-		ADAPT
+		ADAPT;
 		emit(GEQ, o1, o2, "", &result);
 		break;
 	}
 	case LESSY: {
 		insymbol();
 		o2 = expression(&isch_o2);
-		ADAPT
+		ADAPT;
 		emit(LES, o1, o2, "", &result);
 		break;
 	}
 	case LEQSY: {
 		insymbol();
 		o2 = expression(&isch_o2);
-		ADAPT
+		ADAPT;
 		emit(LEQ, o1, o2, "", &result);
 		break;
 	}
 	default: {
-		if (isch_o1 && STRONG_TYPE) {
+		if (isch_o1 && STRONG_TYPE)
 			error(TYPE_CONFLICT_ERROR);
-			CH2ASC(o1);
-		}
 		CH2ASC(o1);
 		emit(NEQ, o1, "0", "", &result);
 		break;
