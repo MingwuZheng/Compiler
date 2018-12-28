@@ -151,7 +151,8 @@
     <ClCompile Include="lexical.cpp" />
     <ClCompile Include="midcode.cpp" />
     <ClCompile Include="mips.cpp" />
-    <ClCompile Include="optimize.cpp" />
+    <ClCompile Include="optimize_midcode.cpp" />
+    <ClCompile Include="optimize_mips.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="analyse.h" />
@@ -175,6 +176,7 @@
     <Text Include="midcode.txt" />
     <Text Include="mjl.txt" />
     <Text Include="pth.txt" />
+    <Text Include="Sample4Opt-1-dowhile.txt" />
     <Text Include="sdy.txt" />
     <Text Include="sdy_qsort.txt" />
     <Text Include="test.txt" />

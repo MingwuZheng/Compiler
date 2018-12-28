@@ -364,17 +364,22 @@ string call(int pos) {//ÓÅ»¯Ê±×¢Òâ£¬ÓĞ·µ»ØÖµº¯Êıµ÷ÓÃµ¥ÁĞÒ»¾ä»°¿ÉÄÜ»á¶à³öÎŞÒâÒåÖĞ
 		bool temp;
 		string stkmid;
 		int func_stab = GTAB.ele(pos)->addr;	
-		emit(ADD, expression(&temp), "0", "", &stkmid);
-		parastk[pstk] = stkmid;
-		//parastk[pstk] = expression(&temp);
+		if (FAST_MODE)parastk[pstk] = expression(&temp);
+		else {
+			emit(ADD, expression(&temp), "0", "", &stkmid);
+			parastk[pstk] = stkmid;
+		}
 		if (temp != ((symtabs[func_stab]).ele(pstk++)->symtype == CHAR) && STRONG_TYPE)
 			error(TYPE_CONFLICT_ERROR);
 		//emit(PUSH, expression(), name, "", nullptr);
 		paranum++;
 		while (sy == COMMA) {
 			insymbol();
-			emit(ADD, expression(&temp), "0", "", &stkmid);
-			parastk[pstk] = stkmid;
+			if(FAST_MODE)parastk[pstk] = expression(&temp);
+			else {
+				emit(ADD, expression(&temp), "0", "", &stkmid);
+				parastk[pstk] = stkmid;
+			}
 			//parastk[pstk] = expression(&temp);
 			if (temp != ((symtabs[func_stab]).ele(pstk++)->symtype == CHAR) && STRONG_TYPE)
 				error(TYPE_CONFLICT_ERROR);
@@ -686,7 +691,8 @@ string factor(bool *isch) {//£¼Òò×Ó£¾::= £¼±êÊ¶·û£¾£ü£¼±êÊ¶·û£¾'['£¼±í´ïÊ½£¾']'£
 							return to_string(GTAB.ele(index)->var);//³£Á¿Ìæ»»
 						}
 						else {//È«¾Ö±äÁ¿,ÕâÀïÎªÁËÊµÏÖx+add()ÕâÖÖÒ»ÖÂĞÔÒªÇóµÄzz²Ù×÷£¬Ö»ÄÜ°ÑÈ«¾Ö±äÁ¿ÓÃÖĞ¼ä±äÁ¿ÏÈ´æ×Å
-							emit(BECOME, id, "", "", &result);
+							if(!FAST_MODE)emit(BECOME, id, "", "", &result);
+							else result = id;
 							insymbol();
 							return result;
 						}

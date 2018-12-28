@@ -1,15 +1,187 @@
-SET add  
+SET factorial  
 ENTER   
-BECOME x  #1
-ADD #1 1 #2
-BECOME #2  x
-BECOME x  #3
-RET #3  
+LEQ n 1 #1
+BZ $LABEL1 #1 
+RET 1  
+GOTO $LABEL2  
+SET $LABEL1  
+SUB n 1 #2
+ADD #2 0 #3
+PUSH #3 factorial 
+CALL factorial  #4
+MUL n #4 #5
+RET #5  
+SET $LABEL2  
+EXIT   
+SET mod  
+ENTER   
+DIV x y #1
+MUL #1 y #2
+SUB x #2 #3
+BECOME #3  x
+RET x  
+EXIT   
+SET swap  
+ENTER   
+PRINTS 0  
+PRINT x  
+PRINTS 1  
+PRINT y  
+BECOME x  temp
+BECOME y  x
+BECOME temp  y
+PRINTS 2  
+PRINT x  
+PRINTS 3  
+PRINT y  
+EXIT   
+SET complete_num  
+ENTER   
+BECOME val  j
+SET $LABEL3  
+BECOME -1  n
+BECOME j  s
+BECOME 1  i
+SET $LABEL4  
+DIV j i #1
+MUL #1 i #2
+BECOME #2  x1
+ADD j 0 #3
+ADD i 0 #4
+PUSH #3 mod 
+PUSH #4 mod 
+CALL mod  #5
+EQL #5 0 #6
+BZ $LABEL5 #6 
+ADD n 1 #7
+BECOME #7  n
+SUB s i #8
+BECOME #8  s
+GEQ n 128 #9
+BZ $LABEL6 #9 
+PRINTS 4  
+GOTO $LABEL7  
+SET $LABEL6  
+ARYS n i k
+SET $LABEL7  
+SET $LABEL5  
+SET $LABEL8  
+ADD i 1 #10
+BECOME #10  i
+LES i j #11
+BNZ $LABEL4 #11 
+EQL s 0 #12
+BZ $LABEL9 #12 
+PRINTS 5  
+PRINT j  
+BECOME 0  i
+SET $LABEL10  
+PRINTS 6  
+ARYL k i #13
+PRINT #13  
+ADD i 1 #14
+BECOME #14  i
+LEQ i n #15
+BNZ $LABEL10 #15 
+PRINTS 7  
+SET $LABEL9  
+SET $LABEL11  
+ADD j 1 #16
+BECOME #16  j
+LES j 1024 #17
+BNZ $LABEL3 #17 
+PRINTS 8  
+BECOME 0  a
+BECOME 0  i
+SET $LABEL12  
+MUL a i #18
+BECOME #18  b
+MUL j n #19
+BECOME #19  c
+MUL a i #20
+BECOME #20  a
+ADD a b #21
+ADD #21 c #22
+BECOME #22  a
+ADD i 1 #23
+BECOME #23  i
+LES i 1024 #24
+BNZ $LABEL12 #24 
+BECOME a  b
+BECOME 0  i
+SET $LABEL13  
+ADD b i #25
+BECOME #25  b
+ADD i 1 #26
+BECOME #26  i
+LES i 1024 #27
+BNZ $LABEL13 #27 
+PRINTS 9  
+PRINT b  
+PRINTS 8  
+BECOME 0  h
+BECOME 1  leap
+BECOME 2  m
+SET $LABEL14  
+DIV m 2 #28
+BECOME #28  k2
+BECOME 2  i
+SET $LABEL15  
+DIV m i #29
+MUL #29 i #30
+BECOME #30  x2
+ADD m 0 #31
+ADD i 0 #32
+PUSH #31 mod 
+PUSH #32 mod 
+CALL mod  #33
+EQL #33 0 #34
+BZ $LABEL16 #34 
+BECOME 0  leap
+SET $LABEL16  
+SET $LABEL17  
+ADD i 1 #35
+BECOME #35  i
+LEQ i k2 #36
+BNZ $LABEL15 #36 
+EQL leap 1 #37
+BZ $LABEL18 #37 
+PRINTS 10  
+PRINT m  
+ADD h 1 #38
+BECOME #38  h
+DIV h 10 #39
+MUL #39 10 #40
+BECOME #40  x2
+EQL x2 h #41
+BZ $LABEL19 #41 
+PRINTS 7  
+SET $LABEL19  
+SET $LABEL20  
+SET $LABEL18  
+SET $LABEL21  
+BECOME 1  leap
+ADD m 1 #42
+BECOME #42  m
+LEQ m 1024 #43
+BNZ $LABEL14 #43 
+PRINTS 11  
+PRINT h  
 EXIT   
 SET main  
 ENTER   
-BECOME x  #1
-CALL add  #2
-ADD #1 #2 #3
-PRINT #3  
+ADD 10 0 #1
+PUSH #1 factorial 
+CALL factorial  #2
+BECOME #2  n
+PRINTS 12  
+PRINT n  
+ADD 5 0 #3
+ADD 10 0 #4
+PUSH #3 swap 
+PUSH #4 swap 
+CALL swap  #5
+ADD 2 0 #6
+PUSH #6 complete_num 
+CALL complete_num  #7
 EXIT   

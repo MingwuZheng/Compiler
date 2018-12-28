@@ -65,7 +65,8 @@ int main() {
 		return 0;
 	}
 	*/
-	char f_name[100] = "test.txt";
+	
+	char f_name[100] = "Sample4Opt-1-dowhile.txt";
 	input_f.open(f_name, ios::in);
 	if (input_f.is_open() == false) {
 		cout << "Not a valid filename!" << endl;
@@ -88,6 +89,8 @@ int main() {
 	analyse_main();
 	//block_behind_optimize();
 	mips_main();
+	mips_optimize();
+	print_mipscode();
 	return 0;
 
 }

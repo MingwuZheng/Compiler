@@ -1,9 +1,12 @@
 const a;
 const char *='a';
-int a;
+const int a0 = 100;
+int a[3];
+//
 int x(){
     int a[2],c[12;
     char asd;
+	a[a0]=1;
     a[1=asdasdsad;
     asd'a';
     asd='a;
