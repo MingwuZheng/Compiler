@@ -1,6 +1,8 @@
 #include "compiler.h"
 #include "mips.h"
+
 #define IS_LABEL(x) ((x).paranum==0 && (x).op != "syscall")
+#define IS_FUNCLABEL(x) (IS_LABEL(x) && (x).op[0] != '$')
 #define IS_MOVE(x) ((x).op == "move" || ((x).op == "addiu" && (x).op3 == "0"))
 #define FUNC_BEGIN(x) (IS_LABEL(x) && (x).op[0] != '$')
 #define BLOCK_END(x) ((x).op == "beq"||(x).op == "bne"||(x).op == "bgt"||(x).op == "bge"||(x).op == "blt"||(x).op == "ble"||(x).op == "j"||(x).op == "jr"||IS_LABEL(x))//没有jal
@@ -11,7 +13,7 @@
 //j类指令一个参数
 //li、la和move两个参数
 
-
+extern map<string, vector<set<string>>>funcname2outtab;
 extern vector<mips_code>mipscodes;
 
 void folding() {
@@ -22,13 +24,26 @@ void folding() {
 			iter = mipscodes.erase(iter);
 		else iter++;
 	}
-	if (SAFE_MODE) return;
-	for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
-		if ((*iter).op == "move" && (*iter).op2 == (*(iter - 1)).op1) {
-			(*(iter - 1)).op1 = (*iter).op1;
-			iter = mipscodes.erase(iter); //不能写成mipscode.erase(iter);
+	if (!SAFE_MODE) {
+		for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
+			if ((*iter).op == "move" && (*iter).op2 == (*(iter - 1)).op1 && REG_DEF((*iter).op2, (*(iter - 1)))) {
+				(*(iter - 1)).op1 = (*iter).op1;
+				iter = mipscodes.erase(iter); //不能写成mipscode.erase(iter);
+			}
+			else iter++;
 		}
-		else iter++;
+	}
+	for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
+		if ((*iter).op == "div" && !ISLNUM((*iter).op3)) {
+			string res = (*iter).op1;
+			(*iter).paranum = 2;
+			(*iter).op1 = (*iter).op2;
+			(*iter).op2 = (*iter).op3;
+			(*iter).op3 = "";
+			mips_code* mflo = new mips_code(1, "mflo", res, "", "", false);
+			iter = mipscodes.insert(iter + 1, *mflo);
+		}
+		iter++;
 	}
 }
 
@@ -85,7 +100,7 @@ void stack_decrease() {
 			bool delete_sl = true;
 			vector<mips_code>::iterator guard = iter;
 			while ((*guard).calling)guard++;
-			while (guard!=mipscodes.end() && !BLOCK_END(*guard)) {
+			while (guard != mipscodes.end() && !BLOCK_END(*guard)) {
 				if (REG_USE(treg, *guard) && !(*guard).calling) {
 					delete_sl = false;
 					break;
@@ -112,6 +127,83 @@ void stack_decrease() {
 		}
 		else iter++;
 	}
+	
+	string curfunc;
+	int curcall;
+	for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
+		if (IS_FUNCLABEL(*iter)) {
+			curcall = -1;
+			curfunc = (*iter).op;
+		}
+		if ((*iter).calling && !(*(iter - 1)).calling)
+			curcall++;
+		if ((*iter).calling && (*iter).op == "sw" && ((*iter).op1[1] == 's' || (*iter).op1[1] == 'a')) {
+			string sreg = (*iter).op1;
+			bool delete_sl = true;
+			vector<mips_code>::iterator guard = iter;
+			while ((*guard).calling)guard++;
+			while (guard != mipscodes.end() && !BLOCK_END(*guard)) {
+				if (REG_USE(sreg, *guard) && !(*guard).calling) {
+					delete_sl = false;
+					break;
+				}
+				if (REG_DEF(sreg, *guard))
+					break;
+				guard++;
+			}
+			if (guard != mipscodes.end() && BLOCK_END(*guard)) {
+				if ((*guard).op1 == sreg || (*guard).op2 == sreg)
+					delete_sl = false;
+			}
+			if (delete_sl && (funcname2outtab[curfunc])[curcall].find(sreg) != (funcname2outtab[curfunc])[curcall].end()) {
+				for (vector<mips_code>::iterator d = iter + 1; (*d).calling;) {
+					if ((*d).op == "lw" && (*d).op1 == sreg) {
+						d = mipscodes.erase(d);
+						break;
+					}
+					else d++;
+				}
+				iter = mipscodes.erase(iter);
+				if ((*iter).calling && !(*(iter - 1)).calling)
+					curcall--;
+			}
+			else iter++;
+		}
+		else iter++;
+	}
+	
+	for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
+		if ((*iter).calling && (*iter).op == "sw" && ((*iter).op1[1] == 's' || (*iter).op1[1] == 'a' || (*iter).op1[1] == 't')) {
+			string reg = (*iter).op1;
+			bool delete_sl = true;
+			vector<mips_code>::iterator guard = iter;
+			while ((*guard).op != "jal")guard++;
+			string desfunc = (*guard).op1;
+			guard = mipscodes.begin();
+			while (!IS_FUNCLABEL(*guard) || (*guard).op != desfunc)guard++;
+			guard++;
+			while (guard != mipscodes.end() && !IS_FUNCLABEL(*guard)) {
+				if (REG_DEF(reg, *guard) && !STACK_PART(*guard)) {
+					delete_sl = false;
+					break;
+				}
+				guard++;
+			}
+			if (delete_sl) {
+				for (vector<mips_code>::iterator d = iter + 1; (*d).calling;) {
+					if ((*d).op == "lw" && (*d).op1 == reg) {
+						d = mipscodes.erase(d);
+						break;
+					}
+					else d++;
+				}
+				iter = mipscodes.erase(iter);
+			}
+			else iter++;
+		}
+		else iter++;
+	}
+	
 }
 
 bool block_dce() {

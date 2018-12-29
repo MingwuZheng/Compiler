@@ -102,6 +102,8 @@ public:
 		bool sp;
 		int sreg;
 		if (ISLNUM(name)) {
+			if (stoi(name) == 0)
+				return "$0";
 			emit_mips(2, "li", TEMP, name, "");
 			return TEMP;
 		}
@@ -237,7 +239,7 @@ void call_handler() {
 	emit_mips(3, "addiu", "$sp", "$fp", to_string(-(REGS_OFFSET + funcsize)));
 	emit_mips(3, "addiu", "$fp", "$sp", to_string(-4 * func_midvars[funcname]));
 	//跳转
-	emit_mips(1, "jal", (funcname == "main") ? "main" : "func_" + funcname, "", "");
+	emit_mips(1, "jal", funcname, "", "");
 	//将通用寄存器弹出
 	for (int i = 5; i < 5 + MAX_REG_PARA(ACTAB.glbpos); i++) {//将$a1~$a3分配的寄存器弹栈
 		emit_mips(3, "lw", "$a" + to_string(i - 4), to_string((31 - i) * 4), "$sp");
@@ -348,11 +350,21 @@ void content(string funcname) {
 			emit_mips(2, "li", res_reg, to_string(res), "");
 			break;
 		}
-		string op1_reg = rp.apply_reg(curmc.op1, 1);
-		if (op1_reg == TEMP)
-			emit_mips(2, "move", TEMP_, op1_reg, "");
-		string op2_reg = rp.apply_reg(curmc.op2, 1);
-		emit_mips(3, "mul", res_reg, ((op1_reg == TEMP) ? TEMP_ : op1_reg), op2_reg);
+		if (ISLNUM(curmc.op1)) {
+			string op2_reg = rp.apply_reg(curmc.op2, 1);
+			emit_mips(3, "mul", res_reg, op2_reg, curmc.op1);
+		}
+		else if (ISLNUM(curmc.op2)) {
+			string op1_reg = rp.apply_reg(curmc.op1, 1);
+			emit_mips(3, "mul", res_reg, op1_reg, curmc.op2);
+		}
+		else {
+			string op1_reg = rp.apply_reg(curmc.op1, 1);
+			if (op1_reg == TEMP)
+				emit_mips(2, "move", TEMP_, op1_reg, "");
+			string op2_reg = rp.apply_reg(curmc.op2, 1);
+			emit_mips(3, "mul", res_reg, ((op1_reg == TEMP) ? TEMP_ : op1_reg), op2_reg);
+		}
 		break;
 	}
 	case DIV: {
@@ -363,11 +375,17 @@ void content(string funcname) {
 			emit_mips(2, "li", res_reg, to_string(res), "");
 			break;
 		}
-		string op1_reg = rp.apply_reg(curmc.op1, 1);
-		if (op1_reg == TEMP)
-			emit_mips(2, "move", TEMP_, op1_reg, "");
-		string op2_reg = rp.apply_reg(curmc.op2, 1);
-		emit_mips(3, "div", res_reg, ((op1_reg == TEMP) ? TEMP_ : op1_reg), op2_reg);
+		if (ISLNUM(curmc.op2)) {
+			string op1_reg = rp.apply_reg(curmc.op1, 1);
+			emit_mips(3, "div", res_reg, op1_reg, curmc.op2);
+		}
+		else {
+			string op1_reg = rp.apply_reg(curmc.op1, 1);
+			if (op1_reg == TEMP)
+				emit_mips(2, "move", TEMP_, op1_reg, "");
+			string op2_reg = rp.apply_reg(curmc.op2, 1);
+			emit_mips(3, "div", res_reg, ((op1_reg == TEMP) ? TEMP_ : op1_reg), op2_reg);
+		}
 		break;
 	}
 	case NEG: {
@@ -740,7 +758,7 @@ void mips_main() {
 	header();
 	while (mcptr < qtnry_ptr && curmc.op == SET) {
 		string funcname= curmc.op1;
-		emit_mips(0, (funcname == "main") ? "main" : "func_" + funcname, "", "", "");
+		emit_mips(0, funcname, "", "", "");
 		mcptr++;
 		function_handler(funcname);
 	}

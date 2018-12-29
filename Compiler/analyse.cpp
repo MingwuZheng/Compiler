@@ -24,14 +24,15 @@ void flush_graph::def_use_cal(int blkno, int mcno) {
 #define ISCONDITION(x) ((x==EQL)||(x==NEQ)||(x==GTR)||(x==LES)||(x==GEQ)||(x==LEQ))
 #define SETDEFUSE(part,des) do{\
 		if(midcodes[mcno].##part## != "" && !ISGLOBAL(midcodes[mcno].##part##) && !ISLCONST(midcodes[mcno].##part##)\
-	&& !ISMIDVAR(midcodes[mcno].##part##) && blocks[blkno].vars.find(midcodes[mcno].##part##) == blocks[blkno].vars.end()){\
-			blocks[blkno].vars.insert(midcodes[mcno].##part##);\
+	&& !ISMIDVAR(midcodes[mcno].##part##) && find(blocks[blkno].vars.begin(), blocks[blkno].vars.end(), midcodes[mcno].##part##) == blocks[blkno].vars.end()){\
+			blocks[blkno].vars.push_back(midcodes[mcno].##part##);\
 			blocks[blkno].##des##[var2idx(midcodes[mcno].##part##)] = true;}\
 		}while(0)
+	//blocks[blkno].vars.find(midcodes[mcno].##part##) == blocks[blkno].vars.end()
 	//将参数插入vars并置为def
 	if (blkno == 1) {
 		for (int i = 0; i < GTAB.ele(function)->var; i++) {
-			blocks[blkno].vars.insert(funcname2tab(function).ele(i)->name);
+			blocks[blkno].vars.push_back(funcname2tab(function).ele(i)->name);
 			blocks[blkno].def[i] = true;
 		}
 	}
@@ -163,13 +164,6 @@ void flush_graph::in_out_cal() {
 			}
 		}
 	}
-	//将分配了$a1~$a3寄存器的函数参数踢出in、out集合，不参与s寄存器分配
-	for (int b = 0; b < blocknum; b++) {
-		for (int i = 0; i < MAX_REG_PARA(function); i++) {
-			blocks[b].in[i] = false;
-			blocks[b].out[i] = false;
-		}
-	}
 }
 
 bool conflict_graph[TAB_MAX][TAB_MAX];
@@ -204,7 +198,7 @@ void flush_graph::global_var_cal() {
 	//默认in集合内冲突
 	for (int i = 0; i < blocknum; i++) {//遍历基本块
 		for (int j = 0; j < TAB_MAX; j++) {//遍历变量
-			if (blocks[i].in[j]) {
+			if (blocks[i].in[j] && j >= MAX_REG_PARA(function)) {
 				global_var.insert(varname(j));
 				for (int k = j + 1; k < TAB_MAX; k++) {
 					if (blocks[i].in[k] && j != k) {
@@ -217,20 +211,29 @@ void flush_graph::global_var_cal() {
 	}
 	//登记待分配块全局变量
 	for (int i = 0; i < TAB_MAX; i++) {
-		if (global_var.find(varname(i)) != global_var.end()) {
+		if (i >= MAX_REG_PARA(function) && global_var.find(varname(i)) != global_var.end()) {
 			available_index[i] = true;
 			vardic[i] = true;
 		}
 	}
-	//def内每个变量和in集合冲突
+	
+	//def内每个变量和in集合冲突(def在in之前时)
 	for (int i = 0; i < blocknum; i++) {//遍历基本块
 		for (int j = 0; j < TAB_MAX; j++) {//遍历变量
 			if (blocks[i].def[j] && vardic[j] && j >= MAX_REG_PARA(function)) {
-				//global_var.insert(varname(j));
 				for (int k = 0; k < TAB_MAX; k++) {
 					if (blocks[i].in[k] && k != j) {
-						conflict_graph[j][k] = true;
-						conflict_graph[k][j] = true;
+						vector<string>::iterator iter = blocks[i].vars.begin();
+						while (iter != blocks[i].vars.end()) {
+							if ((*iter) == varname(k))
+								break;
+							if ((*iter) == varname(j)) {
+								conflict_graph[j][k] = true;
+								conflict_graph[k][j] = true;
+								break;
+							}
+							iter++;
+						}						
 					}
 				}
 			}
@@ -352,14 +355,45 @@ void init_block() {
 			graphs[graph_ptr].gen_block(i, NONBLK);
 			graphs[graph_ptr].in_out_cal();
 			graphs[graph_ptr].global_var_cal();
+
 			graph_ptr++;
 		}
 	}
 	return;
 }
 
+map<string, vector<set<string>>>funcname2outtab;
+void call_dead_out_vars() {
+#define curblk graphs[i].blocks[j]
+#define varname(x) funcname2tab(graphs[i].function).ele(x)->name
+	for (int i = 0; i < graph_ptr; i++) {
+		vector<set<string>> outtabs;
+		for (int j = 0; j < graphs[i].blocknum; j++) {
+			for (int k = curblk.entrance; k <= curblk.exit; k++) {
+				if (midcodes[k].op == CALL) {
+					set<string> outvars;
+					for (set<string>::iterator iter = graphs[i].global_var.begin(); iter != graphs[i].global_var.end(); iter++) {
+						for (int outp = 0; outp < TAB_MAX; outp++) {
+							if (!curblk.out[outp] && varname(outp) == (*iter)) {
+								outvars.insert("$s" + to_string(graphs[i].gvar2sreg(*iter)));
+							}
+						}
+					}
+					for (int parap = 0; parap < MAX_REG_PARA(graphs[i].function); parap++) {
+						if (!curblk.out[parap])
+							outvars.insert("$a" + to_string(parap + 1));
+					}
+					outtabs.push_back(outvars);
+				}
+			}
+		}
+		funcname2outtab[graphs[i].function] = outtabs;
+	}
+}
+
+
 void analyse_main() {
 	init_block();
-
+	call_dead_out_vars();
 	return;
 }

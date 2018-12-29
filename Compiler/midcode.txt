@@ -1,178 +1,218 @@
-SET factorial  
+SET limit2char  
 ENTER   
-LEQ n 1 #1
-BZ $LABEL1 #1 
-RET 1  
-GOTO $LABEL2  
-SET $LABEL1  
-SUB n 1 #2
-PUSH #2 factorial 
-CALL factorial  #3
-MUL n #3 #4
-RET #4  
-SET $LABEL2  
-EXIT   
-SET mod  
-ENTER   
-DIV x y #1
-MUL #1 y #2
+DIV x 256 #1
+MUL #1 256 #2
 SUB x #2 #3
-BECOME #3  x
+RET #3  
+EXIT   
+SET M  
+ENTER   
+GTR 0 x #1
+BZ $LABEL1 #1 
+SET $LABEL2  
+ADD x m #2
+BECOME #2  x
+LES x 0 #3
+BNZ $LABEL2 #3 
+SET $LABEL1  
+SET $LABEL3  
+LES x m #4
+BZ $LABEL4 #4 
+RET x  
+GOTO $LABEL5  
+SET $LABEL4  
+DIV x m #5
+MUL #5 m #6
+SUB x #6 #7
+BECOME #7  x
+SET $LABEL5  
 RET x  
 EXIT   
-SET swap  
+SET randomSet  
 ENTER   
-PRINTS 0  
-PRINT x  
-PRINTS 1  
-PRINT y  
-BECOME x  temp
-BECOME y  x
-BECOME temp  y
-PRINTS 2  
-PRINT x  
-PRINTS 3  
-PRINT y  
+BECOME v  #1
+BECOME u  #2
+PUSH #1 M 
+PUSH #2 M 
+CALL M  #3
+ARYL s #3 #4
+BECOME #4  b
 EXIT   
-SET complete_num  
+SET normal  
 ENTER   
-BECOME val  j
-SET $LABEL3  
-BECOME -1  n
-BECOME j  s
-BECOME 1  i
-SET $LABEL4  
-DIV j i #1
-MUL #1 i #2
-BECOME #2  x1
-PUSH j mod 
-PUSH i mod 
-CALL mod  #3
-EQL #3 0 #4
-BZ $LABEL5 #4 
-ADD n 1 #5
-BECOME #5  n
-SUB s i #6
-BECOME #6  s
-GEQ n 128 #7
-BZ $LABEL6 #7 
-PRINTS 4  
+PUSH c limit2char 
+CALL limit2char  #1
+BECOME #1  c
+NEQ c 0 #2
+BZ $LABEL6 #2 
 GOTO $LABEL7  
 SET $LABEL6  
-ARYS n i k
-SET $LABEL7  
-SET $LABEL5  
+EQL c 0 #3
+BZ $LABEL8 #3 
+PUSH 36 normal 
+CALL normal  #4
+PUSH #4 limit2char 
+CALL limit2char  #5
+RET #5  
 SET $LABEL8  
-ADD i 1 #8
-BECOME #8  i
-LES i j #9
-BNZ $LABEL4 #9 
-EQL s 0 #10
-BZ $LABEL9 #10 
-PRINTS 5  
-PRINT j  
-BECOME 0  i
-SET $LABEL10  
-PRINTS 6  
-ARYL k i #11
-PRINT #11  
-ADD i 1 #12
-BECOME #12  i
-LEQ i n #13
-BNZ $LABEL10 #13 
-PRINTS 7  
 SET $LABEL9  
+SET $LABEL7  
+NEQ c 43 #6
+BZ $LABEL10 #6 
+CALL randomSet  #7
+SET $LABEL10  
 SET $LABEL11  
-ADD j 1 #14
-BECOME #14  j
-LES j 1024 #15
-BNZ $LABEL3 #15 
-PRINTS 8  
-BECOME 0  a
-BECOME 0  i
-SET $LABEL12  
-MUL a i #16
-BECOME #16  b
-MUL j n #17
-BECOME #17  c
-MUL a i #18
-BECOME #18  a
-ADD a b #19
-ADD #19 c #20
-BECOME #20  a
-ADD i 1 #21
-BECOME #21  i
-LES i 1024 #22
-BNZ $LABEL12 #22 
-BECOME a  b
-BECOME 0  i
+LES 47 c #8
+BZ $LABEL12 #8 
+LEQ c 57 #9
+BZ $LABEL13 #9 
+PUSH c limit2char 
+CALL limit2char  #10
+RET #10  
 SET $LABEL13  
-ADD b i #23
-BECOME #23  b
-ADD i 1 #24
-BECOME #24  i
-LES i 1024 #25
-BNZ $LABEL13 #25 
-PRINTS 9  
-PRINT b  
-PRINTS 8  
-BECOME 0  h
-BECOME 1  leap
-BECOME 2  m
 SET $LABEL14  
-DIV m 2 #26
-BECOME #26  k2
-BECOME 2  i
+SET $LABEL12  
 SET $LABEL15  
-DIV m i #27
-MUL #27 i #28
-BECOME #28  x2
-PUSH m mod 
-PUSH i mod 
-CALL mod  #29
-EQL #29 0 #30
-BZ $LABEL16 #30 
-BECOME 0  leap
+SUB c 32 #11
+PUSH #11 M 
+PUSH 95 M 
+CALL M  #12
+ADD #12 32 #13
+PUSH #13 limit2char 
+CALL limit2char  #14
+RET #14  
+EXIT   
+SET acc  
+ENTER   
+PUSH x M 
+PUSH 4 M 
+CALL M  #1
+PUSH x M 
+PUSH 4 M 
+CALL M  #2
+ARYL w #2 #3
+ADD #3 x #4
+ARYS #1 #4 w
+EXIT   
+SET f  
+ENTER   
+ADD y 0 #1
+PUSH #1 normal 
+CALL normal  #2
+BECOME #2  u
+PUSH u acc 
+CALL acc  #3
+MUL x 13 #4
+ADD #4 u #5
+PUSH #5 M 
+PUSH 100007 M 
+CALL M  #6
+RET #6  
+EXIT   
+SET hash  
+ENTER   
+BECOME u  #1
+LEQ #1 0 #2
+BZ $LABEL16 #2 
+RET   
 SET $LABEL16  
 SET $LABEL17  
-ADD i 1 #31
-BECOME #31  i
-LEQ i k2 #32
-BNZ $LABEL15 #32 
-EQL leap 1 #33
-BZ $LABEL18 #33 
-PRINTS 10  
-PRINT m  
-ADD h 1 #34
-BECOME #34  h
-DIV h 10 #35
-MUL #35 10 #36
-BECOME #36  x2
-EQL x2 h #37
-BZ $LABEL19 #37 
-PRINTS 7  
-SET $LABEL19  
-SET $LABEL20  
+BECOME seed  v
+BECOME 0  i
 SET $LABEL18  
-SET $LABEL21  
-BECOME 1  leap
-ADD m 1 #38
-BECOME #38  m
-LEQ m 1024 #39
-BNZ $LABEL14 #39 
-PRINTS 11  
-PRINT h  
+BECOME u  #3
+LES i #3 #4
+BZ $LABEL19 #4 
+BECOME v  #5
+ARYL s i #6
+PUSH #5 f 
+PUSH #6 f 
+CALL f  #7
+BECOME #7  v
+ADD i 1 #8
+BECOME #8  i
+GOTO $LABEL18  
+SET $LABEL19  
 EXIT   
 SET main  
 ENTER   
-PUSH 10 factorial 
-CALL factorial  #1
-BECOME #1  n
-PRINTS 12  
-PRINT n  
-PUSH 5 swap 
-PUSH 10 swap 
-CALL swap  #2
-PUSH 2 complete_num 
-CALL complete_num  #3
+BECOME 0  u
+PUSH 391 hash 
+CALL hash  #1
+SCAN u  
+BECOME 0  i
+SET $LABEL20  
+BECOME u  #2
+LES i #2 #3
+BZ $LABEL21 #3 
+SCANC p  
+ARYS i p s
+ADD i 1 #4
+BECOME #4  i
+GOTO $LABEL20  
+SET $LABEL21  
+PUSH -20 M 
+PUSH 2 M 
+CALL M  #5
+BECOME #5  i
+PUSH 1 M 
+PUSH 2 M 
+CALL M  #6
+BECOME #6  i
+PUSH 3 M 
+PUSH 2 M 
+CALL M  #7
+BECOME #7  i
+PUSH 0 normal 
+CALL normal  #8
+BECOME #8  c
+PUSH 43 normal 
+CALL normal  #9
+BECOME #9  c
+PUSH 47 normal 
+CALL normal  #10
+BECOME #10  c
+PUSH 49 normal 
+CALL normal  #11
+BECOME #11  c
+BECOME u  #12
+PRINT #12  
+PRINTS 0  
+BECOME u  #13
+SUB #13 1 #14
+BECOME #14  i
+SET $LABEL22  
+GEQ i 0 #15
+BZ $LABEL23 #15 
+ARYL s i #16
+BECOME #16  c
+ARYL s i #17
+PRINTC #17  
+SUB i 1 #18
+BECOME #18  i
+GOTO $LABEL22  
+SET $LABEL23  
+PUSH 391 hash 
+CALL hash  #19
+PRINTS 1  
+BECOME v  #20
+PRINT #20  
+BECOME b  #21
+ADD #21 0 #22
+PUSH #22 normal 
+CALL normal  #23
+BECOME #23  c
+PRINTS 2  
+PRINT c  
+BECOME 0  i
+SET $LABEL24  
+LES i 4 #24
+BZ $LABEL25 #24 
+PRINTS 0  
+ARYL w i #25
+PRINT #25  
+ADD i 1 #26
+BECOME #26  i
+GOTO $LABEL24  
+SET $LABEL25  
 EXIT   

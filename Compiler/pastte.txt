@@ -1,11 +1,262 @@
-int max_index = -1, max = -1;
-			for (int i = 0; i < TAB_MAX; i++) {//找到第一个连接边数目小于SREG_NUM的节点
-				if (available_index[i] && degrees[i] < SREG_NUM && degrees[i] > max) {
-					max_index = i;
-					max = degrees[i];
-				}
-			}
-			if (max != -1) {
-				flag = true;
-				remove_vertex(max_index);
-			}
+.data   
+$string: .asciiz " x = \0\0 y = \0\0 SWAP x = \0\0 SWAP y = \0\0 OVERFLOW!          \0\0 complete number: \0\0  \0\0          \0\0 ---------------------------------------------------------------          \0\0 b = \0\0 ---------------------------------------------------------------          \0\0 \0\0          \0\0          The total is \0\0 10! = \0\0" 
+.text   
+li $fp 0x7fffeffc 
+addiu $sp $fp -328
+j main  
+FUNC_factorial:   
+move $s0 $a0 
+bgt $s0 1 $LABEL0
+li $v0 1 
+jr $ra  
+$LABEL0:   
+addiu $t7 $s0 -1
+move $a0 $t7 
+sw $s0 -68($sp)
+sw $31 -128($sp)
+move $fp $sp 
+addiu $sp $fp -152
+jal FUNC_factorial  
+lw $s0 -68($fp)
+lw $31 -128($fp)
+move $sp $fp 
+addiu $fp $sp 152
+move $t7 $v0 
+mul $v0 $s0 $t7
+jr $ra  
+$LABEL1:   
+li $v0 0 
+jr $ra  
+FUNC_mod:   
+div $t5 $a1 $a2
+mul $t4 $t5 $a2
+subu $v0 $a1 $t4
+jr $ra  
+FUNC_swap:   
+li $v0 4 
+li $a0 268500992 
+syscall   
+li $v0 1 
+move $a0 $a1 
+syscall   
+li $v0 4 
+li $a0 268500999 
+syscall   
+li $v0 1 
+move $a0 $a2 
+syscall   
+move $t3 $a1 
+move $a1 $a2 
+move $a2 $t3 
+li $v0 4 
+li $a0 268501006 
+syscall   
+li $v0 1 
+move $a0 $a1 
+syscall   
+li $v0 4 
+li $a0 268501018 
+syscall   
+li $v0 1 
+move $a0 $a2 
+syscall   
+jr $ra  
+FUNC_complete_num:   
+lw $t2 0($fp)
+move $s4 $t2 
+$LABEL2:   
+li $s3 -1 
+move $s1 $s4 
+li $s0 1 
+$LABEL3:   
+move $a1 $s4 
+move $a2 $s0 
+sw $s0 -72($sp)
+sw $s1 -76($sp)
+sw $s2 -80($sp)
+sw $s3 -84($sp)
+sw $s4 -88($sp)
+sw $31 -132($sp)
+move $fp $sp 
+addiu $sp $fp -148
+jal FUNC_mod  
+lw $s0 -72($fp)
+lw $s1 -76($fp)
+lw $s2 -80($fp)
+lw $s3 -84($fp)
+lw $s4 -88($fp)
+lw $31 -132($fp)
+move $sp $fp 
+addiu $fp $sp 872
+move $t1 $v0 
+bne $t1 $0 $LABEL4
+addiu $s3 $s3 1
+subu $s1 $s1 $s0
+blt $s3 128 $LABEL6
+li $v0 4 
+li $a0 268501030 
+syscall   
+j $LABEL7  
+$LABEL6:   
+sll $t8 $s3 2
+addiu $t8 $t8 4
+subu $t8 $fp $t8
+sw $s0 0($t8)
+$LABEL7:   
+$LABEL4:   
+addiu $s0 $s0 1
+blt $s0 $s4 $LABEL3
+bne $s1 $0 $LABEL8
+li $v0 4 
+li $a0 268501052 
+syscall   
+li $v0 1 
+move $a0 $s4 
+syscall   
+li $s0 0 
+$LABEL10:   
+li $v0 4 
+li $a0 268501072 
+syscall   
+sll $t8 $s0 2
+addiu $t8 $t8 4
+subu $t8 $fp $t8
+lw $t0 0($t8)
+li $v0 1 
+move $a0 $t0 
+syscall   
+addiu $s0 $s0 1
+ble $s0 $s3 $LABEL10
+li $v0 4 
+li $a0 268501076 
+syscall   
+$LABEL8:   
+addiu $s4 $s4 1
+blt $s4 1024 $LABEL2
+li $v0 4 
+li $a0 268501088 
+syscall   
+li $s2 0 
+li $s0 0 
+$LABEL11:   
+mul $s1 $s2 $s0
+mul $t7 $s4 $s3
+mul $s2 $s2 $s0
+addu $t6 $s2 $s1
+addu $s2 $t6 $t7
+addiu $s0 $s0 1
+blt $s0 1024 $LABEL11
+move $s1 $s2 
+li $s0 0 
+$LABEL12:   
+addu $s1 $s1 $s0
+addiu $s0 $s0 1
+blt $s0 1024 $LABEL12
+li $v0 4 
+li $a0 268501164 
+syscall   
+li $v0 1 
+move $a0 $s1 
+syscall   
+li $v0 4 
+li $a0 268501171 
+syscall   
+li $s2 0 
+li $s1 1 
+li $s4 2 
+$LABEL13:   
+div $s3 $s4 2
+li $s0 2 
+$LABEL14:   
+move $a1 $s4 
+move $a2 $s0 
+sw $s0 -72($sp)
+sw $s1 -76($sp)
+sw $s2 -80($sp)
+sw $s3 -84($sp)
+sw $s4 -88($sp)
+sw $31 -132($sp)
+move $fp $sp 
+addiu $sp $fp -148
+jal FUNC_mod  
+lw $s0 -72($fp)
+lw $s1 -76($fp)
+lw $s2 -80($fp)
+lw $s3 -84($fp)
+lw $s4 -88($fp)
+lw $31 -132($fp)
+move $sp $fp 
+addiu $fp $sp 872
+move $t5 $v0 
+bne $t5 $0 $LABEL15
+li $s1 0 
+$LABEL15:   
+addiu $s0 $s0 1
+ble $s0 $s3 $LABEL14
+bne $s1 1 $LABEL17
+li $v0 4 
+li $a0 268501247 
+syscall   
+li $v0 1 
+move $a0 $s4 
+syscall   
+addiu $s2 $s2 1
+div $t4 $s2 10
+mul $t3 $t4 10
+bne $t3 $s2 $LABEL19
+li $v0 4 
+li $a0 268501250 
+syscall   
+$LABEL19:   
+$LABEL17:   
+li $s1 1 
+addiu $s4 $s4 1
+ble $s4 1024 $LABEL13
+li $v0 4 
+li $a0 268501262 
+syscall   
+li $v0 1 
+move $a0 $s2 
+syscall   
+jr $ra  
+main:   
+li $a0 10 
+sw $31 -128($sp)
+move $fp $sp 
+addiu $sp $fp -152
+jal FUNC_factorial  
+lw $31 -128($fp)
+move $sp $fp 
+addiu $fp $sp 328
+move $t2 $v0 
+move $t1 $t2 
+li $v0 4 
+li $a0 268501287 
+syscall   
+li $v0 1 
+move $a0 $t1 
+syscall   
+li $a1 5 
+li $a2 10 
+sw $9 -48($sp)
+sw $31 -136($sp)
+move $fp $sp 
+addiu $sp $fp -140
+jal FUNC_swap  
+lw $9 -48($fp)
+lw $31 -136($fp)
+move $sp $fp 
+addiu $fp $sp 328
+li $t8 2 
+sw $t8 0($sp)
+sw $9 -604($sp)
+sw $31 -692($sp)
+move $fp $sp 
+addiu $sp $fp -872
+jal FUNC_complete_num  
+lw $9 -604($fp)
+lw $31 -692($fp)
+move $sp $fp 
+addiu $fp $sp 328
+li $v0 10 
+syscall 

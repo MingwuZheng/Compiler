@@ -19,7 +19,7 @@ public:
 	int prenum;
 	int pres[BLOCKMAX];
 
-	set<string> vars;
+	vector<string> vars;
 	bool use[TAB_MAX];
 	bool def[TAB_MAX];
 
