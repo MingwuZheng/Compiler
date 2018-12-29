@@ -5,7 +5,8 @@
 #define FUNC_BEGIN(x) (IS_LABEL(x) && (x).op[0] != '$')
 #define BLOCK_END(x) ((x).op == "beq"||(x).op == "bne"||(x).op == "bgt"||(x).op == "bge"||(x).op == "blt"||(x).op == "ble"||(x).op == "j"||(x).op == "jr"||IS_LABEL(x))//没有jal
 #define REG_USE(name, mp) ((mp).paranum > 1 && (name == (mp).op2 || name == (mp).op3 || ((mp).op == "sw" && name == (mp).op1)))
-#define REG_DEF(name, mp) ((((mp).op != "sw" && name == (mp).op1) && !((mp).op == "lw" && (mp).calling)) || ((mp).op == "syscall" && name == "$v0"))
+#define REG_DEF(name, mp) (!(BLOCK_END((mp))) && ((((mp).op != "sw" && name == (mp).op1) && !((mp).op == "lw" && (mp).calling)) || ((mp).op == "syscall" && name == "$v0")))
+#define STACK_PART(mp) (((mp).op == "sw" || (mp).op == "lw") && (mp).calling)
 //syscall改变$v0
 //j类指令一个参数
 //li、la和move两个参数
@@ -45,7 +46,7 @@ void copy_propagation() {
 			pointer = iter;
             for (temp = iter + 1; temp != mipscodes.end() && !BLOCK_END(*temp); temp++) {
 				debugt = temp - mipscodes.begin();
-				if (REG_USE(des, *temp)) {
+				if (REG_USE(des, *temp) && !(STACK_PART(*temp))) {
 					REPLACE(src, des, *temp);
 				}
 				if (REG_DEF(des, *temp))
@@ -62,18 +63,94 @@ void copy_propagation() {
 				(*temp).op1 = ((*temp).op1 == des) ? src : (*temp).op1;
 				(*temp).op2 = ((*temp).op2 == des) ? src : (*temp).op2;
 			}
-			if (delete_flag)
+			if (delete_flag) {
+				int steps = temp - pointer - 1;
+				for (vector<mips_code>::iterator d = pointer + 1; steps > 0; steps--) {
+					if (STACK_PART(*d) && (*d).op1 == des)
+						d = mipscodes.erase(d);
+					else d++;
+				}
 				iter = mipscodes.erase(pointer);
+			}
 			else iter++;
 		}
 		else iter++;
 	}
 }
 
+void stack_decrease() {
+	for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
+		if ((*iter).calling && (*iter).op == "sw" && (*iter).op1[1] == 't') {
+			string treg = (*iter).op1;
+			bool delete_sl = true;
+			vector<mips_code>::iterator guard = iter;
+			while ((*guard).calling)guard++;
+			while (guard!=mipscodes.end() && !BLOCK_END(*guard)) {
+				if (REG_USE(treg, *guard) && !(*guard).calling) {
+					delete_sl = false;
+					break;
+				}
+				if (REG_DEF(treg, *guard))
+					break;
+				guard++;
+			}
+			if (guard != mipscodes.end() && BLOCK_END(*guard)) {
+				if ((*guard).op1 == treg || (*guard).op2 == treg)
+					delete_sl = false;
+			}
+			if (delete_sl) {
+				for (vector<mips_code>::iterator d = iter + 1; (*d).calling;) {
+					if ((*d).op == "lw" && (*d).op1 == treg) {
+						d = mipscodes.erase(d);
+						break;
+					}
+					else d++;
+				}
+				iter = mipscodes.erase(iter);
+			}
+			else iter++;
+		}
+		else iter++;
+	}
+}
 
+bool block_dce() {
+	bool continue_delete = false;
+	for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
+		if ((*iter).op != "sw" && (*iter).paranum > 1 && (*iter).op1[1] == 't' && !(*iter).calling && !BLOCK_END(*iter)) {
+			string treg = (*iter).op1;
+			bool delete_dc = true;
+			vector<mips_code>::iterator guard = iter + 1;
+			while (guard != mipscodes.end() && !BLOCK_END(*guard)) {
+				if (REG_USE(treg, *guard) && !STACK_PART(*guard)) {
+					delete_dc = false;
+					break;
+				}
+				if (REG_DEF(treg, *guard))
+					break;
+				guard++;
+			}
+			if (guard != mipscodes.end() && BLOCK_END(*guard)) {
+				if ((*guard).op1 == treg || (*guard).op2 == treg)
+					delete_dc = false;
+			}
+			if (delete_dc) {
+				iter = mipscodes.erase(iter);
+				continue_delete = true;
+			}
+			else iter++;
+		}
+		else iter++;
+	}
+	return continue_delete;
+}
 
 void mips_optimize() {
+	
+	if (!SAFE_MODE) {
+		copy_propagation();
+		stack_decrease();
+		while(block_dce());
+	}
 	folding();
-	if (SAFE_MODE) return;
-	copy_propagation();
 }

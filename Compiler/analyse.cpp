@@ -116,6 +116,8 @@ int flush_graph::gen_block(int pos, int preblk) {
 	return curblk;
 }
 
+
+
 bool is_set_equal(bool* a, bool* b) {
 	for (int i = 0; i < TAB_MAX; i++) {
 		if (a[i] != b[i]) {
@@ -192,8 +194,12 @@ void flush_graph::global_var_cal() {
 		for (int j = 0; j < TAB_MAX; j++)
 			conflict_graph[i][j] = false;
 	}
-	for (int j = 0; j < TAB_MAX; j++)
+	for (int j = 0; j < TAB_MAX; j++) {
 		available_index[j] = false;
+		vardic[j] = false;
+		degrees[j] = 0;
+
+	}
 	//构建冲突图
 	//默认in集合内冲突
 	for (int i = 0; i < blocknum; i++) {//遍历基本块
@@ -201,34 +207,7 @@ void flush_graph::global_var_cal() {
 			if (blocks[i].in[j]) {
 				global_var.insert(varname(j));
 				for (int k = j + 1; k < TAB_MAX; k++) {
-					if (blocks[i].in[k]) {
-						conflict_graph[j][k] = true;
-						conflict_graph[k][j] = true;
-					}
-				}
-			}
-		}
-	}
-	//def内每个变量和in集合冲突
-	for (int i = 0; i < blocknum; i++) {//遍历基本块
-		for (int j = 0; j < TAB_MAX; j++) {//遍历变量
-			if (blocks[i].def[j] && j >= MAX_REG_PARA(function)) {
-				//global_var.insert(varname(j));
-				for (int k = 0; k < TAB_MAX; k++) {
-					if (blocks[i].in[k] && k != j) {
-						conflict_graph[j][k] = true;
-						conflict_graph[k][j] = true;
-					}
-				}
-			}
-		}
-	}
-	//def内每个变量冲突
-	for (int i = 0; i < blocknum; i++) {//遍历基本块
-		for (int j = 0; j < TAB_MAX; j++) {//遍历变量
-			if (blocks[i].def[j] && j >= MAX_REG_PARA(function)) {
-				for (int k = 0; k < TAB_MAX; k++) {
-					if (blocks[i].def[k] && k >= MAX_REG_PARA(function)) {
+					if (blocks[i].in[k] && j != k) {
 						conflict_graph[j][k] = true;
 						conflict_graph[k][j] = true;
 					}
@@ -243,12 +222,42 @@ void flush_graph::global_var_cal() {
 			vardic[i] = true;
 		}
 	}
+	//def内每个变量和in集合冲突
+	for (int i = 0; i < blocknum; i++) {//遍历基本块
+		for (int j = 0; j < TAB_MAX; j++) {//遍历变量
+			if (blocks[i].def[j] && vardic[j] && j >= MAX_REG_PARA(function)) {
+				//global_var.insert(varname(j));
+				for (int k = 0; k < TAB_MAX; k++) {
+					if (blocks[i].in[k] && k != j) {
+						conflict_graph[j][k] = true;
+						conflict_graph[k][j] = true;
+					}
+				}
+			}
+		}
+	}
+	//def内每个变量冲突
+	for (int i = 0; i < blocknum; i++) {//遍历基本块
+		for (int j = 0; j < TAB_MAX; j++) {//遍历变量
+			if (blocks[i].def[j] && vardic[j] && j >= MAX_REG_PARA(function)) {
+				for (int k = 0; k < TAB_MAX; k++) {
+					if (blocks[i].def[k] && vardic[k] && k >= MAX_REG_PARA(function) && j != k) {
+						conflict_graph[j][k] = true;
+						conflict_graph[k][j] = true;
+					}
+				}
+			}
+		}
+	}
+	
 	//计算度数
 	for (int i = 0; i < TAB_MAX; i++) {
 		if (vardic[i]) {
 			int degree = 0;
-			for (int j = 0; j < TAB_MAX; j++)
-				degree += conflict_graph[i][j];
+			for (int j = 0; j < TAB_MAX; j++) {
+				if (vardic[j] && i != j)
+					degree += conflict_graph[i][j];
+			}
 			degrees[i] = degree;
 		}
 	}
@@ -259,11 +268,16 @@ void flush_graph::global_var_cal() {
 		bool flag = false;
 		do {
 			flag = false;
+			int max_index = -1, max = -1;
 			for (int i = 0; i < TAB_MAX; i++) {//找到第一个连接边数目小于SREG_NUM的节点
-				if (available_index[i] && degrees[i] < SREG_NUM) {
-					flag = true;
-					remove_vertex(i);
+				if (available_index[i] && degrees[i] < SREG_NUM && degrees[i] > max) {
+					max_index = i;
+					max = degrees[i];
 				}
+			}
+			if (max != -1) {
+				flag = true;
+				remove_vertex(max_index);
 			}
 		} while (flag);
 		for (int i = 0; i < TAB_MAX; i++) {
@@ -283,7 +297,7 @@ void flush_graph::global_var_cal() {
 	//着色
 	while (!vertexs.empty()) {
 		int varnum = vertexs.top();
-		for (int color = 0; color < 8; color++) {
+		for (int color = 0; color < SREG_NUM; color++) {
 			//判断能否按照color着色
 			bool colorable = true;
 			for (int j = 0; j < TAB_MAX; j++) {
@@ -334,6 +348,7 @@ void init_block() {
 	for (int i = 0; i < qtnry_num; i++) {
 		if (midcodes[i].op == SET && IS_FUN_LABEL(midcodes[i].op1)) {
 			graphs[graph_ptr].function = midcodes[i].op1;
+			pos2blk.erase(-1);
 			graphs[graph_ptr].gen_block(i, NONBLK);
 			graphs[graph_ptr].in_out_cal();
 			graphs[graph_ptr].global_var_cal();

@@ -153,6 +153,9 @@
     <ClCompile Include="mips.cpp" />
     <ClCompile Include="optimize_midcode.cpp" />
     <ClCompile Include="optimize_mips.cpp" />
+    <Text Include="pastte.txt">
+      <FileType>CppCode</FileType>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="analyse.h" />

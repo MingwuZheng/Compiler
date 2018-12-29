@@ -130,6 +130,9 @@
     <Text Include="Sample4Opt-1-dowhile.txt">
       <Filter>资源文件</Filter>
     </Text>
+    <Text Include="pastte.txt">
+      <Filter>资源文件</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="mips.asm">

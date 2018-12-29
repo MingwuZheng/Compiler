@@ -1,0 +1,11 @@
+int max_index = -1, max = -1;
+			for (int i = 0; i < TAB_MAX; i++) {//找到第一个连接边数目小于SREG_NUM的节点
+				if (available_index[i] && degrees[i] < SREG_NUM && degrees[i] > max) {
+					max_index = i;
+					max = degrees[i];
+				}
+			}
+			if (max != -1) {
+				flag = true;
+				remove_vertex(max_index);
+			}

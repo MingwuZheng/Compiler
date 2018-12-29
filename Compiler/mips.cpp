@@ -234,8 +234,8 @@ void call_handler() {
 	}
 	string retvar = midcodes[mcptr].result;
 	//跳转前处理$sp、$fp，为函数申请空间
-	emit_mips(3, "subu", "$sp", "$fp", to_string(REGS_OFFSET + funcsize));
-	emit_mips(3, "subu", "$fp", "$sp", to_string(4 * func_midvars[funcname]));
+	emit_mips(3, "addiu", "$sp", "$fp", to_string(-(REGS_OFFSET + funcsize)));
+	emit_mips(3, "addiu", "$fp", "$sp", to_string(-4 * func_midvars[funcname]));
 	//跳转
 	emit_mips(1, "jal", (funcname == "main") ? "main" : "func_" + funcname, "", "");
 	//将通用寄存器弹出
@@ -327,11 +327,17 @@ void content(string funcname) {
 			emit_mips(2, "li", res_reg, to_string(res), "");
 			break;
 		}
-		string op1_reg = rp.apply_reg(curmc.op1, 1);
-		if (op1_reg == TEMP)
-			emit_mips(2, "move", TEMP_, op1_reg, "");
-		string op2_reg = rp.apply_reg(curmc.op2, 1);
-		emit_mips(3, "subu", res_reg, ((op1_reg == TEMP) ? TEMP_ : op1_reg), op2_reg);
+		if (ISLNUM(curmc.op2)) {
+			string op1_reg = rp.apply_reg(curmc.op1, 1);
+			emit_mips(3, "addiu", res_reg, op1_reg, to_string(-stoi(curmc.op2)));
+		}
+		else {
+			string op1_reg = rp.apply_reg(curmc.op1, 1);
+			if (op1_reg == TEMP)
+				emit_mips(2, "move", TEMP_, op1_reg, "");
+			string op2_reg = rp.apply_reg(curmc.op2, 1);
+			emit_mips(3, "subu", res_reg, ((op1_reg == TEMP) ? TEMP_ : op1_reg), op2_reg);
+		}
 		break;
 	}
 	case MUL: {
@@ -684,8 +690,8 @@ void header() {
 		mips_f << "    $string" << i << ":" << " .asciiz" << " \"" << transform(const_strings[i]) << "\"" << endl;
 	mips_f << ".text" << endl;
 	int mainsize = symtabs[GTAB.ele("main")->addr].filledsize;
-	mips_f << "    subu " << "$sp,$sp," << REGS_OFFSET + mainsize << endl;
-	mips_f << "    subu " << "$fp,$sp" << "," << 4 * func_midvars["main"] << endl;
+	mips_f << "    addiu " << "$sp,$sp," << -(REGS_OFFSET + mainsize) << endl;
+	mips_f << "    addiu " << "$fp,$sp" << "," << -4 * func_midvars["main"] << endl;
 	mips_f << "    j main" << endl;
 }
 
