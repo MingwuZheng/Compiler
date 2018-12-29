@@ -364,27 +364,27 @@ void init_block() {
 
 map<string, vector<set<string>>>funcname2outtab;
 void call_dead_out_vars() {
-#define curblk graphs[i].blocks[j]
+#define curblk graphs[i].blocks[pos2blk[k]]
 #define varname(x) funcname2tab(graphs[i].function).ele(x)->name
 	for (int i = 0; i < graph_ptr; i++) {
 		vector<set<string>> outtabs;
-		for (int j = 0; j < graphs[i].blocknum; j++) {
-			for (int k = curblk.entrance; k <= curblk.exit; k++) {
-				if (midcodes[k].op == CALL) {
-					set<string> outvars;
-					for (set<string>::iterator iter = graphs[i].global_var.begin(); iter != graphs[i].global_var.end(); iter++) {
-						for (int outp = 0; outp < TAB_MAX; outp++) {
-							if (!curblk.out[outp] && varname(outp) == (*iter)) {
-								outvars.insert("$s" + to_string(graphs[i].gvar2sreg(*iter)));
-							}
+		//for (int j = 0; j < graphs[i].blocknum; j++) {
+			//for (int k = curblk.entrance; k <= curblk.exit; k++) {
+		for (int k = graphs[i].blocks[0].entrance + 1; !(midcodes[k].op == SET && IS_FUN_LABEL(midcodes[k].op1)); k++) {
+			if (midcodes[k].op == CALL) {
+				set<string> outvars;
+				for (set<string>::iterator iter = graphs[i].global_var.begin(); iter != graphs[i].global_var.end(); iter++) {
+					for (int outp = 0; outp < TAB_MAX; outp++) {
+						if (!curblk.out[outp] && varname(outp) == (*iter)) {
+							outvars.insert("$s" + to_string(graphs[i].gvar2sreg(*iter)));
 						}
 					}
-					for (int parap = 0; parap < MAX_REG_PARA(graphs[i].function); parap++) {
-						if (!curblk.out[parap])
-							outvars.insert("$a" + to_string(parap + 1));
-					}
-					outtabs.push_back(outvars);
 				}
+				for (int parap = 0; parap < MAX_REG_PARA(graphs[i].function); parap++) {
+					if (!curblk.out[parap])
+						outvars.insert("$a" + to_string(parap + 1));
+				}
+				outtabs.push_back(outvars);
 			}
 		}
 		funcname2outtab[graphs[i].function] = outtabs;

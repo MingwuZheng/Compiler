@@ -101,7 +101,7 @@ void stack_decrease() {
 			vector<mips_code>::iterator guard = iter;
 			while ((*guard).calling)guard++;
 			while (guard != mipscodes.end() && !BLOCK_END(*guard)) {
-				if (REG_USE(treg, *guard) && !(*guard).calling) {
+				if (REG_USE(treg, *guard) && !STACK_PART(*guard)) {
 					delete_sl = false;
 					break;
 				}
@@ -143,11 +143,11 @@ void stack_decrease() {
 			vector<mips_code>::iterator guard = iter;
 			while ((*guard).calling)guard++;
 			while (guard != mipscodes.end() && !BLOCK_END(*guard)) {
-				if (REG_USE(sreg, *guard) && !(*guard).calling) {
+				if (REG_USE(sreg, *guard) && !STACK_PART(*guard)) {
 					delete_sl = false;
 					break;
 				}
-				if (REG_DEF(sreg, *guard))
+				if (REG_DEF(sreg, *guard) && !(*guard).calling)
 					break;
 				guard++;
 			}

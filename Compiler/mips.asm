@@ -61,13 +61,11 @@ beq $a1,$0,$LABEL6
 j $LABEL7
 $LABEL6:
 bne $a1,$0,$LABEL8
-sw $a1,-28($fp)
 sw $ra,-132($fp)
 li $a1,36
 addiu $sp,$fp,-132
 addiu $fp,$sp,-56
 jal normal
-lw $a1,104($sp)
 lw $ra,0($sp)
 addiu $fp,$fp,188
 addiu $sp,$sp,188
@@ -85,10 +83,12 @@ $LABEL9:
 $LABEL7:
 li $t9,43
 beq $a1,$t9,$LABEL10
+sw $a1,-24($fp)
 sw $ra,-128($fp)
 addiu $sp,$fp,-128
 addiu $fp,$sp,-16
 jal randomSet
+lw $a1,104($sp)
 lw $ra,0($sp)
 addiu $fp,$fp,144
 addiu $sp,$sp,184
@@ -131,11 +131,13 @@ addiu $fp,$fp,144
 addiu $sp,$sp,188
 jr $ra
 acc:
+sw $a1,-32($fp)
 sw $ra,-136($fp)
 li $a2,4
 addiu $sp,$fp,-136
 addiu $fp,$sp,-28
 jal M
+lw $a1,104($sp)
 lw $ra,0($sp)
 addiu $fp,$fp,164
 addiu $sp,$sp,152
@@ -160,11 +162,13 @@ addu $v1,$v1,$t9
 sw $t3,0($v1)
 jr $ra
 f:
+sw $a1,-28($fp)
 sw $ra,-132($fp)
 move $a1,$a2
 addiu $sp,$fp,-132
 addiu $fp,$sp,-56
 jal normal
+lw $a1,104($sp)
 lw $ra,0($sp)
 addiu $fp,$fp,188
 addiu $sp,$sp,156
