@@ -1,8 +1,11 @@
 int x;
-int add(){
-	x=x+1;
-	return (x);
-}
 void main(){
-	printf(x+add());
+	int a,b,c;
+	c=1;
+	if(c==0)c=c+2;
+	x=1;
+	a=x+2+3+4;
+	printf(a*5/5);
+	b=a-7;
+	c=c+3;
 }

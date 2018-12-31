@@ -14,6 +14,7 @@ int mcptr = 0;
 bool calling = false;
 
 int var2offset(string var, bool *sp);
+bool is_entrance(int pos);
 void call_handler();
 void emit_mips(int, string, string, string, string);
 class reg_pool {
@@ -681,10 +682,9 @@ void content(string funcname) {
 	}
 	*/
 	while (midcodes[mcptr].op != EXIT) {
-		for (int i = 0; i < curgraph.blocknum; i++) {//如果是一个基本块的开始，清空寄存器池
-			if (mcptr == curgraph.blocks[i].entrance)
-				rp.flush();
-		}
+		//如果是一个基本块的开始，清空寄存器池
+		if (is_entrance(mcptr))
+			rp.flush();
 		content(name);
 	}
 	if (name != "main")

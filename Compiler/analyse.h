@@ -3,11 +3,11 @@
 #define SREG_NUM 8
 
 #define NONBLK -1
-#define IS_FUN_LABEL(x) (x[0] != '$')
-#define ISMIDVAR(x) (x[0] == '#')
+#define IS_FUN_LABEL(x) (x != "" && ##x##[0] != '$')
+#define ISMIDVAR(x) ((x) != "" && ##x##[0] == '#')
 #define MID2NUM(x) (stoi(x.erase(0)))
 #define ISGLOBAL(x) (GTAB.ele(x) != NULL)
-#define ISLCONST(x) (x[0] == '\'' || (((x[0] >= '0') && (x[0] <= '9')) || x[0] == '+' || x[0] == '-'))
+#define ISLCONST(x) (x != "" && (x[0] == '\'' || (((x[0] >= '0') && (x[0] <= '9')) || x[0] == '+' || x[0] == '-')))
 #define var2idx(x) symtabs[GTAB.ele(function)->addr].index(x) //function是flush_graph类的成员
 class block {
 public:

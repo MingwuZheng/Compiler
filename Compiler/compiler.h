@@ -9,10 +9,11 @@
 #include<iomanip>
 #include<vector>
 #include <iterator>
+#include <algorithm>
 
 
-#define ISLNUM(x) (((x[0] >= '0') && (x[0] <= '9')) || x[0] == '+' || x[0] == '-')
-#define ISLCHAR(x) (x[0] == '\'')
+#define ISLNUM(x) (x != "" && (((x[0] >= '0') && (x[0] <= '9')) || x[0] == '+' || x[0] == '-'))
+#define ISLCHAR(x) (x != "" && x[0] == '\'')
 #define ISLITERAL(x) (ISLNUM(x) || ISLCHAR(x))
 
 #define INTEGER_MAX 4294967295
@@ -101,3 +102,5 @@ extern set<string> key;//¹Ø¼ü×Ö
 extern symTab symtabs[];
 extern vector<string> const_strings;
 extern quaternary midcodes[];
+
+int literal2int(string literal_con);

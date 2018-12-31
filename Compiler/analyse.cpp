@@ -30,12 +30,14 @@ void flush_graph::def_use_cal(int blkno, int mcno) {
 		}while(0)
 	//blocks[blkno].vars.find(midcodes[mcno].##part##) == blocks[blkno].vars.end()
 	//将参数插入vars并置为def
+	/*
 	if (blkno == 1) {
 		for (int i = 0; i < GTAB.ele(function)->var; i++) {
 			blocks[blkno].vars.push_back(funcname2tab(function).ele(i)->name);
 			blocks[blkno].def[i] = true;
 		}
 	}
+	*/
 	qtnry_operator oper;
 	oper = midcodes[mcno].op;
 	if (ISCALOP(oper)) {
@@ -370,7 +372,7 @@ void call_dead_out_vars() {
 		vector<set<string>> outtabs;
 		//for (int j = 0; j < graphs[i].blocknum; j++) {
 			//for (int k = curblk.entrance; k <= curblk.exit; k++) {
-		for (int k = graphs[i].blocks[0].entrance + 1; !(midcodes[k].op == SET && IS_FUN_LABEL(midcodes[k].op1)); k++) {
+		for (int k = graphs[i].blocks[0].entrance + 1; k < qtnry_ptr && !(midcodes[k].op == SET && IS_FUN_LABEL(midcodes[k].op1)); k++) {
 			if (midcodes[k].op == CALL) {
 				set<string> outvars;
 				for (set<string>::iterator iter = graphs[i].global_var.begin(); iter != graphs[i].global_var.end(); iter++) {

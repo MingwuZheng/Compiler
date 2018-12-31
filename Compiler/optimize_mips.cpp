@@ -45,6 +45,27 @@ void folding() {
 		}
 		iter++;
 	}
+
+	vector<mips_code>::iterator i, temp;
+	for (i = mipscodes.begin(); i != mipscodes.end();) {
+		bool delete_goto = false;
+		if ((*i).op == "j") {
+			temp = i + 1;
+			string taget_label = (*i).op1;
+			while (IS_LABEL(*temp)) {
+				if ((*temp).op == taget_label) {
+					delete_goto = true;
+					break;
+				}
+				temp++;
+			}
+			if (delete_goto)
+				i = mipscodes.erase(i);
+			else i++;
+		}
+		else i++;
+	}
+
 }
 
 void copy_propagation() {
@@ -74,7 +95,7 @@ void copy_propagation() {
 					break;
 				}
 			}
-			if (BLOCK_END(*temp) && ((*temp).op1 == des || (*temp).op2 == des)) {
+			if (temp != mipscodes.end() && (BLOCK_END(*temp) && ((*temp).op1 == des || (*temp).op2 == des))) {
 				(*temp).op1 = ((*temp).op1 == des) ? src : (*temp).op1;
 				(*temp).op2 = ((*temp).op2 == des) ? src : (*temp).op2;
 			}
