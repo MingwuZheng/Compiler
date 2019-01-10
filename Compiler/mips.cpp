@@ -12,6 +12,7 @@ int midvar[MIDVAR_MAX];
 int midnum = 0;//记得函数退出清空
 int mcptr = 0;
 bool calling = false;
+bool stacking = false;
 
 int var2offset(string var, bool *sp);
 bool is_entrance(int pos);
@@ -200,6 +201,7 @@ void call_handler() {
 	string funcname = (midcodes[mcptr].op == CALL) ? midcodes[mcptr].op1 : midcodes[mcptr].op2;
 	int funcsize = symtabs[GTAB.ele(funcname)->addr].filledsize;
 	calling = true;
+	stacking = true;
 	for (int i = 5; i < 5 + MAX_REG_PARA(ACTAB.glbpos); i++)//将$a1~$a3分配的寄存器压栈
 		emit_mips(3, "sw", "$a" + to_string(i - 4), to_string(-(funcsize + (i + 1) * 4)), "$fp");
 	for (int i = 8; i < 16; i++) {//将$t0~$t7分配的寄存器压栈
@@ -214,6 +216,7 @@ void call_handler() {
 		emit_mips(3, "sw", "$t8", to_string(-(funcsize + (24 + 1) * 4)), "$fp");
 	emit_mips(3, "sw", "$ra", to_string(-(funcsize + (31 + 1) * 4)), "$fp");//不压sp和fp
 	//传参,注意！这里一定是事先算好的中间变量进行的压栈，不会出现f(a+1,a+2)调用时a是母函数参数，从而$a1=$a1+1,$a2=$a1+2
+	stacking = false;
 	int paranum = 0;
 	while (midcodes[mcptr].op != CALL) {
 		paranum++;
@@ -241,6 +244,7 @@ void call_handler() {
 	emit_mips(3, "addiu", "$fp", "$sp", to_string(-4 * func_midvars[funcname]));
 	//跳转
 	emit_mips(1, "jal", funcname, "", "");
+	stacking = true;
 	//将通用寄存器弹出
 	for (int i = 5; i < 5 + MAX_REG_PARA(ACTAB.glbpos); i++) {//将$a1~$a3分配的寄存器弹栈
 		emit_mips(3, "lw", "$a" + to_string(i - 4), to_string((31 - i) * 4), "$sp");
@@ -256,6 +260,7 @@ void call_handler() {
 	if (!rp.reg[8])
 		emit_mips(3, "lw", "$t8", to_string((31 - 24) * 4), "$sp");
 	emit_mips(3, "lw", "$ra", "0", "$sp");
+	stacking = false;
 	calling = false;
 	//直接计算返回后原$sp、$fp值
 	emit_mips(3, "addiu", "$fp", "$fp", to_string(REGS_OFFSET + funcsize + 4 * func_midvars[funcname]));
@@ -628,11 +633,20 @@ void content(string funcname) {
 		if (ISLNUM(curmc.op2))
 			emit_mips(3, "lw", des, to_string(4 * stoi(curmc.op2) + off), (sp ? "$sp" : GLOBAL));
 		else {
+			
 			emit_mips(3, "addiu", TEMP_, (sp ? "$sp" : GLOBAL), to_string(off));
 			string idx = rp.apply_reg(curmc.op2, 1);
 			emit_mips(3, "sll", TEMP, idx, "2");
 			emit_mips(3, "addu", TEMP, TEMP_, TEMP);
 			emit_mips(3, "lw", des, "0", TEMP);
+			
+			/*
+			string idx = rp.apply_reg(curmc.op2, 1);
+			emit_mips(3, "sll", TEMP, idx, "2");
+			emit_mips(3, "addiu", TEMP, TEMP, to_string(off));
+			emit_mips(3, "addu", TEMP, TEMP, (sp ? "$sp" : GLOBAL));
+			emit_mips(3, "lw", des, "0", TEMP);
+			*/
 		}
 		if (ISGLOBAL(curmc.result) || IS_UNALLOC_SVAR(curmc.result)) {
 			bool sp;
@@ -644,17 +658,27 @@ void content(string funcname) {
 	case ARYS: {
 		bool sp;
 		int off = var2offset(curmc.result, &sp);
-		emit_mips(3, "addiu", TEMP_, (sp ? "$sp" : GLOBAL), to_string(off));
 		if (ISLNUM(curmc.op1)) {
 			string src = rp.apply_reg(curmc.op2, 1);
-			emit_mips(3, "sw", src, to_string(4 * stoi(curmc.op1)), TEMP_);
+			emit_mips(3, "sw", src, to_string(4 * stoi(curmc.op1) + off), (sp ? "$sp" : GLOBAL));
 			break;
 		}
+		
+		emit_mips(3, "addiu", TEMP_, (sp ? "$sp" : GLOBAL), to_string(off));
 		string idx = rp.apply_reg(curmc.op1, 1);
 		emit_mips(3, "sll", TEMP, idx, "2");
 		emit_mips(3, "addu", TEMP_, TEMP_, TEMP);
 		string src = rp.apply_reg(curmc.op2, 1);//申请的寄存器理论上有可能因为被出队导致寄存器号无效，但是这里只申请了三个
 		emit_mips(3, "sw", src, "0", TEMP_);
+		
+		/*
+		string idx = rp.apply_reg(curmc.op1, 1);
+		emit_mips(3, "sll", TEMP, idx, "2");
+		emit_mips(3, "addiu", TEMP, TEMP, to_string(off));
+		emit_mips(3, "addu", TEMP, TEMP, (sp ? "$sp" : GLOBAL));
+		string src = rp.apply_reg(curmc.op2, 1);//申请的寄存器理论上有可能因为被出队导致寄存器号无效，但是这里只申请了三个
+		emit_mips(3, "sw", src, "0", TEMP);
+		*/
 		break;
 	}
 	default:
@@ -663,7 +687,7 @@ void content(string funcname) {
 	mcptr++;
 }
 
- void function_handler(string name) {
+void function_handler(string name) {
 	//init
 	cur_func = GTAB.ele(name)->addr;
 	rp.flush();
@@ -702,7 +726,7 @@ string transform(string a) {
 	}
 	return a;
 }
-void header() {
+void header(fstream &mips_f) {
 	mips_f << ".data" << endl;
 	for (int i = 0; i < (int)const_strings.size(); i++)
 		mips_f << "    $string" << i << ":" << " .asciiz" << " \"" << transform(const_strings[i]) << "\"" << endl;
@@ -716,11 +740,12 @@ void header() {
 
 void emit_mips(int paranum, string op, string op1, string op2, string op3) {
 	mips_code *mp;
-	mp = new mips_code(paranum, op, op1, op2, op3, calling);	
+	mp = new mips_code(paranum, op, op1, op2, op3, calling, stacking);	
 	mipscodes.push_back(*mp);
 }
 
-void print_mipscode() {
+void print_mipscode(fstream &mips_f) {
+	header(mips_f);
 	vector<mips_code>::iterator iter = mipscodes.begin();
 	while (iter != mipscodes.end()) {
 		if (iter->op == "syscall") 
@@ -750,12 +775,10 @@ void print_mipscode() {
 		}
 		iter++;
 	}
-	mips_f.close();
 }
 
 void mips_main() {
-	mips_f.open("mips.asm", ios::out | ios::trunc);
-	header();
+	
 	while (mcptr < qtnry_ptr && curmc.op == SET) {
 		string funcname= curmc.op1;
 		emit_mips(0, funcname, "", "", "");

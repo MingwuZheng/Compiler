@@ -1,0 +1,19 @@
+int x;
+void test(int a1,int a2,int a3,int s_but_lw,int t,int s7){
+	int t1,t2,t3,t4;
+	int s6, s5, s4, s3, s2, s1, s0;
+
+	t1 = s_but_lw;
+	s1=t1; s2=t1; s3=t1; s4=t1; s5=t1; s6=t1;
+	
+	if(a1 == 1){
+		t2 = s_but_lw;
+		t1 = s6;t1 = s5;t1 = s4;t1 = s3;t1 = s2;t1 = s1;t1 = s0;
+		t3 = s7;
+	}
+	else t = 0;	
+}
+
+void main(){
+	test(1,2,3,4,5,6);
+}

@@ -55,26 +55,29 @@ symTab symtabs[TAB_MAX];
 
 
 int main() {
-
-	/*
-	char f_name[100] = { 0 };
-	cin >> f_name;
-	input_f.open(f_name, ios::in);
-	if (input_f.is_open() == false) {
-		cout << "Not a valid filename!" << endl;
-		return 0;
+#define DEFAULT_INPUT 0
+	if (DEFAULT_INPUT) {
+		char f_name[100] = { 0 };
+		cin >> f_name;
+		input_f.open(f_name, ios::in);
+		if (input_f.is_open() == false) {
+			cout << "Not a valid filename!" << endl;
+			return 0;
+		}
 	}
-	*/
-	
-	char f_name[100] = "Sample4Opt-1-dowhile.txt";
-	input_f.open(f_name, ios::in);
-	if (input_f.is_open() == false) {
-		cout << "Not a valid filename!" << endl;
-		return 0;
+	else {
+		char f_name[100] = "sdy.txt";
+		input_f.open(f_name, ios::in);
+		if (input_f.is_open() == false) {
+			cout << "Not a valid filename!" << endl;
+			return 0;
+		}
 	}
 	
-	
-
+	fstream midcode_file("midcode.txt", ios::out | ios::trunc);
+	fstream midcode_file_opt("midcode_opt.txt", ios::out | ios::trunc);
+	fstream mips_file("mips.asm", ios::out | ios::trunc);
+	fstream mips_file_opt("mips_opt.asm", ios::out | ios::trunc);
 	init();
 	init_midcode();
 	lexical_init();
@@ -83,13 +86,19 @@ int main() {
 		cout << endl << "Program terminates without code generation." << endl;
 		return 0;
 	}
+	print_midcode(midcode_file);
 	block_front_optimize();
 	analyse_main();
 	block_behind_optimize();
-	print_midcode();
+	print_midcode(midcode_file_opt);
 	mips_main();
+	print_mipscode(mips_file);
 	mips_optimize();
-	print_mipscode();
-	return 0;
+	print_mipscode(mips_file_opt);
+	midcode_file.close();
+	midcode_file_opt.close();
+	mips_file.close();
+	mips_file_opt.close();
+	return 0; 
 
 }

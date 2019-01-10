@@ -7,13 +7,13 @@ char fc(char d){
 	e = 'e';
 	integer = d + 1;
 	printf(integer);
-	f = d;
-	if(d > a)
+	f = 'f';
+	if((d) > (a))
 		printf(d);
 	else printf('a');
 	if(a + 1)
 		printf("right");
-	if('a'<'b')
+	if(-'a'>-'b')
 		printf("right");
 	return (f);
 }
@@ -23,6 +23,6 @@ void main(){
 	c[1] = c[0];
 	printf(c[0]);
 	d = 'd';
-	fc('d');
-	fc(d);
+	printf(fc('d'));
+	printf(fc(d));
 }

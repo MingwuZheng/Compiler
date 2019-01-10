@@ -56,7 +56,7 @@ void flush_graph::def_use_cal(int blkno, int mcno) {
 	else if (oper == SCAN || oper == SCANC) {
 		SETDEFUSE(op1, def);
 	}
-	else if (oper == PRINT || oper == RET) {
+	else if (oper == PRINT || oper == PRINTC || oper == RET || oper == PUSH) {
 		SETDEFUSE(op1, use);
 	}
 	else if (oper == ARYL) {
@@ -65,6 +65,9 @@ void flush_graph::def_use_cal(int blkno, int mcno) {
 	}
 	else if (oper == ARYS) {
 		SETDEFUSE(op1, use);
+		SETDEFUSE(op2, use);
+	}
+	else if (oper == BZ || oper == BNZ) {
 		SETDEFUSE(op2, use);
 	}
 

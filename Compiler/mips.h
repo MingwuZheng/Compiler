@@ -21,10 +21,16 @@ public:
 	int paranum;
 	string op;
 	string op1, op2, op3;
-	bool calling;
-	mips_code(int paranum, string op, string op1, string op2, string op3, bool calling) {
-		this->paranum = paranum; this->op = op; this->op1 = op1; this->op2 = op2; this->op3 = op3; this->calling = calling;
+	bool calling, stacking;
+	mips_code(int paranum, string op, string op1, string op2, string op3, bool calling, bool stacking) {
+		this->paranum = paranum;
+		this->op = op;
+		this->op1 = op1;
+		this->op2 = op2;
+		this->op3 = op3;
+		this->calling = calling;
+		this->stacking = stacking;
 	}
 };
 void mips_main();
-void print_mipscode();
+void print_mipscode(fstream&);

@@ -7,8 +7,9 @@
 #define FUNC_BEGIN(x) (IS_LABEL(x) && (x).op[0] != '$')
 #define BLOCK_END(x) ((x).op == "beq"||(x).op == "bne"||(x).op == "bgt"||(x).op == "bge"||(x).op == "blt"||(x).op == "ble"||(x).op == "j"||(x).op == "jr"||IS_LABEL(x))//没有jal
 #define REG_USE(name, mp) ((mp).paranum > 1 && (name == (mp).op2 || name == (mp).op3 || ((mp).op == "sw" && name == (mp).op1)))
-#define REG_DEF(name, mp) (!(BLOCK_END((mp))) && ((((mp).op != "sw" && name == (mp).op1) && !((mp).op == "lw" && (mp).calling)) || ((mp).op == "syscall" && name == "$v0")))
-#define STACK_PART(mp) (((mp).op == "sw" || (mp).op == "lw") && (mp).calling)
+#define REG_DEF(name, mp) (!(BLOCK_END((mp))) && ((((mp).op != "sw" && name == (mp).op1) && !(mp).stacking) || ((mp).op == "syscall" && name == "$v0")))
+//#define STACK_PART(mp) (mp).calling //&& (((mp).op == "sw" && (mp).op3 == "$fp") || ((mp).op == "lw" && (mp).op3 == "$sp"))
+//(((mp).op == "sw" || (mp).op == "lw") && (mp).calling && (mp).op3 == "$sp")
 //syscall改变$v0
 //j类指令一个参数
 //li、la和move两个参数
@@ -16,7 +17,7 @@
 extern map<string, vector<set<string>>>funcname2outtab;
 extern vector<mips_code>mipscodes;
 
-void folding() {
+void folding_() {
 	for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
 		if ((*iter).op == "jr" && (*(iter - 1)).op == "jr")
 			iter = mipscodes.erase(iter); //不能写成mipscode.erase(iter);
@@ -26,26 +27,76 @@ void folding() {
 	}
 	if (!SAFE_MODE) {
 		for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
-			if ((*iter).op == "move" && (*iter).op2 == (*(iter - 1)).op1 && REG_DEF((*iter).op2, (*(iter - 1)))) {
-				(*(iter - 1)).op1 = (*iter).op1;
-				iter = mipscodes.erase(iter); //不能写成mipscode.erase(iter);
+			if ((*iter).op == "move" && (*iter).op2[1] == 't' && (*iter).op2 == (*(iter - 1)).op1 && REG_DEF((*iter).op2, (*(iter - 1)))) {
+					string treg = (*iter).op1;
+					bool delete_sl = true;
+					vector<mips_code>::iterator guard = iter;
+					while ((*guard).calling)guard++;
+					while (guard != mipscodes.end() && !BLOCK_END(*guard)) {
+						if (REG_USE(treg, *guard) && !(*guard).stacking) {
+							delete_sl = false;
+							break;
+						}
+						if (REG_DEF(treg, *guard))
+							break;
+						guard++;
+					}
+					if (guard != mipscodes.end() && BLOCK_END(*guard)) {
+						if ((*guard).op1 == treg || (*guard).op2 == treg)
+							delete_sl = false;
+					}
+					if (delete_sl) {
+						(*(iter - 1)).op1 = (*iter).op1;
+						iter = mipscodes.erase(iter);
+					}
+					else iter++;
+				///////////
+				//
+					//(*(iter - 1)).op1 = (*iter).op1;
+					//iter = mipscodes.erase(iter); //不能写成mipscode.erase(iter);
+				//}
 			}
 			else iter++;
 		}
+		//
+		string curfunc;
+		int curcall;/*
+		for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
+			if (IS_FUNCLABEL(*iter)) {
+				curcall = -1;
+				curfunc = (*iter).op;
+			}
+			if ((*iter).calling && !(*(iter - 1)).calling)
+				curcall++;
+			if ((*iter).op == "move" && ((*iter).op2[1] == 's'|| (*iter).op2[1] == 'a') && (*iter).op2 == (*(iter - 1)).op1 && REG_DEF((*iter).op2, (*(iter - 1)))) {
+				string sreg = (*iter).op1;
+				bool delete_sl = true;
+				vector<mips_code>::iterator guard = iter;
+				while ((*guard).calling)guard++;
+				while (guard != mipscodes.end() && !BLOCK_END(*guard)) {
+					if (REG_USE(sreg, *guard) && !(*guard).stacking) {
+						delete_sl = false;
+						break;
+					}
+					if (REG_DEF(sreg, *guard) && !(*guard).calling)
+						break;
+					guard++;
+				}
+				if (guard != mipscodes.end() && BLOCK_END(*guard)) {
+					if ((*guard).op1 == sreg || (*guard).op2 == sreg)
+						delete_sl = false;
+				}
+				if (delete_sl && (funcname2outtab[curfunc])[curcall].find(sreg) != (funcname2outtab[curfunc])[curcall].end()) {
+					(*(iter - 1)).op1 = (*iter).op1;
+					iter = mipscodes.erase(iter);
+					if ((*iter).calling && !(*(iter - 1)).calling)
+						curcall--;
+				}
+				else iter++;
+			}
+			else iter++;
+		}*/
 	}
-	for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
-		if ((*iter).op == "div" && !ISLNUM((*iter).op3)) {
-			string res = (*iter).op1;
-			(*iter).paranum = 2;
-			(*iter).op1 = (*iter).op2;
-			(*iter).op2 = (*iter).op3;
-			(*iter).op3 = "";
-			mips_code* mflo = new mips_code(1, "mflo", res, "", "", false);
-			iter = mipscodes.insert(iter + 1, *mflo);
-		}
-		iter++;
-	}
-
 	vector<mips_code>::iterator i, temp;
 	for (i = mipscodes.begin(); i != mipscodes.end();) {
 		bool delete_goto = false;
@@ -65,9 +116,26 @@ void folding() {
 		}
 		else i++;
 	}
-
 }
-
+void _folding() {
+	for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
+		if ((*iter).op == "div" && !ISLNUM((*iter).op3)) {
+			string res = (*iter).op1;
+			(*iter).paranum = 2;
+			(*iter).op1 = (*iter).op2;
+			(*iter).op2 = (*iter).op3;
+			(*iter).op3 = "";
+			mips_code* mflo = new mips_code(1, "mflo", res, "", "", false, false);
+			iter = mipscodes.insert(iter + 1, *mflo);
+		}
+		iter++;
+	}
+	for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
+		if (IS_MOVE(*iter) && (*iter).op1 == (*iter).op2)
+			iter = mipscodes.erase(iter);
+		else iter++;
+	}
+}
 void copy_propagation() {
 #define REPLACE(src, des, mp) do{if((mp).op=="sw")(mp).op1=src;\
 								else{(mp).op2=((mp).op2==des)?src:(mp).op2;\
@@ -76,13 +144,13 @@ void copy_propagation() {
 	int debugi,debugt;
 	for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
 		debugi = iter - mipscodes.begin();
-		if (IS_MOVE(*iter) && (*iter).op1[1] == 't') {
+		if (IS_MOVE(*iter) && (*iter).op1[1] == 't' && (*iter).op2 != "$v0") {
 			string des = (*iter).op1, src = (*iter).op2;
 			bool delete_flag = true;
 			pointer = iter;
             for (temp = iter + 1; temp != mipscodes.end() && !BLOCK_END(*temp); temp++) {
 				debugt = temp - mipscodes.begin();
-				if (REG_USE(des, *temp) && !(STACK_PART(*temp))) {
+				if (REG_USE(des, *temp) && !(*temp).stacking) {
 					REPLACE(src, des, *temp);
 				}
 				if (REG_DEF(des, *temp))
@@ -102,7 +170,7 @@ void copy_propagation() {
 			if (delete_flag) {
 				int steps = temp - pointer - 1;
 				for (vector<mips_code>::iterator d = pointer + 1; steps > 0; steps--) {
-					if (STACK_PART(*d) && (*d).op1 == des)
+					if ((*d).stacking && (*d).op1 == des)
 						d = mipscodes.erase(d);
 					else d++;
 				}
@@ -115,14 +183,15 @@ void copy_propagation() {
 }
 
 void stack_decrease() {
+	
 	for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
-		if ((*iter).calling && (*iter).op == "sw" && (*iter).op1[1] == 't') {
+		if ((*iter).stacking && (*iter).op == "sw" && (*iter).op1[1] == 't') {
 			string treg = (*iter).op1;
 			bool delete_sl = true;
 			vector<mips_code>::iterator guard = iter;
 			while ((*guard).calling)guard++;
 			while (guard != mipscodes.end() && !BLOCK_END(*guard)) {
-				if (REG_USE(treg, *guard) && !STACK_PART(*guard)) {
+				if (REG_USE(treg, *guard) && !(*guard).stacking) {
 					delete_sl = false;
 					break;
 				}
@@ -136,7 +205,7 @@ void stack_decrease() {
 			}
 			if (delete_sl) {
 				for (vector<mips_code>::iterator d = iter + 1; (*d).calling;) {
-					if ((*d).op == "lw" && (*d).op1 == treg) {
+					if ((*d).op == "lw" && (*d).op1 == treg && (*d).stacking) {
 						d = mipscodes.erase(d);
 						break;
 					}
@@ -149,6 +218,8 @@ void stack_decrease() {
 		else iter++;
 	}
 	
+	//看out
+	
 	string curfunc;
 	int curcall;
 	for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
@@ -158,13 +229,13 @@ void stack_decrease() {
 		}
 		if ((*iter).calling && !(*(iter - 1)).calling)
 			curcall++;
-		if ((*iter).calling && (*iter).op == "sw" && ((*iter).op1[1] == 's' || (*iter).op1[1] == 'a')) {
+		if ((*iter).calling && (*iter).op == "sw" && ((*iter).op1[1] == 's')) {
 			string sreg = (*iter).op1;
 			bool delete_sl = true;
 			vector<mips_code>::iterator guard = iter;
 			while ((*guard).calling)guard++;
 			while (guard != mipscodes.end() && !BLOCK_END(*guard)) {
-				if (REG_USE(sreg, *guard) && !STACK_PART(*guard)) {
+				if (REG_USE(sreg, *guard) && !(*guard).stacking) {
 					delete_sl = false;
 					break;
 				}
@@ -178,7 +249,7 @@ void stack_decrease() {
 			}
 			if (delete_sl && (funcname2outtab[curfunc])[curcall].find(sreg) != (funcname2outtab[curfunc])[curcall].end()) {
 				for (vector<mips_code>::iterator d = iter + 1; (*d).calling;) {
-					if ((*d).op == "lw" && (*d).op1 == sreg) {
+					if ((*d).op == "lw" && (*d).op1 == sreg && (*d).stacking) {
 						d = mipscodes.erase(d);
 						break;
 					}
@@ -193,8 +264,9 @@ void stack_decrease() {
 		else iter++;
 	}
 	
+	//看目标函数
 	for (vector<mips_code>::iterator iter = mipscodes.begin(); iter != mipscodes.end();) {
-		if ((*iter).calling && (*iter).op == "sw" && ((*iter).op1[1] == 's' || (*iter).op1[1] == 'a' || (*iter).op1[1] == 't')) {
+		if ((*iter).calling && (*iter).op == "sw" && ((*iter).op1[1] == 't')) {
 			string reg = (*iter).op1;
 			bool delete_sl = true;
 			vector<mips_code>::iterator guard = iter;
@@ -204,7 +276,7 @@ void stack_decrease() {
 			while (!IS_FUNCLABEL(*guard) || (*guard).op != desfunc)guard++;
 			guard++;
 			while (guard != mipscodes.end() && !IS_FUNCLABEL(*guard)) {
-				if (REG_DEF(reg, *guard) && !STACK_PART(*guard)) {
+				if (REG_DEF(reg, *guard) && !(*guard).stacking) {
 					delete_sl = false;
 					break;
 				}
@@ -212,7 +284,7 @@ void stack_decrease() {
 			}
 			if (delete_sl) {
 				for (vector<mips_code>::iterator d = iter + 1; (*d).calling;) {
-					if ((*d).op == "lw" && (*d).op1 == reg) {
+					if ((*d).op == "lw" && (*d).op1 == reg && (*d).stacking) {
 						d = mipscodes.erase(d);
 						break;
 					}
@@ -235,7 +307,7 @@ bool block_dce() {
 			bool delete_dc = true;
 			vector<mips_code>::iterator guard = iter + 1;
 			while (guard != mipscodes.end() && !BLOCK_END(*guard)) {
-				if (REG_USE(treg, *guard) && !STACK_PART(*guard)) {
+				if (REG_USE(treg, *guard) && !(*guard).stacking) {
 					delete_dc = false;
 					break;
 				}
@@ -259,11 +331,11 @@ bool block_dce() {
 }
 
 void mips_optimize() {
-	
+	folding_();
 	if (!SAFE_MODE) {
 		copy_propagation();
 		stack_decrease();
 		while(block_dce());
 	}
-	folding();
+	_folding();
 }

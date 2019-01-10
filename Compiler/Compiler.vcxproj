@@ -153,6 +153,7 @@
     <ClCompile Include="mips.cpp" />
     <ClCompile Include="optimize_midcode.cpp" />
     <ClCompile Include="optimize_mips.cpp" />
+    <Text Include="midcode_opt.txt" />
     <Text Include="pastte.txt">
       <FileType>CppCode</FileType>
     </Text>
@@ -182,7 +183,9 @@
     <Text Include="Sample4Opt-1-dowhile.txt" />
     <Text Include="sdy.txt" />
     <Text Include="sdy_qsort.txt" />
-    <Text Include="test.txt" />
+    <Text Include="test_control.txt" />
+    <Text Include="test_many.txt" />
+    <Text Include="test_para.txt" />
     <Text Include="test_char.txt" />
     <Text Include="test_recurse.txt" />
     <Text Include="test_recurse_switch.txt" />
@@ -190,6 +193,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="mips.asm" />
+    <None Include="mips_opt.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

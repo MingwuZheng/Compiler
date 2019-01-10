@@ -63,7 +63,7 @@ void const_propagation() {
 		PRINT, SCAN, PRINTS, PRINTC, SCANC,
 		ARYL, ARYS
 	*/
-#define curblk graphs[i].blocks[pos2blk[k]]
+#define curblk graphs[i].blocks[j]
 	for (int i = 0; i < graph_ptr; i++) {
 		for (int j = 0; j < graphs[i].blocknum; j++) {
 			for (int k = curblk.entrance; k <= curblk.exit; k++) {
@@ -100,12 +100,16 @@ void const_propagation() {
 						break;
 					}
 					for (int l = k + 1; l <= curblk.exit; l++) {
-						if (midcodes[l].result == cvar)
-							break;
-						if (midcodes[l].op1 == cvar)
-							midcodes[l].op1 = to_string(res);
-						if (midcodes[l].op2 == cvar)
-							midcodes[l].op2 = to_string(res);
+						//if (midcodes[l].op != MUL && midcodes[l].op != DIV) {
+						if (midcodes[l].op != SCAN && midcodes[l].op != SCANC) {
+							if (midcodes[l].result == cvar)
+								break;
+							if (midcodes[l].op1 == cvar)
+								midcodes[l].op1 = to_string(res);
+							if (midcodes[l].op2 == cvar)
+								midcodes[l].op2 = to_string(res);
+							//}
+						}
 					}
 					if (ISMIDVAR(cvar)) 
 						nmcs.push_back(k);
@@ -117,7 +121,7 @@ void const_propagation() {
 
 void def_decrease() {
 
-#define curblk graphs[i].blocks[pos2blk[k]]
+#define curblk graphs[i].blocks[j]
 #define varname(x) funcname2tab(graphs[i].function).ele(x)->name
 	for (int i = 0; i < graph_ptr; i++) {
 		for (int j = 0; j < graphs[i].blocknum; j++) {

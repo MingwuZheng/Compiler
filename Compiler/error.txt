@@ -1,25 +1,23 @@
 const a;
 const char *='a';
-const int a0 = 100;
-int a[3];
-//
+const int a0 = 0100;
+char a[3];
 int x(){
     int a[2],c[12;
     char asd;
-	a[a0]=1;
-    a[1=asdasdsad;
+	a[a0+1]=1;
+    a[1=sadasd;
     asd'a';
     asd='a;
-    as d='a';
-	if(('c'));
+	if('c');
 	if('v'>'a');
 	if(3>'a');
 }
-int min{
-	return ('c');
-
+char min{
+	return (1);
 }
-void main(){
-    printf(dsfdsfdfer);
-	x(a);
+void mai1n(){
+    printf(atyhytsdsvftg);
+	a[1]=x(a);
+}
 

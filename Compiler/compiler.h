@@ -21,7 +21,7 @@
 #define QTNRY_MAX 40000
 #define MIDVAR_MAX 4000
 
-#define STRONG_TYPE 0
+#define STRONG_TYPE 1
 #define SAFE_MODE 0//move向前合并、复制传播
 #define FAST_MODE 0//左需求（参数和计算）
 
@@ -75,7 +75,6 @@ public:
 	symbolEle *ele(int);
 	symbolEle *ele(string);
 	int index(string x);
-	//void change(int, int);
 };
 class quaternary {
 public:

@@ -4,16 +4,12 @@
 #include "grammar.h"
 #include "midcode.h"
 
-
-
 #define SEMI_FOLLOW(x) ((x)==IDENT||(x)==RBR||(x)==LBR||(x)==CHARSY||(x)==INTSY||(x)==VOIDSY||(x)==RETURN||\
 						(x)==SCANSY||(x)==PRINTSY||(x)==CONSTSY||(x)==FORSY||(x)==DOSY||(x)==IFSY||(x)==ELSESY||(x)==SEMICOLON)
-
 #define ISVALTYPE(x) (x == INTSY || x == CHARSY)
 #define ISFUNCTYPE(x) (x == INTSY || x == CHARSY || x == VOIDSY)
 #define TP(x) ((x == INTSY) ? INT : ((x == VOIDSY) ? VOID : CHAR))
 #define UNMATCH(x,y) ((x == INTSY && y == CHARCON)||(x == CHARSY && y == INTCON))
-
 #define CH2ASC(x) x = ((x[0] == '\'')?to_string((int)(x[1])):x)
 
 bool RETURNED = false;
@@ -30,6 +26,8 @@ void readsym(symbol expect, int errormsg) {
 			if (SEMI_FOLLOW(sy))
 				error(errormsg);
 			else {
+				if (!ERROR_HAPPENED)
+					error(errormsg);
 				nextline();
 				insymbol();
 			}
@@ -318,7 +316,7 @@ void statement() {
 			readsym(LPT, EXPECT_LPT_ERROR);
 			bool isch;
 			string expr= expression(&isch);
-			if (isch && GTAB.ele(CTAB.glbpos)->symtype != CHAR)
+			if (isch != (GTAB.ele(CTAB.glbpos)->symtype == CHAR))
 				error(TYPE_CONFLICT_ERROR);
 			emit(RET, expr, "", "", NULL);
 			readsym(RPT, EXPECT_RPT_ERROR);

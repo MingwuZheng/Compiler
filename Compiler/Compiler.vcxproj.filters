@@ -115,9 +115,6 @@
     <Text Include="sdy.txt">
       <Filter>资源文件</Filter>
     </Text>
-    <Text Include="test.txt">
-      <Filter>资源文件</Filter>
-    </Text>
     <Text Include="sdy_qsort.txt">
       <Filter>资源文件</Filter>
     </Text>
@@ -133,9 +130,24 @@
     <Text Include="pastte.txt">
       <Filter>资源文件</Filter>
     </Text>
+    <Text Include="test_para.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="midcode_opt.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="test_control.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="test_many.txt">
+      <Filter>资源文件</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="mips.asm">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="mips_opt.asm">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>

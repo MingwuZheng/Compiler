@@ -35,18 +35,12 @@ SET $LABEL2
 EXIT   
 SET test_string_int  
 ENTER   
-BECOME 1  a
-PRINT a  
-BECOME 0  a
-PRINT a  
-BECOME 0  a
-PRINT a  
-BECOME 0  a
-PRINT a  
-BECOME 12  a
-PRINT a  
-BECOME -12  a
-PRINT a  
+PRINT 1  
+PRINT 0  
+PRINT 0  
+PRINT 0  
+PRINT 12  
+PRINT -12  
 PRINTS 0  
 RET   
 EXIT   
@@ -60,7 +54,6 @@ SET $LABEL3
 EQL n 2 #2
 BZ $LABEL5 #2 
 RET 1  
-GOTO $LABEL6  
 SET $LABEL5  
 SET $LABEL6  
 SET $LABEL4  
@@ -88,58 +81,49 @@ BECOME 2  b
 BECOME 2  c
 BECOME 'A'  d
 PRINTS 1  
-EQL b c #1
+EQL 2 2 #1
 BZ $LABEL7 #1 
 PRINTS 2  
-GOTO $LABEL8  
 SET $LABEL7  
 SET $LABEL8  
 LES a b #2
 BZ $LABEL9 #2 
 PRINTS 3  
-GOTO $LABEL10  
 SET $LABEL9  
 SET $LABEL10  
 GTR c a #3
 BZ $LABEL11 #3 
 PRINTS 4  
-GOTO $LABEL12  
 SET $LABEL11  
 SET $LABEL12  
 NEQ d 0 #4
 BZ $LABEL13 #4 
 PRINTS 5  
-GOTO $LABEL14  
 SET $LABEL13  
 SET $LABEL14  
 EQL a 1 #5
 BZ $LABEL15 #5 
 PRINTS 6  
-GOTO $LABEL16  
 SET $LABEL15  
 SET $LABEL16  
 NEQ a 1 #6
 BZ $LABEL17 #6 
 PRINTS 6  
-GOTO $LABEL18  
 SET $LABEL17  
 SET $LABEL18  
 LEQ a c #7
 BZ $LABEL19 #7 
 PRINTS 7  
-GOTO $LABEL20  
 SET $LABEL19  
 SET $LABEL20  
 GEQ a c #8
 BZ $LABEL21 #8 
 PRINTS 8  
-GOTO $LABEL22  
 SET $LABEL21  
 SET $LABEL22  
 GTR d 66 #9
 BZ $LABEL23 #9 
 PRINTS 8  
-GOTO $LABEL24  
 SET $LABEL23  
 SET $LABEL24  
 RET   
@@ -147,8 +131,7 @@ EXIT
 SET test_diff_domain  
 ENTER   
 PRINTC 98  
-BECOME 222  G_v_int_a1
-PRINT G_v_int_a1  
+PRINT 222  
 PRINTS 9  
 PRINT 1  
 PRINTC 102  
@@ -169,21 +152,20 @@ BECOME #3  para_change
 PRINTS 11  
 PRINT para_change  
 BECOME 'Y'  g_v_char_b
-BECOME g_v_char_b  #4
-PRINTC #4  
+PRINTC 89  
 EXIT   
 SET test_expr  
 ENTER   
 PRINTS 12  
 BECOME 60  res_of_expr
 PRINTS 13  
-PRINT res_of_expr  
+PRINT 60  
 BECOME -50  res_of_expr
 PRINTS 14  
-PRINT res_of_expr  
+PRINT -50  
 BECOME 2  res_of_expr
 PRINTS 15  
-PRINT res_of_expr  
+PRINT 2  
 PUSH 12 fib 
 CALL fib  #1
 PUSH 14 fib 
@@ -194,13 +176,13 @@ PRINTS 16
 PRINT res_of_expr  
 BECOME 111  res_of_expr
 PRINTS 17  
-PRINT res_of_expr  
+PRINT 111  
 BECOME 1188  res_of_expr
 PRINTS 18  
-PRINT res_of_expr  
+PRINT 1188  
 BECOME -12  res_of_expr
 PRINTS 19  
-PRINT res_of_expr  
+PRINT -12  
 ARYS 1 15 arr
 ARYL arr 1 #4
 MUL #4 98 #5
@@ -212,16 +194,14 @@ PRINTS 20
 PRINT res_of_expr  
 BECOME 5  G_v_int_a1
 ARYS 6 12 tag
-BECOME 'h'  g_v_char_h
-PUSH g_v_char_h addone 
+PUSH 104 addone 
 CALL addone  #8
 PUSH 5 fib 
 CALL fib  #9
 PUSH 1 add 
 PUSH #9 add 
 CALL add  #10
-BECOME G_v_int_a1  #11
-DIV #10 #11 #12
+DIV #10 5 #12
 ADD #8 #12 #13
 ARYL tag 6 #14
 SUB #13 #14 #15
@@ -300,7 +280,6 @@ ARYL chs i #16
 NEQ r #16 #17
 BZ $LABEL30 #17 
 PRINTS 6  
-GOTO $LABEL31  
 SET $LABEL30  
 SET $LABEL31  
 ADD i 1 #18
